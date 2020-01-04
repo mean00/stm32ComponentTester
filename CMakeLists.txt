@@ -23,6 +23,8 @@ set(ARDUINO_CPU          STM32F103C8)
 #  Build ucglib
 include(ucg.cmake)
 #
+# Our code
+#
 SET(libPrefix ${ARDUINO_DEFAULT_BOARD}_)
 ADD_DEFINITIONS(-D__NOP="")
 generate_arduino_firmware(stm32ComponentTester 
