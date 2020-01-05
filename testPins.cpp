@@ -2,10 +2,53 @@
  * This controls one pin : pull it up, down, etc.. and measure
  * 
  */
+#include "vector"
 #include "testPins.h"
+
 /**
- 
- 
+ */
+void xFail(const char *message)
+{
+    __asm__  ("bkpt 1");
+    while(1)
+    {
+        
+    };
+}
+
+class AllPins
+{
+public:
+    void registerMe(TestPin *p) {_pins.push_back(p);}
+    
+    // We dont allow one pin set to VCC and the other one set to ground
+    // check for that
+    void checkVcc(TestPin &me)
+    {
+        int n=_pins.size();
+        for(int i=0;i<n;i++)
+        {
+            if(me._pinNumber==_pins[i]->_pinNumber) continue;
+            if(_pins[i]->getState()==TestPin::GND)
+                xFail("VCC NOT ALLOWED");
+        }
+    }        
+    void checkGnd(TestPin &me)
+    {
+        int n=_pins.size();
+        for(int i=0;i<n;i++)
+        {
+            if(me._pinNumber==_pins[i]->_pinNumber) continue;
+            if(_pins[i]->getState()==TestPin::VCC)
+                xFail("GND NOT ALLOWED");
+        }
+    }            
+public:    
+    std::vector<TestPin *>_pins;
+};
+AllPins allPins;
+
+/**
  */
 #pragma once
 #include "Arduino.h"
@@ -17,12 +60,14 @@ TestPin::TestPin(int pinNo, int pin, int pinDriveHighRes, int pinDriveLow)
      _pinDriveHighRes=pinDriveHighRes;
      _pinDriveLowRes=pinDriveLow;
      disconnect();
+     allPins.registerMe(this);
 }
 
 void TestPin::configureOutput(int pinNo, int state)
 {
     digitalWrite(pinNo,state);
     pinMode(pinNo,OUTPUT);
+    digitalWrite(pinNo,state);
 }
 /**
  * 
@@ -65,6 +110,7 @@ void    TestPin::pullDown(bool hiRes)
  */
 void    TestPin::setToVcc()
 {
+    allPins.checkVcc(*this);
     disconnectAll();
     digitalWrite(_pin,1);
     pinMode(_pin,OUTPUT);
@@ -75,6 +121,7 @@ void    TestPin::setToVcc()
  */
 void    TestPin::setToGround()
 {
+    allPins.checkGnd(*this);
     disconnectAll();
     digitalWrite(_pin,0);
     pinMode(_pin,OUTPUT);

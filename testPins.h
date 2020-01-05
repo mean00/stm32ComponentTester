@@ -7,6 +7,7 @@
 
 class TestPin
 {
+  friend class AllPins;
 public:
         enum TESTPIN_STATE
         {
