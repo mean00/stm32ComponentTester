@@ -15,8 +15,11 @@ static float checkResistor(TestPin &A, TestPin &B);
  * @param yOffset
  * @return 
  */
-bool Resistor::draw(int yOffset)
+bool Resistor::draw(Ucglib *ucg,int yOffset)
 {
+    char st[16];    
+    sprintf(st,"%d",resistance);     
+    ucg->drawString(10,30,0,st); 
     return true;
 }
 /**
@@ -24,6 +27,7 @@ bool Resistor::draw(int yOffset)
 bool Resistor::compute()
 {
     resistance=checkResistor(_pA,_pB);
+    return !!resistance;
 }
 /**
  * 

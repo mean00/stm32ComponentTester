@@ -11,7 +11,7 @@ public:
                       resistance=0;
                     }
             virtual bool compute()            ;
-            virtual bool draw(int yOffset);
+            virtual bool draw(Ucglib *u,int yOffset);
                     int  getValue() {return resistance;}
             
 protected:

@@ -46,7 +46,7 @@ void myLoop(void)
 
  // delay(100);
   ucg=new Ucglib_ST7735_18x128x160_HWSPI(/*cd=*/ PA3, /*cs=*/ PA4, /*reset=*/ PA2);
-  ucg->begin(UCG_FONT_MODE_SOLID);
+  ucg->begin(UCG_FONT_MODE_TRANSPARENT); //UCG_FONT_MODE_SOLID);
   ucg->setFont(ucg_font_helvB12_hr);
   ucg->clearScreen();    
   ucg->setColor(255, 255, 255);
@@ -60,9 +60,7 @@ void myLoop(void)
     Resistor r(pin1,pin2,pin3);
     if(r.compute())
     {
-        sprintf(st,"%d",r.getValue());
-     
-         ucg->drawString(10,30,0,st); 
+        r.draw(ucg,0);
     }
      delay(3000);
     }
