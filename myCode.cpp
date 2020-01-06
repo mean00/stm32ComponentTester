@@ -5,6 +5,7 @@
 #include "Ucglib.h"
 #include "fancyLock.h"
 #include "testPins.h"
+#include "resistor.h"
 #define LED PC13
 
 float checkResistor(TestPin &A, TestPin &B);
@@ -16,6 +17,7 @@ Ucglib_ST7735_18x128x160_HWSPI *ucg=NULL;
 //nt pinNo, int pin, int pinDriveHighRes, int pinDriveLow
 TestPin   pin1(1,PA0, PB5, PB4,468,301000);
 TestPin   pin2(2,PA1, PB7, PB6,471,302000);
+TestPin   pin3(3,PA2, PB8, PB3,471,302000);
 
 /**
  * 
@@ -54,10 +56,14 @@ void myLoop(void)
     
     while(1)
     {
-    float R=checkResistor(pin1,pin2);
-    sprintf(st,"%d",(int)R);
-     ucg->clearScreen(); 
-     ucg->drawString(10,30,0,st); 
+    ucg->clearScreen(); 
+    Resistor r(pin1,pin2,pin3);
+    if(r.compute())
+    {
+        sprintf(st,"%d",r.getValue());
+     
+         ucg->drawString(10,30,0,st); 
+    }
      delay(3000);
     }
 #if 0    

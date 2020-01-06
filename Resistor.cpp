@@ -1,13 +1,36 @@
 /*
+ * 
 */
 
 #include <SPI.h>
 #include "Ucglib.h"
 #include "fancyLock.h"
 #include "testPins.h"
+#include "resistor.h"
+static float checkResistor(TestPin &A, TestPin &B);
 
 
-
+/**
+ * 
+ * @param yOffset
+ * @return 
+ */
+bool Resistor::draw(int yOffset)
+{
+    return true;
+}
+/**
+ */
+bool Resistor::compute()
+{
+    resistance=checkResistor(_pA,_pB);
+}
+/**
+ * 
+ * @param A
+ * @param B
+ * @return 
+ */
 float checkResistor(TestPin &A, TestPin &B)
 {
     AutoDisconnect ad;
@@ -31,6 +54,7 @@ float checkResistor(TestPin &A, TestPin &B)
         r=(float)(B.getHiRes())*a/(4095.-a);
         return r;
     }
+    // If the ADC value is too low, try pull up with the low resistor
     B.pullUp(false);
     B.sample(adcValue, volt);
     delay(5);
