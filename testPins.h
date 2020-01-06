@@ -5,6 +5,13 @@
 #pragma once
 #include "Arduino.h"
 
+
+class AutoDisconnect
+{
+public:
+        ~AutoDisconnect();
+};
+
 class TestPin
 {
   friend class AllPins;
@@ -22,7 +29,8 @@ public:
         };
   
   
-                TestPin(int pinNo, int pin, int pinDriveHighRes, int pinDriveLow);
+                TestPin(int pinNo, int pin, int pinDriveHighRes, int pinDriveLow, int lowRes, int hiRes);
+        void    init();
         void    pullUp(bool hiRes);
         void    pullDown(bool hiRes);
         void    setToVcc();
@@ -31,10 +39,13 @@ public:
         void    sample(int &adc, float &voltage);
         TESTPIN_STATE getState() {return _state;}
         void    disconnectAll();
+        int     getLowRes() {return _lowRes;}
+        int     getHiRes() {return _hiRes;}
 
 protected:  
         void configureOutput(int pinNo, int state);
         int _pinNumber,_pin,_pinDriveHighRes, _pinDriveLowRes;
+        int _lowRes,_hiRes;
         TESTPIN_STATE _state;
 };
 

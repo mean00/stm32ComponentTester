@@ -5,17 +5,11 @@
 #include "vector"
 #include "testPins.h"
 
+void xFail(const char *message);
 /**
+ * 
+ * @param p
  */
-void xFail(const char *message)
-{
-    __asm__  ("bkpt 1");
-    while(1)
-    {
-        
-    };
-}
-
 class AllPins
 {
 public:
@@ -42,7 +36,15 @@ public:
             if(_pins[i]->getState()==TestPin::VCC)
                 xFail("GND NOT ALLOWED");
         }
-    }            
+    }     
+    void disconnectAll()
+    {
+        int n=_pins.size();
+        for(int i=0;i<n;i++)
+        {
+            _pins[i]->disconnect();
+        }
+    }
 public:    
     std::vector<TestPin *>_pins;
 };
@@ -53,16 +55,21 @@ AllPins allPins;
 #pragma once
 #include "Arduino.h"
 
-TestPin::TestPin(int pinNo, int pin, int pinDriveHighRes, int pinDriveLow)
+TestPin::TestPin(int pinNo, int pin, int pinDriveHighRes, int pinDriveLow,int lowRes, int hiRes)
 {
      _pinNumber=pinNo;
      _pin=pin;
      _pinDriveHighRes=pinDriveHighRes;
      _pinDriveLowRes=pinDriveLow;
-     disconnect();
-     allPins.registerMe(this);
+     _lowRes=lowRes;
+     _hiRes=hiRes;
+   
 }
-
+void TestPin::init()
+{
+    disconnect();
+    allPins.registerMe(this);
+}
 void TestPin::configureOutput(int pinNo, int state)
 {
     digitalWrite(pinNo,state);
@@ -144,6 +151,13 @@ void    TestPin::disconnect()
         disconnectAll();
         _state=DISCONNECTED;
 }        
+/**
+ * 
+ */
+AutoDisconnect::~AutoDisconnect()
+{
+    allPins.disconnectAll();
+}
 
 /**
  * 
@@ -152,6 +166,26 @@ void    TestPin::disconnect()
  */
 void    TestPin::sample(int &adc, float &voltage)
 {
+    int avg=4;
+    adc=0;
+    for(int i=0;i<avg;i++)
+        adc+=analogRead(_pin); // Warning calibrate
+    adc/=avg;
+    voltage=(float)adc*3.3/4095.;
 #warning TODO
 }
+
+
+/**
+ */
+void xFail(const char *message)
+{
+    allPins.disconnectAll();
+    __asm__  ("bkpt 1");
+    while(1)
+    {
+        
+    };
+}
+
 // EOF

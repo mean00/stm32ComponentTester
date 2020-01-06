@@ -29,7 +29,7 @@ SET(libPrefix ${ARDUINO_DEFAULT_BOARD}_)
 ADD_DEFINITIONS(-D__NOP="")
 generate_arduino_firmware(stm32ComponentTester 
                 SKETCH stm32ComponentTester.ino
-                SRCS myCode.cpp fancyLock.cpp ucg/cppsrc/Ucglib.cpp ${ucg_src} testPins.cpp
+                SRCS myCode.cpp fancyLock.cpp ucg/cppsrc/Ucglib.cpp ${ucg_src} testPins.cpp Resistor.cpp
                 PORT ${ARDUINO_DEFAULT_PORT}
                 BOARD_CPU ${ARDUINO_CPU}
                 )
