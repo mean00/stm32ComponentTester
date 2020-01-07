@@ -4,6 +4,9 @@
  */
 #include "vector"
 #include "testPins.h"
+#include "dso_adc.h"
+#include "MapleFreeRTOS1000_pp.h"
+extern DSOADC *adc;
 
 void xFail(const char *message);
 /**
@@ -164,15 +167,23 @@ AutoDisconnect::~AutoDisconnect()
  * @param adc
  * @param voltage
  */
-void    TestPin::sample(int &adc, float &voltage)
+void    TestPin::sample(int &xadc, float &voltage)
 {
-    int avg=4;
-    adc=0;
-    for(int i=0;i<avg;i++)
-        adc+=analogRead(_pin); // Warning calibrate
-    adc/=avg;
-    voltage=(float)adc*3.3/4095.;
-#warning TODO
+    uint16_t *samples;
+    int nbSamples;
+    xadc=0;
+    
+    adc->setADCPin(_pin);
+    adc->prepareDMASampling(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_8);    
+    adc->startDMASampling(16);
+    xAssert(true==adc->getSamples(&samples,nbSamples));
+    int r=0;
+    for(int i=0;i<nbSamples;i++)
+        r+=samples[i];
+    r/=nbSamples;
+
+    xadc=r;
+    voltage=(float)xadc*3.3/4095.;
 }
 
 

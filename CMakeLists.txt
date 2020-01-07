@@ -24,6 +24,7 @@ SET(libPrefix ${ARDUINO_DEFAULT_BOARD}_)
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(FreeRTOS/)
 include_directories(FreeRTOS/Source/include)
+include_directories(adc)
 #  Build ucglib
 include(ucg.cmake)
 # Build ADC

@@ -51,8 +51,7 @@ DSOADC::DSOADC(int pin)
   adc_calibrate(ADC1);
   adc_calibrate(ADC2);
  
-  // Set up our sensor pin(s)
-  pinMode(_pin, INPUT_ANALOG);
+  // Set up our sensor pin(s)  
   dmaSemaphore=new FancySemaphore;  
   adc_Register=  PIN_MAP[_pin].adc_device->regs;
   
@@ -62,7 +61,14 @@ DSOADC::DSOADC(int pin)
   enableDisableIrqSource(false,ADC_EOC);  
   
 }
- 
+/**
+ */
+bool    DSOADC::setADCPin(int pin)
+{
+    _pin=pin;
+     adc_Register=  PIN_MAP[_pin].adc_device->regs;
+     return true;
+}
 
 // Grab the samples from the ADC
 // Theoretically the ADC can not go any faster than this.

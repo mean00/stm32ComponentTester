@@ -36,7 +36,7 @@ float twoPinsResistor(bool hi, TestPin &A, TestPin &B)
       AutoDisconnect ad;
       A.pullUp(hi);
       B.pullDown(hi);
-      delay(5);
+      xDelay(5);
       int hiAdc, loAdc;
       float hiVolt,loVolt;      
       A.sample(hiAdc,hiVolt);
@@ -67,7 +67,7 @@ float checkResistor(TestPin &A, TestPin &B)
     A.setToGround();
     // and pinB to VCC via High Res
     B.pullUp(true);
-    delay(5);
+    xDelay(5);
     int adcValue;
     float volt;
     float a,r;
@@ -84,7 +84,7 @@ float checkResistor(TestPin &A, TestPin &B)
     // If the ADC value is too low, try pull up with the low resistor
     B.pullUp(false);
     B.sample(adcValue, volt);
-    delay(5);
+    xDelay(5);
     if(adcValue>4090)
     {
         return 0; // Cannot measure

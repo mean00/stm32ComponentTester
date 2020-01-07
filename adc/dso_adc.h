@@ -23,6 +23,7 @@ public:
   
 public:
                     DSOADC(int pin);
+            bool    setADCPin(int pin);
             bool    setTimeScale(adc_smp_rate one, adc_prescaler two);
             bool    prepareDMASampling (adc_smp_rate rate,adc_prescaler scale);                        
             void    clearSemaphore() ;

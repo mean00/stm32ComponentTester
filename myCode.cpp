@@ -6,9 +6,11 @@
 #include "fancyLock.h"
 #include "testPins.h"
 #include "resistor.h"
+#include "dso_adc.h"
 #define LED PC13
 
 void myLoop(void);
+DSOADC *adc;
 /*
  LCD : PA3, PA4, PA2 + PA5/Ä7
  */
@@ -51,6 +53,8 @@ void mySetup(void)
   ucg->clearScreen();    
   ucg->setColor(255, 255, 255);
   
+  adc=new DSOADC(PA0);
+  adc->setupADCs();
   xTaskCreate( MainTask, "MainTask", 250, NULL, 10, NULL );   
   vTaskStartScheduler();      
   
@@ -63,7 +67,6 @@ void myLoop(void)
 {
     char st[10];    
 
- // delay(100);
  
   for(int i=0;i<16;i++)
      ucg->drawHLine(1, 10*i, 120);
@@ -77,7 +80,7 @@ void myLoop(void)
     {
         r.draw(ucg,0);
     }
-     delay(3000);
+     xDelay(3000);
     }
  
   #endif     
@@ -87,9 +90,9 @@ void myLoop(void)
     while(1)
     {
         digitalWrite(p,1);
-        delay(1000);
+        xDelay(1000);
         digitalWrite(p,0);
-        delay(1000);
+        xDelay(1000);
     }
 #endif
 #if 0
@@ -99,7 +102,7 @@ void myLoop(void)
         ucg->drawString(10,30,0,#pin); \
         ucg->drawString(10,60,0,txt); \
         pin.call  ;\
-        delay(5*1000);
+        xDelay(5*1000);
 #define pin pin1
     DO_PIN(pin,"Disconnect",disconnect())
     DO_PIN(pin,"Ground",setToGround())
