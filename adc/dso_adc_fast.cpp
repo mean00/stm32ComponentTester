@@ -67,6 +67,7 @@ bool    DSOADC::setADCPin(int pin)
 {
     _pin=pin;
      adc_Register=  PIN_MAP[_pin].adc_device->regs;
+     setupADCs();
      return true;
 }
 
