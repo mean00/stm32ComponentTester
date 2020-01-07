@@ -8,7 +8,7 @@
 #include "testPins.h"
 #include "resistor.h"
 static float checkResistor(TestPin &A, TestPin &B);
-
+static float computeResistance(int adcValue, int resistance);
 
 /**
  * 
@@ -29,6 +29,29 @@ bool Resistor::compute()
     resistance=checkResistor(_pA,_pB);
     return !!resistance;
 }
+
+
+float twoPinsResistor(bool hi, TestPin &A, TestPin &B)
+{
+      AutoDisconnect ad;
+      A.pullUp(hi);
+      B.pullDown(hi);
+      delay(5);
+      int hiAdc, loAdc;
+      float hiVolt,loVolt;      
+      A.sample(hiAdc,hiVolt);
+      B.sample(loAdc,loVolt);
+      
+      int n=hiAdc-loAdc;
+      if(n<5) return 0.; // cant read
+      
+      int r;
+      if(hi) r=A.getHiRes()+B.getHiRes();
+      else   r=A.getLowRes()+B.getLowRes();
+      float result= computeResistance(n,r);
+      return result;
+      
+}
 /**
  * 
  * @param A
@@ -37,6 +60,8 @@ bool Resistor::compute()
  */
 float checkResistor(TestPin &A, TestPin &B)
 {
+    return twoPinsResistor(false,A,B);
+    
     AutoDisconnect ad;
     // set pinA To ground
     A.setToGround();
@@ -54,9 +79,7 @@ float checkResistor(TestPin &A, TestPin &B)
     }
     if(adcValue>2*100)
     {
-        a=adcValue;    
-        r=(float)(B.getHiRes())*a/(4095.-a);
-        return r;
+        return computeResistance(adcValue,B.getHiRes());
     }
     // If the ADC value is too low, try pull up with the low resistor
     B.pullUp(false);
@@ -66,9 +89,14 @@ float checkResistor(TestPin &A, TestPin &B)
     {
         return 0; // Cannot measure
     }    
-    a=adcValue;    
-    r=(float)(B.getLowRes())*a/(4095.-a);
-    return r;
+    return computeResistance(adcValue,B.getLowRes());
 }
 
+float computeResistance(int adcValue, int resistance)
+{
+      float a=adcValue;    
+      if(a>4093) return 0;
+      float r=(float)(resistance)*a/((4095.-a));
+      return r;
+}
 // EOF

@@ -19,13 +19,19 @@ Project("stm32ComponentTester" C CXX ASM)
 set(ARDUINO_DEFAULT_BOARD genericSTM32F103C)        # Default Board ID, when not specified
 set(ARDUINO_DEFAULT_PORT ttyACM0) # Default Port, when not specified
 set(ARDUINO_CPU          STM32F103C8)
-
+SET(libPrefix ${ARDUINO_DEFAULT_BOARD}_)
+#
+include_directories(${CMAKE_SOURCE_DIR})
+include_directories(FreeRTOS/)
+include_directories(FreeRTOS/Source/include)
 #  Build ucglib
 include(ucg.cmake)
+# Build ADC
+add_subdirectory(FreeRTOS)
+add_subdirectory(adc)
 #
 # Our code
 #
-SET(libPrefix ${ARDUINO_DEFAULT_BOARD}_)
 ADD_DEFINITIONS(-D__NOP="")
 generate_arduino_firmware(stm32ComponentTester 
                 SKETCH stm32ComponentTester.ino
@@ -34,6 +40,8 @@ generate_arduino_firmware(stm32ComponentTester
                 BOARD_CPU ${ARDUINO_CPU}
                 )
 target_link_libraries(stm32ComponentTester UCG)
+target_link_libraries(stm32ComponentTester ${libPrefix}ADC)
+target_link_libraries(stm32ComponentTester ${libPrefix}FreeRTOS)
 
 
 # EOF
