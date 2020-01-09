@@ -26,16 +26,16 @@ bool Resistor::draw(Ucglib *ucg,int yOffset)
  */
 bool Resistor::compute()
 {
-    resistance=checkResistor(_pA,_pB);
+    resistance=twoPinsResistor(TestPin::PULL_INTERNAL,_pA,_pB);
     return !!resistance;
 }
 
 
-float twoPinsResistor(bool hi, TestPin &A, TestPin &B)
+float Resistor::twoPinsResistor(TestPin::PULL_STRENGTH strength, TestPin &A, TestPin &B)
 {
       AutoDisconnect ad;
-      A.pullUp(hi);
-      B.pullDown(hi);
+      A.pullUp(strength);
+      B.pullDown(strength);
       xDelay(5);
       int hiAdc, loAdc;
       float hiVolt,loVolt;      
@@ -45,13 +45,12 @@ float twoPinsResistor(bool hi, TestPin &A, TestPin &B)
       int n=hiAdc-loAdc;
       if(n<5) return 0.; // cant read
       
-      int r;
-      if(hi) r=A.getHiRes()+B.getHiRes();
-      else   r=A.getLowRes()+B.getLowRes();
+      int r=A.getCurrentRes()+B.getCurrentRes();
       float result= computeResistance(n,r);
       return result;
-      
 }
+     
+#if 0    
 /**
  * 
  * @param A
@@ -61,7 +60,7 @@ float twoPinsResistor(bool hi, TestPin &A, TestPin &B)
 float checkResistor(TestPin &A, TestPin &B)
 {
     return twoPinsResistor(false,A,B);
-    
+
     AutoDisconnect ad;
     // set pinA To ground
     A.setToGround();
@@ -90,8 +89,9 @@ float checkResistor(TestPin &A, TestPin &B)
         return 0; // Cannot measure
     }    
     return computeResistance(adcValue,B.getLowRes());
-}
 
+}
+#endif    
 float computeResistance(int adcValue, int resistance)
 {
       float a=adcValue;    

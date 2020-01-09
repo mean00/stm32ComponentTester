@@ -16,4 +16,5 @@ public:
             
 protected:
             int resistance;
+            float twoPinsResistor(TestPin::PULL_STRENGTH strength, TestPin &A, TestPin &B);
 };

@@ -58,7 +58,7 @@ AllPins allPins;
 #pragma once
 #include "Arduino.h"
 
-TestPin::TestPin(int pinNo, int pin, int pinDriveHighRes, int pinDriveLow,int lowRes, int hiRes)
+TestPin::TestPin(int pinNo, int pin, int pinDriveHighRes, int pinDriveLow,int lowRes, int hiRes,int internal)
 {
      _pinNumber=pinNo;
      _pin=pin;
@@ -66,6 +66,7 @@ TestPin::TestPin(int pinNo, int pin, int pinDriveHighRes, int pinDriveLow,int lo
      _pinDriveLowRes=pinDriveLow;
      _lowRes=lowRes;
      _hiRes=hiRes;
+     _internalPull=internal;
    
 }
 void TestPin::init()
@@ -83,37 +84,49 @@ void TestPin::configureOutput(int pinNo, int state)
  * 
  * @param hiRes
  */
-void    TestPin::pullUp(bool hiRes)
+void    TestPin::pullUp(PULL_STRENGTH strength)
 {
     disconnectAll();
-    if(hiRes)
+    switch(strength)
     {
-        configureOutput(_pinDriveHighRes,1);
-        _state=PULLUP_HI;
-    }
-    else
-    {
+    case PULL_LOW:
         configureOutput(_pinDriveLowRes,1);
-        _state=PULLUP_LOW;
+        _state=PULLUP_LOW;        
+        break;
+    case PULL_INTERNAL:
+        pinMode(_pin, INPUT_PULLUP);
+        _state=INTERNAL_PULLUP;
+        break;
+    case PULL_HI:
+        configureOutput(_pinDriveHighRes,1);
+        _state=PULLUP_HI;        
+        break;
     }
+   
 }
 /**
  * 
  * @param hiRes
  */
-void    TestPin::pullDown(bool hiRes)
+
+void    TestPin::pullDown(PULL_STRENGTH strength)
 {
     disconnectAll();
-    if(hiRes)
+    switch(strength)
     {
-        configureOutput(_pinDriveHighRes,0);
-        _state=PULLDOWN_HI;
-    }
-    else
-    {
+    case PULL_LOW:
         configureOutput(_pinDriveLowRes,0);
         _state=PULLDOWN_LOW;
-    }
+        break;
+    case PULL_INTERNAL:
+        pinMode(_pin, INPUT_PULLDOWN);
+        _state=INTERNAL_PULLDOWN;
+        break;
+    case PULL_HI:
+        configureOutput(_pinDriveHighRes,0);
+        _state=PULLDOWN_HI;
+        break;
+    }                
 }
 /**
  * 
@@ -185,7 +198,7 @@ void    TestPin::sample(int &xadc, float &voltage)
     xadc=r;
     voltage=(float)xadc*3.3/4095.;
 }
-
+      
 
 /**
  */
@@ -197,6 +210,25 @@ void xFail(const char *message)
     {
         
     };
+}
+int TestPin::getCurrentRes()
+{
+    switch(_state)
+    {
+        case DISCONNECTED: 
+        case VCC:
+        case GND:
+                    xFail("Invalid");
+                    break;
+        case PULLUP_HI:         return _hiRes+WIRE_RESISTANCE_AND_INTERNAL;break;
+        case PULLUP_LOW:        return _lowRes+WIRE_RESISTANCE_AND_INTERNAL;break;
+        case INTERNAL_PULLUP:   return _internalPull+WIRE_RESISTANCE_AND_INTERNAL;break;
+        case PULLDOWN_HI:       return _hiRes+WIRE_RESISTANCE_AND_INTERNAL;break;
+        case PULLDOWN_LOW:      return _lowRes+WIRE_RESISTANCE_AND_INTERNAL;break;
+        case INTERNAL_PULLDOWN: return _internalPull+WIRE_RESISTANCE_AND_INTERNAL;break;        
+    }
+    xFail("Invalid");
+    return 0;
 }
 
 // EOF

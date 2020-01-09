@@ -5,6 +5,8 @@
 #pragma once
 #include "Arduino.h"
 
+// mostly internal pin resistance when pulled to VCC or GND
+#define WIRE_RESISTANCE_AND_INTERNAL 30
 
 class AutoDisconnect
 {
@@ -24,28 +26,37 @@ public:
           PULLUP_LOW=3,
           PULLDOWN_HI=4,
           PULLDOWN_LOW=5,
-          VCC=6,
-          GND=7,                    
+          INTERNAL_PULLUP=6,
+          INTERNAL_PULLDOWN=7,
+          VCC=10,
+          GND=11                    
         };
   
+        enum PULL_STRENGTH
+        {
+          PULL_LOW,
+          PULL_INTERNAL,
+          PULL_HI
+        };
+        
   
-                TestPin(int pinNo, int pin, int pinDriveHighRes, int pinDriveLow, int lowRes, int hiRes);
+                TestPin(int pinNo, int pin, int pinDriveHighRes, int pinDriveLow, int lowRes, int hiRes,int internalPull);
         void    init();
-        void    pullUp(bool hiRes);
-        void    pullDown(bool hiRes);
+        void    pullUp(PULL_STRENGTH strength);
+        void    pullDown(PULL_STRENGTH strength);
         void    setToVcc();
         void    setToGround();
         void    disconnect();
         void    sample(int &adc, float &voltage);
         TESTPIN_STATE getState() {return _state;}
         void    disconnectAll();
-        int     getLowRes() {return _lowRes;}
-        int     getHiRes() {return _hiRes;}
+        int     getCurrentRes();
 
 protected:  
         void configureOutput(int pinNo, int state);
         int _pinNumber,_pin,_pinDriveHighRes, _pinDriveLowRes;
         int _lowRes,_hiRes;
+        int _internalPull;
         TESTPIN_STATE _state;
 };
 
