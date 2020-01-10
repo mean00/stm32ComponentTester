@@ -57,7 +57,16 @@ AllPins allPins;
  */
 #pragma once
 #include "Arduino.h"
-
+/**
+ * 
+ * @param pinNo
+ * @param pin
+ * @param pinDriveHighRes
+ * @param pinDriveLow
+ * @param lowRes
+ * @param hiRes
+ * @param internal
+ */
 TestPin::TestPin(int pinNo, int pin, int pinDriveHighRes, int pinDriveLow,int lowRes, int hiRes,int internal)
 {
      _pinNumber=pinNo;
@@ -69,17 +78,50 @@ TestPin::TestPin(int pinNo, int pin, int pinDriveHighRes, int pinDriveLow,int lo
      _internalPull=internal;
    
 }
+/**
+ * 
+ */
 void TestPin::init()
 {
     disconnect();
     allPins.registerMe(this);
 }
+/**
+ * 
+ * @param pinNo
+ * @param state
+ */
 void TestPin::configureOutput(int pinNo, int state)
 {
     digitalWrite(pinNo,state);
     pinMode(pinNo,OUTPUT);
     digitalWrite(pinNo,state);
 }
+/**
+ * 
+ * @param mode
+ */
+void    TestPin::setMode(TESTPIN_STATE mode)
+{
+    switch(mode)
+    {
+            case PULLUP_LOW:        pullUp(PULL_LOW);break;
+            case PULLUP_INTERNAL:   pullUp(PULL_INTERNAL);break;
+            case PULLUP_HI:         pullUp(PULL_HI);break;
+//
+            case PULLDOWN_LOW:        pullDown(PULL_LOW);break;
+            case PULLDOWN_INTERNAL:   pullDown(PULL_INTERNAL);break;
+            case PULLDOWN_HI:         pullDown(PULL_HI);break;    
+//
+            case   VCC:               setToVcc();break;
+            case   GND:               setToGround();break;
+            default:
+                xFail("Invalid mode");
+                break;
+            
+    }
+}
+
 /**
  * 
  * @param hiRes
@@ -95,7 +137,7 @@ void    TestPin::pullUp(PULL_STRENGTH strength)
         break;
     case PULL_INTERNAL:
         pinMode(_pin, INPUT_PULLUP);
-        _state=INTERNAL_PULLUP;
+        _state=PULLUP_INTERNAL;
         break;
     case PULL_HI:
         configureOutput(_pinDriveHighRes,1);
@@ -120,7 +162,7 @@ void    TestPin::pullDown(PULL_STRENGTH strength)
         break;
     case PULL_INTERNAL:
         pinMode(_pin, INPUT_PULLDOWN);
-        _state=INTERNAL_PULLDOWN;
+        _state=PULLDOWN_INTERNAL;
         break;
     case PULL_HI:
         configureOutput(_pinDriveHighRes,0);
@@ -211,6 +253,10 @@ void xFail(const char *message)
         
     };
 }
+/**
+ * 
+ * @return 
+ */
 int TestPin::getCurrentRes()
 {
     switch(_state)
@@ -218,14 +264,14 @@ int TestPin::getCurrentRes()
         case DISCONNECTED: 
         case VCC:
         case GND:
-                    xFail("Invalid");
+                    return WIRE_RESISTANCE_AND_INTERNAL;
                     break;
         case PULLUP_HI:         return _hiRes+WIRE_RESISTANCE_AND_INTERNAL;break;
         case PULLUP_LOW:        return _lowRes+WIRE_RESISTANCE_AND_INTERNAL;break;
-        case INTERNAL_PULLUP:   return _internalPull+WIRE_RESISTANCE_AND_INTERNAL;break;
+        case PULLUP_INTERNAL:   return _internalPull+WIRE_RESISTANCE_AND_INTERNAL;break;
         case PULLDOWN_HI:       return _hiRes+WIRE_RESISTANCE_AND_INTERNAL;break;
         case PULLDOWN_LOW:      return _lowRes+WIRE_RESISTANCE_AND_INTERNAL;break;
-        case INTERNAL_PULLDOWN: return _internalPull+WIRE_RESISTANCE_AND_INTERNAL;break;        
+        case PULLDOWN_INTERNAL: return _internalPull+WIRE_RESISTANCE_AND_INTERNAL;break;        
     }
     xFail("Invalid");
     return 0;

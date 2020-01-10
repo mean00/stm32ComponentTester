@@ -26,8 +26,8 @@ public:
           PULLUP_LOW=3,
           PULLDOWN_HI=4,
           PULLDOWN_LOW=5,
-          INTERNAL_PULLUP=6,
-          INTERNAL_PULLDOWN=7,
+          PULLUP_INTERNAL=6,
+          PULLDOWN_INTERNAL=7,
           VCC=10,
           GND=11                    
         };
@@ -41,6 +41,7 @@ public:
         
   
                 TestPin(int pinNo, int pin, int pinDriveHighRes, int pinDriveLow, int lowRes, int hiRes,int internalPull);
+        void    setMode(TESTPIN_STATE mode);
         void    init();
         void    pullUp(PULL_STRENGTH strength);
         void    pullDown(PULL_STRENGTH strength);

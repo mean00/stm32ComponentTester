@@ -26,10 +26,34 @@ bool Resistor::draw(Ucglib *ucg,int yOffset)
  */
 bool Resistor::compute()
 {
+    // 
     resistance=twoPinsResistor(TestPin::PULL_INTERNAL,_pA,_pB);
     return !!resistance;
 }
 
+/**
+ * 
+ * @param A
+ * @param stateA
+ * @param B
+ * @param stateB
+ * @return 
+ */
+bool Resistor::probe( TestPin &A,TestPin::TESTPIN_STATE stateA, TestPin &B,TestPin::TESTPIN_STATE stateB,int &adc, int &resistance)
+{
+      AutoDisconnect ad;
+      A.setMode(stateA);
+      A.setMode(stateB);
+      int hiAdc, loAdc;
+      float hiVolt,loVolt;      
+      A.sample(hiAdc,hiVolt);
+      B.sample(loAdc,loVolt);
+      
+      int n=hiAdc-loAdc;
+      resistance=A.getCurrentRes()+B.getCurrentRes();
+      adc=n;
+      return true;
+}
 
 float Resistor::twoPinsResistor(TestPin::PULL_STRENGTH strength, TestPin &A, TestPin &B)
 {
@@ -49,6 +73,9 @@ float Resistor::twoPinsResistor(TestPin::PULL_STRENGTH strength, TestPin &A, Tes
       float result= computeResistance(n,r);
       return result;
 }
+
+
+
      
 #if 0    
 /**
