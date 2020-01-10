@@ -22,42 +22,60 @@ bool Resistor::draw(Ucglib *ucg,int yOffset)
     ucg->drawString(10,30,0,st); 
     return true;
 }
+
+#define GOOD_HI 3500
+#define GOOD_LO 600
+
+#define CHECK_GOOD(adc)  if(adc >= GOOD_LO && adc<=GOOD_HI)\
+        { \
+            resistance=computeResistance(adcLow,rLow); \
+            return true; \
+        }
+
 /**
  */
+extern int result[20];
 bool Resistor::compute()
 {
-    // 
-    int adcMid, adcLow, adcHi;
-    int rMid,rLow,rHi;
+    typedef struct probePoints
+    {
+        TestPin::TESTPIN_STATE A,B;        
+    };
+    const probePoints probes[]={  
+        {TestPin::PULLUP_LOW,TestPin::GND},
+        {TestPin::PULLUP_LOW,TestPin::PULLDOWN_LOW},        
+//        {TestPin::PULLUP_INTERNAL,TestPin::GND},        
+//        {TestPin::PULLUP_INTERNAL,TestPin::PULLDOWN_INTERNAL},        
+        {TestPin::PULLUP_HI,TestPin::GND},
+        {TestPin::PULLUP_HI,TestPin::PULLDOWN_HI},        
+    };
+    int n=sizeof(probes)/sizeof(probePoints);
+    int adcs[n];
+    int resistances[n];
     
-    probe(_pA,  TestPin::PULLUP_LOW,        _pB,TestPin::PULLDOWN_LOW,  adcLow,rLow);
-    if(adcLow > 600 && adcLow<3500) // good !
+    
+    for(int i=0;i<n;i++)
     {
-        resistance=computeResistance(adcLow,rLow);
-        return true;
+       probe( _pA,probes[i].A,_pB,probes[i].B,adcs[i],resistances[i]);       
     }
-    if(adcLow<600)
+    // find the ADC closest to 4095/2=2047
+    int candidate=-1;
+    int match=4095;
+    for(int i=0;i<n;i++)
     {
-        probe(_pA,  TestPin::PULLUP_LOW,        _pB,TestPin::GND,  adcLow,rLow);
-        resistance=computeResistance(adcLow,rLow);
-        return true;        
+        int a=adcs[i];
+        if(a<10 || a > (4095-10)) continue; // not reliable
+        int r=abs(a-2047);
+        if(r<match)
+        {
+            match=r;
+            candidate=i;
+        }
     }
-    // ok, so it is too high, try with HIGH
-    probe(_pA,  TestPin::PULLUP_HI,        _pB,TestPin::GND,  adcLow,rLow);
-    if(adcLow > 600 && adcLow<3500) // good !
-    {
-        resistance=computeResistance(adcLow,rLow);
-        return true;
-    }
-     if(adcLow<600)
-    {
-        probe(_pA,  TestPin::PULLUP_INTERNAL,        _pB,TestPin::GND,  adcLow,rLow);
-        resistance=computeResistance(adcLow,rLow);
-        return true;        
-    }
-    probe(_pA,  TestPin::PULLUP_HI,        _pB,TestPin::PULLUP_HI,  adcLow,rLow);
-    resistance=computeResistance(adcLow,rLow);
-    return !!resistance;
+    if(candidate==-1) return false;
+    resistance=computeResistance(adcs[candidate],resistances[candidate]);    
+    return true;
+    
 }
 
 /**
@@ -74,11 +92,11 @@ bool Resistor::probe( TestPin &A,TestPin::TESTPIN_STATE stateA, TestPin &B,TestP
       A.setMode(stateA);
       B.setMode(stateB);
       int hiAdc, loAdc;
-      float hiVolt,loVolt;      
+      float hiVolt,loVolt;    
       A.sample(hiAdc,hiVolt);
       B.sample(loAdc,loVolt);
       
-      int n=hiAdc-loAdc;
+      int n=abs(hiAdc-loAdc);
       resistance=A.getCurrentRes()+B.getCurrentRes();
       adc=n;
       return true;

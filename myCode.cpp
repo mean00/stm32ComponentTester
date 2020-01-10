@@ -14,12 +14,12 @@ DSOADC *adc;
 /*
  LCD : PA3, PA4, PA2 + PA5/Ä7
  */
-
+int result[20];
 Ucglib_ST7735_18x128x160_HWSPI *ucg=NULL;
 //nt pinNo, int pin, int pinDriveHighRes, int pinDriveLow
-TestPin   pin1(1,PA0, PB5, PB4,468,301000,42000);
-TestPin   pin2(2,PA1, PB7, PB6,471,302000,42000);
-TestPin   pin3(3,PA2, PB9, PB8,471,302000,42000);
+TestPin   pin1(1,PA0, PB5, PB4,468,301000,43000);
+TestPin   pin2(2,PA1, PB7, PB6,471,302000,43000);
+TestPin   pin3(3,PA2, PB9, PB8,471,302000,43000);
 
 void MainTask( void *a )
 {
@@ -39,16 +39,16 @@ void MainTask( void *a )
  */
 void mySetup(void)
 {
-  
- 
-  interrupts();
+  afio_cfg_debug_ports( AFIO_DEBUG_SW_ONLY); // get PB3 & PB4
   pinMode(LED,OUTPUT);
   digitalWrite(LED,LOW);
   SPI.begin();
   SPI.setBitOrder(MSBFIRST); // Set the SPI bit order
   SPI.setDataMode(SPI_MODE0); //Set the  SPI data mode 0
   SPI.setClockDivider (SPI_CLOCK_DIV4); // Given for 10 Mhz...
-  afio_cfg_debug_ports( AFIO_DEBUG_SW_ONLY); // get PB3 & PB4
+  
+  interrupts();
+
   
   ucg=new Ucglib_ST7735_18x128x160_HWSPI(/*cd=*/ PA3, /*cs=*/ PA4, /*reset=*/ PB0);
   ucg->begin(UCG_FONT_MODE_TRANSPARENT); //UCG_FONT_MODE_SOLID);
@@ -99,12 +99,12 @@ void myLoop(void)
     while(1)
     {
     ucg->clearScreen(); 
-    Resistor r(pin2,pin1,pin3);
+    Resistor r(pin1,pin2,pin3);
     if(r.compute())
     {
         r.draw(ucg,0);
     }
-     xDelay(3000);
+     xDelay(1000);
     }
  
   #endif     

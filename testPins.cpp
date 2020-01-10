@@ -233,6 +233,7 @@ void    TestPin::sample(int &xadc, float &voltage)
     xadc=0;
     
     adc->setADCPin(_pin);
+    xDelay(10); // wait a bit
     adc->prepareDMASampling(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_8);    
     adc->startDMASampling(16);
     xAssert(true==adc->getSamples(&samples,nbSamples));
