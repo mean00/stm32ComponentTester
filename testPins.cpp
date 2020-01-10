@@ -76,6 +76,10 @@ TestPin::TestPin(int pinNo, int pin, int pinDriveHighRes, int pinDriveLow,int lo
      _lowRes=lowRes;
      _hiRes=hiRes;
      _internalPull=internal;
+     
+     pinMode(pin,INPUT_PULLDOWN);
+     pinMode(pinDriveHighRes,INPUT_PULLDOWN);
+     pinMode(pinDriveLow,INPUT_PULLDOWN);
    
 }
 /**
@@ -262,6 +266,7 @@ int TestPin::getCurrentRes()
     switch(_state)
     {
         case DISCONNECTED: 
+                    xFail("Invalid");
         case VCC:
         case GND:
                     return WIRE_RESISTANCE_AND_INTERNAL;

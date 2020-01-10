@@ -27,7 +27,36 @@ bool Resistor::draw(Ucglib *ucg,int yOffset)
 bool Resistor::compute()
 {
     // 
-    resistance=twoPinsResistor(TestPin::PULL_INTERNAL,_pA,_pB);
+    int adcMid, adcLow, adcHi;
+    int rMid,rLow,rHi;
+    
+    probe(_pA,  TestPin::PULLUP_LOW,        _pB,TestPin::PULLDOWN_LOW,  adcLow,rLow);
+    if(adcLow > 600 && adcLow<3500) // good !
+    {
+        resistance=computeResistance(adcLow,rLow);
+        return true;
+    }
+    if(adcLow<600)
+    {
+        probe(_pA,  TestPin::PULLUP_LOW,        _pB,TestPin::GND,  adcLow,rLow);
+        resistance=computeResistance(adcLow,rLow);
+        return true;        
+    }
+    // ok, so it is too high, try with HIGH
+    probe(_pA,  TestPin::PULLUP_HI,        _pB,TestPin::GND,  adcLow,rLow);
+    if(adcLow > 600 && adcLow<3500) // good !
+    {
+        resistance=computeResistance(adcLow,rLow);
+        return true;
+    }
+     if(adcLow<600)
+    {
+        probe(_pA,  TestPin::PULLUP_INTERNAL,        _pB,TestPin::GND,  adcLow,rLow);
+        resistance=computeResistance(adcLow,rLow);
+        return true;        
+    }
+    probe(_pA,  TestPin::PULLUP_HI,        _pB,TestPin::PULLUP_HI,  adcLow,rLow);
+    resistance=computeResistance(adcLow,rLow);
     return !!resistance;
 }
 
@@ -43,7 +72,7 @@ bool Resistor::probe( TestPin &A,TestPin::TESTPIN_STATE stateA, TestPin &B,TestP
 {
       AutoDisconnect ad;
       A.setMode(stateA);
-      A.setMode(stateB);
+      B.setMode(stateB);
       int hiAdc, loAdc;
       float hiVolt,loVolt;      
       A.sample(hiAdc,hiVolt);
@@ -55,70 +84,12 @@ bool Resistor::probe( TestPin &A,TestPin::TESTPIN_STATE stateA, TestPin &B,TestP
       return true;
 }
 
-float Resistor::twoPinsResistor(TestPin::PULL_STRENGTH strength, TestPin &A, TestPin &B)
-{
-      AutoDisconnect ad;
-      A.pullUp(strength);
-      B.pullDown(strength);
-      xDelay(5);
-      int hiAdc, loAdc;
-      float hiVolt,loVolt;      
-      A.sample(hiAdc,hiVolt);
-      B.sample(loAdc,loVolt);
-      
-      int n=hiAdc-loAdc;
-      if(n<5) return 0.; // cant read
-      
-      int r=A.getCurrentRes()+B.getCurrentRes();
-      float result= computeResistance(n,r);
-      return result;
-}
-
-
-
-     
-#if 0    
 /**
  * 
- * @param A
- * @param B
+ * @param adcValue
+ * @param resistance
  * @return 
- */
-float checkResistor(TestPin &A, TestPin &B)
-{
-    return twoPinsResistor(false,A,B);
-
-    AutoDisconnect ad;
-    // set pinA To ground
-    A.setToGround();
-    // and pinB to VCC via High Res
-    B.pullUp(true);
-    xDelay(5);
-    int adcValue;
-    float volt;
-    float a,r;
-    
-    B.sample(adcValue, volt);
-    if(adcValue>4090)
-    {
-        return 0; // Cannot measure
-    }
-    if(adcValue>2*100)
-    {
-        return computeResistance(adcValue,B.getHiRes());
-    }
-    // If the ADC value is too low, try pull up with the low resistor
-    B.pullUp(false);
-    B.sample(adcValue, volt);
-    xDelay(5);
-    if(adcValue>4090)
-    {
-        return 0; // Cannot measure
-    }    
-    return computeResistance(adcValue,B.getLowRes());
-
-}
-#endif    
+ */     
 float computeResistance(int adcValue, int resistance)
 {
       float a=adcValue;    

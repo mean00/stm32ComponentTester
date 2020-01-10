@@ -23,6 +23,11 @@ TestPin   pin3(3,PA2, PB9, PB8,471,302000,42000);
 
 void MainTask( void *a )
 {
+   
+    pin1.init();
+    pin2.init();
+    pin3.init();
+
     while(1)
     {
         myLoop();
@@ -38,14 +43,12 @@ void mySetup(void)
  
   interrupts();
   pinMode(LED,OUTPUT);
-  digitalWrite(LED,HIGH);
+  digitalWrite(LED,LOW);
   SPI.begin();
   SPI.setBitOrder(MSBFIRST); // Set the SPI bit order
   SPI.setDataMode(SPI_MODE0); //Set the  SPI data mode 0
   SPI.setClockDivider (SPI_CLOCK_DIV4); // Given for 10 Mhz...
   afio_cfg_debug_ports( AFIO_DEBUG_SW_ONLY); // get PB3 & PB4
-  pin1.init();
-  pin2.init();
   
   ucg=new Ucglib_ST7735_18x128x160_HWSPI(/*cd=*/ PA3, /*cs=*/ PA4, /*reset=*/ PB0);
   ucg->begin(UCG_FONT_MODE_TRANSPARENT); //UCG_FONT_MODE_SOLID);
