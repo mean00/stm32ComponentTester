@@ -1,5 +1,5 @@
 /*
- * 
+ * Resistance tester
 */
 
 #include <SPI.h>
@@ -17,7 +17,7 @@ static float computeResistance(float adcValue, int resistance);
  */
 bool Resistor::draw(Ucglib *ucg,int yOffset)
 {
-#if 0
+#if 1
     char st[16];    
     sprintf(st,"%3.1f",resistance);     
     ucg->drawString(10,30,0,st); 
@@ -25,24 +25,20 @@ bool Resistor::draw(Ucglib *ucg,int yOffset)
     return true;
 }
 
-#define GOOD_HI 3500
-#define GOOD_LO 600
-
-#define CHECK_GOOD(adc)  if(adc >= GOOD_LO && adc<=GOOD_HI)\
-        { \
-            resistance=computeResistance(adcLow,rLow); \
-            return true; \
-        }
-
 /**
+ * 
+ * @return 
  */
-extern int result[20];
 bool Resistor::compute()
 {
     typedef struct probePoints
     {
         TestPin::TESTPIN_STATE A,B;        
     };
+    
+    // do all the possibilities
+    // the most accurate one is when the ADC is closer to center = 2047
+    
     const probePoints probes[]={  
 
         {TestPin::PULLUP_LOW,TestPin::GND},
@@ -75,6 +71,7 @@ bool Resistor::compute()
             candidate=i;
         }
     }
+#if 0       
     extern Ucglib *ucg;
     for(int i=0;i<n;i++)
     {
@@ -83,6 +80,7 @@ bool Resistor::compute()
         sprintf(st,"%3.1f",r);     
         ucg->drawString(10,30+20*i,0,st); 
     }
+#endif    
     resistance=computeResistance(adcs[candidate],resistances[candidate]);    
     return true;
     
@@ -108,8 +106,7 @@ bool Resistor::probe( TestPin &A,TestPin::TESTPIN_STATE stateA, TestPin &B,TestP
       
       float delta=abs(hiAdc-loAdc);      
       if(delta<0.) delta=0.;
-      adc=delta/(float)(hiNb);
-   //   adc=adc*4095./(4095.-ADC_OFFSET*2);
+      adc=delta/(float)(hiNb); // assume hiNB=loNB   
       resistance=A.getCurrentRes()+B.getCurrentRes();      
       return true;
 }
