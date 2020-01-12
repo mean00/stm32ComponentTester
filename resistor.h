@@ -15,7 +15,6 @@ public:
                     int  getValue() {return resistance;}
             
 protected:
-            int resistance;
-            bool probe( TestPin &A,TestPin::TESTPIN_STATE stateA, TestPin &B,TestPin::TESTPIN_STATE stateB,int &adc, int &resistance);
-            float twoPinsResistor(TestPin::PULL_STRENGTH strength, TestPin &A, TestPin &B);
+            float resistance;
+            bool probe( TestPin &A,TestPin::TESTPIN_STATE stateA, TestPin &B,TestPin::TESTPIN_STATE stateB,float &adc, int &resistance);
 };

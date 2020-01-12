@@ -16,10 +16,13 @@ DSOADC *adc;
  */
 int result[20];
 Ucglib_ST7735_18x128x160_HWSPI *ucg=NULL;
-//nt pinNo, int pin, int pinDriveHighRes, int pinDriveLow
-TestPin   pin1(1,PA0, PB5, PB4,468,301000,43000);
-TestPin   pin2(2,PA1, PB7, PB6,471,302000,43000);
-TestPin   pin3(3,PA2, PB9, PB8,471,302000,43000);
+
+ //TestPin(int pinNo, int pin, int pinDriveHighRes, int pinDriveMed,int pinDriveLow, int hiRes, int medRes,int lowRes);
+
+TestPin   pin1(1,PA0, PB5, PB12,PB4,303800,20110,470);
+TestPin   pin2(2,PA1, PB7, PB13,PB6,303300,20100,470);
+TestPin   pin3(3,PA2, PB9, PB14,PB8,303000,20130,468);
+
 
 void MainTask( void *a )
 {
@@ -47,6 +50,9 @@ void mySetup(void)
   SPI.setDataMode(SPI_MODE0); //Set the  SPI data mode 0
   SPI.setClockDivider (SPI_CLOCK_DIV4); // Given for 10 Mhz...
   
+  pinMode(PA11,INPUT_PULLUP); // Disable USB
+  pinMode(PA12,INPUT_PULLUP);
+  
   interrupts();
 
   
@@ -70,7 +76,9 @@ void myLoop(void)
 {
     char st[10];    
 
- 
+  pinMode(PA11,INPUT_PULLUP); // Disable USB
+  pinMode(PA12,INPUT_PULLUP);
+  
   for(int i=0;i<16;i++)
      ucg->drawHLine(1, 10*i, 120);
 #if 0

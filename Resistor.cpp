@@ -8,7 +8,7 @@
 #include "testPins.h"
 #include "resistor.h"
 static float checkResistor(TestPin &A, TestPin &B);
-static float computeResistance(int adcValue, int resistance);
+static float computeResistance(float adcValue, int resistance);
 
 /**
  * 
@@ -17,9 +17,11 @@ static float computeResistance(int adcValue, int resistance);
  */
 bool Resistor::draw(Ucglib *ucg,int yOffset)
 {
+#if 0
     char st[16];    
-    sprintf(st,"%d",resistance);     
+    sprintf(st,"%3.1f",resistance);     
     ucg->drawString(10,30,0,st); 
+#endif 
     return true;
 }
 
@@ -42,15 +44,16 @@ bool Resistor::compute()
         TestPin::TESTPIN_STATE A,B;        
     };
     const probePoints probes[]={  
+
         {TestPin::PULLUP_LOW,TestPin::GND},
         {TestPin::PULLUP_LOW,TestPin::PULLDOWN_LOW},        
-//        {TestPin::PULLUP_INTERNAL,TestPin::GND},        
-//        {TestPin::PULLUP_INTERNAL,TestPin::PULLDOWN_INTERNAL},        
+        {TestPin::PULLUP_MED,TestPin::GND},
+        {TestPin::PULLUP_MED,TestPin::PULLDOWN_MED},                
         {TestPin::PULLUP_HI,TestPin::GND},
         {TestPin::PULLUP_HI,TestPin::PULLDOWN_HI},        
     };
     int n=sizeof(probes)/sizeof(probePoints);
-    int adcs[n];
+    float adcs[n];
     int resistances[n];
     
     
@@ -60,19 +63,26 @@ bool Resistor::compute()
     }
     // find the ADC closest to 4095/2=2047
     int candidate=-1;
-    int match=4095;
+    float match=4095.;
     for(int i=0;i<n;i++)
     {
-        int a=adcs[i];
-        if(a<10 || a > (4095-10)) continue; // not reliable
-        int r=abs(a-2047);
+        float a=adcs[i];
+        if(a<10. || a > (4095-10)) continue; // not reliable
+        float r=fabs(a-2047.); // delta to center of ADC
         if(r<match)
         {
             match=r;
             candidate=i;
         }
     }
-    if(candidate==-1) return false;
+    extern Ucglib *ucg;
+    for(int i=0;i<n;i++)
+    {
+        float r=computeResistance(adcs[i],resistances[i]);   
+        char st[16];    
+        sprintf(st,"%3.1f",r);     
+        ucg->drawString(10,30+20*i,0,st); 
+    }
     resistance=computeResistance(adcs[candidate],resistances[candidate]);    
     return true;
     
@@ -86,19 +96,21 @@ bool Resistor::compute()
  * @param stateB
  * @return 
  */
-bool Resistor::probe( TestPin &A,TestPin::TESTPIN_STATE stateA, TestPin &B,TestPin::TESTPIN_STATE stateB,int &adc, int &resistance)
+bool Resistor::probe( TestPin &A,TestPin::TESTPIN_STATE stateA, TestPin &B,TestPin::TESTPIN_STATE stateB,float &adc, int &resistance)
 {
       AutoDisconnect ad;
       A.setMode(stateA);
       B.setMode(stateB);
       int hiAdc, loAdc;
-      float hiVolt,loVolt;    
-      A.sample(hiAdc,hiVolt);
-      B.sample(loAdc,loVolt);
+      int hiNb,loNb;    
+      A.slowSample(hiAdc,hiNb);
+      B.slowSample(loAdc,loNb);
       
-      int n=abs(hiAdc-loAdc);
-      resistance=A.getCurrentRes()+B.getCurrentRes();
-      adc=n;
+      float delta=abs(hiAdc-loAdc);      
+      if(delta<0.) delta=0.;
+      adc=delta/(float)(hiNb);
+   //   adc=adc*4095./(4095.-ADC_OFFSET*2);
+      resistance=A.getCurrentRes()+B.getCurrentRes();      
       return true;
 }
 
@@ -108,11 +120,10 @@ bool Resistor::probe( TestPin &A,TestPin::TESTPIN_STATE stateA, TestPin &B,TestP
  * @param resistance
  * @return 
  */     
-float computeResistance(int adcValue, int resistance)
+float computeResistance(float adcValue, int resistance)
 {
-      float a=adcValue;    
-      if(a>4093) return 0;
-      float r=(float)(resistance)*a/((4095.-a));
+      if(adcValue>4090.) return 0;
+      float r=((float)(resistance))*adcValue/((4095.-adcValue));
       return r;
 }
 // EOF
