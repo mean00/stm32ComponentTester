@@ -247,18 +247,20 @@ bool    TestPin::slowSample(int &xadc, int &nbSamples)
     xadc=r;
     return true;
 }
-
+/**
+ * 
+ * @param regs
+ * @param v
+ * @return 
+ */
 static bool singleShot(adc_reg_map *regs,int &v)
 {
     int start=millis();
     uint32_t oldCr2=regs->CR2;
     uint32_t cr2=ADC_CR2_ADON+ADC_CR2_EXTSEL_SWSTART; //+/*ADC_CR2_EXTTRIG+*/ADC_CR2_CONT+ADC_CR2_DMA;  
     regs->CR2=cr2;  
-    
-      
-      regs->CR2 |= ADC_CR2_SWSTART;
-      while(1)
-      {
+    while(1)
+    {
           uint32_t sr=regs->SR;
           if(!(sr & ADC_SR_EOC))
           {
@@ -270,7 +272,7 @@ static bool singleShot(adc_reg_map *regs,int &v)
               }
           }
           break;
-      }
+    }
     v=regs->DR & ADC_DR_DATA;
     return true;
 }
@@ -280,7 +282,7 @@ static bool singleShot(adc_reg_map *regs,int &v)
  * @param value
  * @return 
  */
-bool    TestPin::fastSampleUp(int threshold,int &value)  
+bool    TestPin::fastSampleUp(int threshold,int &value, int &timeUs)  
 {
     adc->setTimeScale(ADC_SMPR_41_5, ADC_PRE_PCLK2_DIV_4);
     adc_dev *dev = PIN_MAP[_pin].adc_device;
@@ -290,12 +292,15 @@ bool    TestPin::fastSampleUp(int threshold,int &value)
     regs->SQR3 = channel;
     // go
     int c;
+    uint32_t start=micros();
     while(1)
     {
         if(!singleShot(regs,c)) 
             return false;
         if(c>threshold)
         {
+            timeUs=micros()-start; 
+#warning fixme wrap around
             value=c;
             return true;
         }
@@ -309,7 +314,7 @@ bool    TestPin::fastSampleUp(int threshold,int &value)
  */
 
 
-bool    TestPin::fastSampleDown(int threshold,int &value)  
+bool    TestPin::fastSampleDown(int threshold,int &value, int &timeUs)  
 {
     adc->setTimeScale(ADC_SMPR_41_5, ADC_PRE_PCLK2_DIV_4);
     adc_dev *dev = PIN_MAP[_pin].adc_device;
@@ -319,12 +324,15 @@ bool    TestPin::fastSampleDown(int threshold,int &value)
     regs->SQR3 = channel;
     // go
     int c;
+    uint32_t start=micros();
     while(1)
     {
         if(!singleShot(regs,c)) 
             return false;
         if(c<threshold)
         {
+            timeUs=micros()-start; 
+#warning fixme wrap around
             value=c;
             return true;
         }

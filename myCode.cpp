@@ -72,16 +72,16 @@ void mySetup(void)
  */
 void myLoop(void)
 {
-
-    while(1)
-    {
     ucg->clearScreen(); 
     Capacitor r(pin1,pin2,pin3);
-    if(r.compute())
-    {
-        r.draw(ucg,0);
-    }
-     xDelay(1000);
-    }
- 
+    while(1)
+    {        
+        if(r.compute())
+        {
+            ucg->clearScreen(); 
+            r.draw(ucg,0);
+        }else
+            ucg->clearScreen(); 
+         xDelay(500);
+    } 
 }

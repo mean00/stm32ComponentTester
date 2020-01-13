@@ -34,10 +34,8 @@ bool Capacitor::doOne(TestPin::PULL_STRENGTH strength, int &timeUs, int &resista
     // go
     _pB.setToGround();
     _pA.pullUp(strength);
-    int start=micros();
-    _pA.fastSampleUp((4095*3)/4,value);
-    int end=micros();
-    timeUs=end-start;    
+    
+    if(!_pA.fastSampleUp((4095*3)/4,value,timeUs)) return false;
     resistance=_pA.getCurrentRes()+_pB.getCurrentRes();
     return true;
 }
@@ -71,17 +69,26 @@ bool Capacitor::compute()
     int timeHi,resistanceHi;
     int valueLow,valueMed,valueHigh;
     
-    
-    
-    doOne(TestPin::PULL_LOW,timeLow,resistanceLow,valueLow);
-    doOne(TestPin::PULL_MED,timeMed,resistanceMed,valueMed);
-    doOne(TestPin::PULL_HI,timeHi,resistanceHi,valueHigh);
-    
-    cLow=computeCapacitance(timeLow,resistanceLow,valueLow);
-    cMed=computeCapacitance(timeMed,resistanceMed,valueMed);
-    cHi=computeCapacitance(timeHi,resistanceHi,valueHigh);
-    
-    capacitance=cMed;
+    const TestPin::PULL_STRENGTH discharge[]=
+    {
+        TestPin::PULL_LOW,TestPin::PULL_MED,TestPin::PULL_HI
+    };
+    int n=sizeof(discharge)/sizeof(TestPin::PULL_STRENGTH);
+    int candidate=-1;
+#define CAP_MIN_CHARGE_TIME 30000 // 30 ms    
+    for(int i=0;i<n&& candidate==-1;i++)
+    {
+         if(doOne(discharge[i],timeLow,resistanceLow,valueLow))
+         {
+             if(timeLow>CAP_MIN_CHARGE_TIME)
+             {
+                 candidate=i;
+             }
+         }
+    }
+    if(candidate==-1)
+        return false;
+    capacitance=computeCapacitance(timeLow,resistanceLow,valueLow);   
     return true;
 }
 /**
@@ -93,9 +100,9 @@ bool Capacitor::zero(int threshold)
     _pA.pullDown(TestPin::PULL_LOW);
     _pB.pullDown(TestPin::PULL_LOW);
     
-    int v;
-    _pA.fastSampleDown(threshold,v);
-    _pB.fastSampleDown(threshold,v);
+    int v,tus;
+    _pA.fastSampleDown(threshold,v,tus);
+    _pB.fastSampleDown(threshold,v,tus);
     
     xDelay(10);
     return true;

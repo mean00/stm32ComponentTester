@@ -5,31 +5,22 @@
 
 void Component::prettyPrint(float value, const char *unit,  char *output)
 {
-    float cValue=value;
-    const char *prefix="";
-    if(value<1)
+    const char *big[]={"","k","M","G","P"};
+    const char *small[]={"","m","u","n","p"};
+    float mul=0.001; // 1/1000
+    const char **scale=big;
+    if(value<1.)
     {
-        if(value>=0.001) // milli
-        {
-            cValue=value*1000.;
-            prefix="m";
-        }else
-        if(value>=0.000001)
-        {
-            cValue=value*1000000.;
-            prefix="u";
-        }else
-        if(value>=0.000000001)
-        {
-            cValue=value*1000000000.;
-            prefix="n";
-        }else
-        if(value>=0.000000000001)
-        {
-            cValue=value*1000000000000.;
-            prefix="p";
-        }
+        mul=1000.;
+        scale=small;
     }
-    
-    sprintf(output,"%3.2f%s%s",cValue,prefix,unit);
+    int dex=0;
+    while(1)
+    {
+        if(value>1 && value<1000)
+            break;
+        dex++;
+        value*=mul;
+    }
+    sprintf(output,"%3.2f%s%s",value,scale[dex],unit);
 }
