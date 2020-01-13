@@ -9,6 +9,11 @@ void Component::prettyPrint(float value, const char *unit,  char *output)
     const char *small[]={"","m","u","n","p"};
     float mul=0.001; // 1/1000
     const char **scale=big;
+    if(value==0.0)
+    {
+        sprintf(output,"0%s",unit);
+        return;
+    }
     if(value<1.)
     {
         mul=1000.;

@@ -17,6 +17,6 @@ public:
 protected:
             float capacitance;
             bool  zero(int threshold); 
-            bool  doOne(TestPin::PULL_STRENGTH strength, int &timeUs, int &resistance, int &actualValue);
+            bool  doOne(TestPin::PULL_STRENGTH strength, float percent, int &timeUs, int &resistance, int &actualValue);
             float computeCapacitance(int time, int iresistance, int actualValue);
 };
