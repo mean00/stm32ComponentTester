@@ -50,6 +50,8 @@ public:
         void    setToGround();
         void    disconnect();
         bool    slowSample(int &adcSum, int &nbSamples);
+        bool    fastSampleUp(int threshold,int &value);
+        bool    fastSampleDown(int threshold,int &value)  ;
         TESTPIN_STATE getState() {return _state;}
         void    disconnectAll();
         int     getCurrentRes();

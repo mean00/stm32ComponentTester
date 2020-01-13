@@ -1,5 +1,10 @@
 
 #pragma once
+namespace std
+{
+  class string;
+}
+class Ucglib;
 #include "testPins.h"
 
 /**
@@ -16,6 +21,7 @@ public:
                     }
             virtual bool compute()=0;
             virtual bool draw(Ucglib *ucg, int yOffset)=0;
+            static  void prettyPrint(float value, const char *unit,  char *output);
 protected:
             TestPin &_pA, &_pB, &_pC;
 };

@@ -1,6 +1,6 @@
 #pragma once
 #include "testPins.h"
-#include "component.h"
+#include "Component.h"
 /**
  */
 class Resistor : public Component

@@ -6,6 +6,7 @@
 #include "fancyLock.h"
 #include "testPins.h"
 #include "resistor.h"
+#include "Capacitor.h"
 #include "dso_adc.h"
 #define LED PC13
 
@@ -26,7 +27,15 @@ TestPin   pin3(3,PA2, PB9, PB14,PB8,303000,20130,468);
 
 void MainTask( void *a )
 {
-   
+  
+    ucg=new Ucglib_ST7735_18x128x160_HWSPI(/*cd=*/ PA3, /*cs=*/ PA4, /*reset=*/ PB0);
+    ucg->begin(UCG_FONT_MODE_TRANSPARENT); //UCG_FONT_MODE_SOLID);
+    ucg->setFont(ucg_font_helvB12_hr);
+    ucg->clearScreen();    
+    ucg->setColor(255, 255, 255);
+    ucg->clearScreen();    
+    adc=new DSOADC(PA0);
+    adc->setupADCs();
     pin1.init();
     pin2.init();
     pin3.init();
@@ -48,23 +57,12 @@ void mySetup(void)
   SPI.begin();
   SPI.setBitOrder(MSBFIRST); // Set the SPI bit order
   SPI.setDataMode(SPI_MODE0); //Set the  SPI data mode 0
-  SPI.setClockDivider (SPI_CLOCK_DIV4); // Given for 10 Mhz...
+  SPI.setClockDivider (SPI_CLOCK_DIV4); // Given for 10 Mhz...    
   
-  pinMode(PA11,INPUT_PULLUP); // Disable USB
-  pinMode(PA12,INPUT_PULLUP);
-  
+  Serial.begin(38400);
   interrupts();
-
   
-  ucg=new Ucglib_ST7735_18x128x160_HWSPI(/*cd=*/ PA3, /*cs=*/ PA4, /*reset=*/ PB0);
-  ucg->begin(UCG_FONT_MODE_TRANSPARENT); //UCG_FONT_MODE_SOLID);
-  ucg->setFont(ucg_font_helvB12_hr);
-  ucg->clearScreen();    
-  ucg->setColor(255, 255, 255);
-  
-  adc=new DSOADC(PA0);
-  adc->setupADCs();
-  xTaskCreate( MainTask, "MainTask", 250, NULL, 10, NULL );   
+  xTaskCreate( MainTask, "MainTask", 500, NULL, 10, NULL );   
   vTaskStartScheduler();      
   
 }
@@ -74,75 +72,16 @@ void mySetup(void)
  */
 void myLoop(void)
 {
-    char st[10];    
 
-  pinMode(PA11,INPUT_PULLUP); // Disable USB
-  pinMode(PA12,INPUT_PULLUP);
-  
-  for(int i=0;i<16;i++)
-     ucg->drawHLine(1, 10*i, 120);
-#if 0
-    
-    // Calibration
-    pin1.pullUp(false);
-    pin2.setToGround();
-    xDelay(5);
-                                                                       
-    int cal,a;
-    float v;
-    pin1.disconnect();
-    pinMode(PA0,INPUT_PULLUP);
-    while(1)
-    {
-        pin2.sample(cal,v);
-        char st[16];    
-        sprintf(st,"%d",cal);    
-        ucg->clearScreen();    
-        ucg->drawString(10,30,0,st); 
-        xDelay(1000);
-    }
-    
-#endif    
- #if 1      
     while(1)
     {
     ucg->clearScreen(); 
-    Resistor r(pin1,pin2,pin3);
+    Capacitor r(pin1,pin2,pin3);
     if(r.compute())
     {
         r.draw(ucg,0);
     }
      xDelay(1000);
     }
- 
-  #endif     
-#if 0
-    int p=PB4;
-    pinMode(p,OUTPUT);
-    while(1)
-    {
-        digitalWrite(p,1);
-        xDelay(1000);
-        digitalWrite(p,0);
-        xDelay(1000);
-    }
-#endif
-#if 0
-    
-#define DO_PIN(pin, txt, call) \
-        ucg->clearScreen(); \
-        ucg->drawString(10,30,0,#pin); \
-        ucg->drawString(10,60,0,txt); \
-        pin.call  ;\
-        xDelay(5*1000);
-#define pin pin1
-    DO_PIN(pin,"Disconnect",disconnect())
-    DO_PIN(pin,"Ground",setToGround())
-    DO_PIN(pin,"Vcc",setToVcc())
-    DO_PIN(pin,"PDown -L",pullDown(false))
-    DO_PIN(pin,"PUp -H",pullUp(true))
-    DO_PIN(pin,"PDown -H",pullDown(true))
-    DO_PIN(pin,"PUp -L",pullUp(false))
-#endif
  
 }
