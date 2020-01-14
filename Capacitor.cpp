@@ -38,44 +38,19 @@ bool Capacitor::doOne(TestPin::PULL_STRENGTH strength, bool grounded, float perc
     _pA.pullUp(strength);
     
     if(!_pA.fastSampleUp(4095*percent,value,timeUs)) 
+    {
+        zero(6);
         return false;
+    }
+    zero(6);
     // compensate for B resistance
     float v;
     v=((4095.-(float)value)*(float)_pB.getCurrentRes())/(float)_pA.getCurrentRes()    ;
     value-=v;
     resistance=_pA.getCurrentRes()+_pB.getCurrentRes();
+    
     return true;
 }
-/**
- * 
- * @param time
- * @param resistance
- * @param actualValue
- * @return 
- */
-#define pPICO (1000.*1000.*1000.*1000.)
-float Capacitor::computeCapacitance(int time, int iresistance, int actualValue)
-{
-    float cap;
-    float t=(float)time/1000.;        
-    float resistance=iresistance;
-    float den;
-    
-    den=1.-(float)(actualValue)/4095.;
-    
-    den=log(den);
-    if(-den<0.000001) return 0;    
-    cap=-t/(resistance*den);
-    cap/=1000.;
-#if 1
-    float offset=INTERNAL_CAPACITANCE_IN_PF;
-    offset=offset/pPICO;
-    cap=cap-offset;
-    if(cap<=0) cap=1/pPICO;
-#endif    
-    return cap;
-}
-float cLow,cMed,cHi;
 /**
  * 
  * @return 
@@ -110,6 +85,36 @@ bool Capacitor::compute()
     capacitance=computeCapacitance(timeLow,resistanceLow,valueLow);   
     return true;
 }
+/**
+ * 
+ * @param time
+ * @param resistance
+ * @param actualValue
+ * @return 
+ */
+#define pPICO (1000.*1000.*1000.*1000.)
+float Capacitor::computeCapacitance(int time, int iresistance, int actualValue)
+{
+    float cap;
+    float t=(float)time/1000.;        
+    float resistance=iresistance;
+    float den;
+    
+    den=1.-(float)(actualValue)/4095.;
+    
+    den=log(den);
+    if(-den<0.000001) return 0;    
+    cap=-t/(resistance*den);
+    cap/=1000.;
+#if 1
+    float offset=INTERNAL_CAPACITANCE_IN_PF;
+    offset=offset/pPICO;
+    cap=cap-offset;
+    if(cap<=0) cap=1/pPICO;
+#endif    
+    return cap;
+}
+
 /**
  * \brief discharge the capacitor
  * @return 
