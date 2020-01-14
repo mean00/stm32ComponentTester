@@ -25,6 +25,11 @@ void Component::prettyPrint(float value, const char *unit,  char *output)
         if(value>1 && value<1000)
             break;
         dex++;
+        if(dex>sizeof(big)/sizeof(char *))
+        {
+            sprintf(output,"N/A");
+            return;
+        }
         value*=mul;
     }
     sprintf(output,"%3.2f%s%s",value,scale[dex],unit);

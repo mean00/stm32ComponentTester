@@ -80,8 +80,7 @@ void myLoop(void)
         {
             ucg->clearScreen(); 
             r.draw(ucg,0);
-        }else
-            ucg->clearScreen(); 
-         xDelay(500);
+        }
+        xDelay(500);
     } 
 }

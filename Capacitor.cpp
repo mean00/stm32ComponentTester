@@ -1,5 +1,5 @@
 /*
- * Resistance tester
+ * Capacitor tester
 */
 
 #include <SPI.h>
@@ -16,11 +16,9 @@
  */
 bool Capacitor::draw(Ucglib *ucg,int yOffset)
 {
-#if 1
     char st[32];    
     Component::prettyPrint(capacitance, "F",st);
     ucg->drawString(10,30,0,st); 
-#endif 
     return true;
 }
 
@@ -29,11 +27,14 @@ bool Capacitor::draw(Ucglib *ucg,int yOffset)
  * @return 
  */
 
-bool Capacitor::doOne(TestPin::PULL_STRENGTH strength, float percent,int &timeUs, int &resistance,int &value)
+bool Capacitor::doOne(TestPin::PULL_STRENGTH strength, bool grounded, float percent,int &timeUs, int &resistance,int &value)
 {
-    if(!zero(10)) return false;    
+    if(!zero(6)) return false;    
     // go
-    _pB.setToGround();
+    if(grounded)
+        _pB.setToGround();
+    else
+        _pB.pullDown(strength);
     _pA.pullUp(strength);
     
     if(!_pA.fastSampleUp(4095*percent,value,timeUs)) 
@@ -58,9 +59,12 @@ float Capacitor::computeCapacitance(int time, int iresistance, int actualValue)
     float cap;
     float t=(float)time/1000.;        
     float resistance=iresistance;
-    float den=1.-(float)(actualValue)/4095.;
+    float den;
+    
+    den=1.-(float)(actualValue)/4095.;
     
     den=log(den);
+    if(-den<0.000001) return 0;    
     cap=-t/(resistance*den);
     cap/=1000.;
 #if 1
@@ -79,40 +83,35 @@ float cLow,cMed,cHi;
 bool Capacitor::compute()
 {
     capacitance=0;
-    int timeLow,resistanceLow;
-    int timeMed,resistanceMed;
-    int timeHi,resistanceHi;
-    int valueLow,valueMed,valueHigh;
+    int timeLow,resistanceLow,valueLow;
     
-    
-    // do an estimate of the cap
-     if(!doOne(TestPin::PULL_MED,0.10,timeLow,resistanceLow,valueLow))
+    // do a quick  estimate of the cap at 10%
+     if(!doOne(TestPin::PULL_MED,true,0.10,timeLow,resistanceLow,valueLow))
          return false;
     // if time is big, it means we have to use a lower resistance = bigger current
     // if it is small, it means we have to use a bigger resitance = lower current
     // we target 200 ms
-#define AIM 200*1000
-    timeLow=timeLow*14; // 10% => 75%, estimate convert time
-    float targetPc=0.75;
-    TestPin::PULL_STRENGTH strength=TestPin::PULL_MED;
-    if(timeLow<(AIM/2))
-    {
-        strength=TestPin::PULL_HI;
-    }
-    if(timeLow>(AIM*2))
-    {       
-        strength=TestPin::PULL_LOW;
-        float targetPc=0.60;
-    }
+    timeLow=timeLow*10; // Estimated value of RC   to charge the cap at 75% = RC
+    float Cest=(float)timeLow/(float)resistanceLow;
     
+    // it is actually 1E6*Cest, i.e. in uF
+     TestPin::PULL_STRENGTH strength=TestPin::PULL_MED;
+    if(Cest<2)
+    {
+         strength=TestPin::PULL_HI;
+    }else
+        if(Cest>40)
+            strength=TestPin::PULL_LOW;
+    
+    float targetPc=0.75;
     // do the real one
-     if(!doOne(strength,targetPc,timeLow,resistanceLow,valueLow))
+     if(!doOne(strength,true,targetPc,timeLow,resistanceLow,valueLow))
          return false;
     capacitance=computeCapacitance(timeLow,resistanceLow,valueLow);   
     return true;
 }
 /**
- * 
+ * \brief discharge the capacitor
  * @return 
  */
 bool Capacitor::zero(int threshold)
