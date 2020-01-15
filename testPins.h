@@ -57,7 +57,8 @@ public:
         int     getCurrentRes();
 
 protected:  
-        void configureOutput(int pinNo, int state);
+        void    configureOutput(int pinNo, int state);
+        adc_reg_map    *fastSetup()  ;
         int _pinNumber,_pin,_pinDriveHighRes, _pinDriveLowRes,_pinDriveMedRes;
         int _lowRes,_hiRes,_medRes;
         TESTPIN_STATE _state;

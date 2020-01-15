@@ -70,19 +70,36 @@ bool Capacitor::compute()
     float Cest=(float)timeLow/(float)resistanceLow;
     
     // it is actually 1E6*Cest, i.e. in uF
-     TestPin::PULL_STRENGTH strength=TestPin::PULL_MED;
+    TestPin::PULL_STRENGTH strength=TestPin::PULL_MED;
+    int overSampling=2;
     if(Cest<2)
     {
          strength=TestPin::PULL_HI;
+         overSampling=10;
     }else
         if(Cest>40)
+        {
+            overSampling=1;
             strength=TestPin::PULL_LOW;
+        }
     
     float targetPc=0.6281;
-    // do the real one
-     if(!doOne(strength,true,targetPc,timeLow,resistanceLow,valueLow))
-         return false;
-    capacitance=computeCapacitance(timeLow,resistanceLow,valueLow);   
+    // do the real ones
+    float capSum=0;
+    int totalTime=0;
+    int totalR=0;
+    int totalAdc=0;
+    for(int i=0;i<overSampling;i++)
+    {
+         if(!doOne(strength,true,targetPc,timeLow,resistanceLow,valueLow))
+             return false;
+         totalTime+=timeLow;
+         totalR+=resistanceLow;
+         totalAdc+=valueLow;
+        
+    }
+    totalAdc/=overSampling;
+    capacitance=computeCapacitance(totalTime,totalR,totalAdc);   
     return true;
 }
 /**

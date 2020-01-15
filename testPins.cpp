@@ -265,7 +265,7 @@ static bool singleShot(adc_reg_map *regs,int &v)
           if(!(sr & ADC_SR_EOC))
           {
               int now=millis();
-              if((now-start)>500)
+              if((now-start)>10)
               {
                   regs->CR2 &= ~ADC_CR2_SWSTART;
                   return false;
@@ -280,16 +280,39 @@ static bool singleShot(adc_reg_map *regs,int &v)
  * 
  * @param threshold
  * @param value
+ * @param timeUs
  * @return 
  */
-bool    TestPin::fastSampleUp(int threshold,int &value, int &timeUs)  
+adc_reg_map    *TestPin::fastSetup()  
 {
-    adc->setTimeScale(ADC_SMPR_41_5, ADC_PRE_PCLK2_DIV_4);
+/**
+ *  ADC_SMPR_1_5,               **< 1.5 ADC cycles *
+    ADC_SMPR_7_5,               **< 7.5 ADC cycles *
+    ADC_SMPR_13_5,              **< 13.5 ADC cycles *
+    ADC_SMPR_28_5,              **< 28.5 ADC cycles *
+    ADC_SMPR_41_5,              **< 41.5 ADC cycles *
+    ADC_SMPR_55_5,              **< 55.5 ADC cycles *
+    ADC_SMPR_71_5,              **< 71.5 ADC cycles *
+    ADC_SMPR_239_5,             **< 239.5 ADC cycles *
+ */    
+    adc->setTimeScale(ADC_SMPR_7_5, ADC_PRE_PCLK2_DIV_2);
     adc_dev *dev = PIN_MAP[_pin].adc_device;
     int channel=PIN_MAP[_pin].adc_channel;    
     adc_reg_map *regs = dev->regs;    
     adc_set_reg_seqlen(dev, 1);
     regs->SQR3 = channel;
+    return regs;
+}
+
+/**
+ * 
+ * @param threshold
+ * @param value
+ * @return 
+ */
+bool    TestPin::fastSampleUp(int threshold,int &value, int &timeUs)  
+{
+    adc_reg_map *regs=fastSetup();
     // go
     int c;
     uint32_t start=micros();
@@ -316,12 +339,7 @@ bool    TestPin::fastSampleUp(int threshold,int &value, int &timeUs)
 
 bool    TestPin::fastSampleDown(int threshold,int &value, int &timeUs)  
 {
-    adc->setTimeScale(ADC_SMPR_41_5, ADC_PRE_PCLK2_DIV_4);
-    adc_dev *dev = PIN_MAP[_pin].adc_device;
-    int channel=PIN_MAP[_pin].adc_channel;    
-    adc_reg_map *regs = dev->regs;    
-    adc_set_reg_seqlen(dev, 1);
-    regs->SQR3 = channel;
+    adc_reg_map *regs=fastSetup();
     // go
     int c;
     uint32_t start=micros();
