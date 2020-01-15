@@ -39,10 +39,10 @@ bool Capacitor::doOne(TestPin::PULL_STRENGTH strength, bool grounded, float perc
     
     if(!_pA.fastSampleUp(4095*percent,value,timeUs)) 
     {
-        zero(6);
+        //zero(6);
         return false;
     }
-    zero(6);
+    //zero(6);
     // compensate for B resistance
     float v;
     v=((4095.-(float)value)*(float)_pB.getCurrentRes())/(float)_pA.getCurrentRes()    ;
@@ -78,7 +78,7 @@ bool Capacitor::compute()
         if(Cest>40)
             strength=TestPin::PULL_LOW;
     
-    float targetPc=0.75;
+    float targetPc=0.6281;
     // do the real one
      if(!doOne(strength,true,targetPc,timeLow,resistanceLow,valueLow))
          return false;
