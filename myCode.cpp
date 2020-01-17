@@ -2,7 +2,6 @@
 */
 
 #include <SPI.h>
-#include "Ucglib.h"
 #include "fancyLock.h"
 #include "testPins.h"
 #include "resistor.h"
@@ -16,7 +15,6 @@ DSOADC *adc;
  LCD : PA3, PA4, PA2 + PA5/Ä7
  */
 int result[20];
-Ucglib_ST7735_18x128x160_HWSPI *ucg=NULL;
 uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
 
  //TestPin(int pinNo, int pin, int pinDriveHighRes, int pinDriveMed,int pinDriveLow, int hiRes, int medRes,int lowRes);
@@ -28,13 +26,14 @@ TestPin   pin3(3,PA0, PB9, PB14,PB8,303000,20130,468);
 
 void MainTask( void *a )
 {
-  
+#if 0
     ucg=new Ucglib_ST7735_18x128x160_HWSPI(/*cd=*/ PA3, /*cs=*/ PA4, /*reset=*/ PB0);
     ucg->begin(UCG_FONT_MODE_TRANSPARENT); //UCG_FONT_MODE_SOLID);
     ucg->setFont(ucg_font_helvB12_hr);
     ucg->clearScreen();    
     ucg->setColor(255, 255, 255);
     ucg->clearScreen();    
+#endif
     pin1.init();
     pin2.init();
     pin3.init();
@@ -75,14 +74,14 @@ void mySetup(void)
  */
 void myLoop(void)
 {
-    ucg->clearScreen(); 
+    //ucg->clearScreen(); 
     Capacitor r(pin1,pin2,pin3);
     while(1)
     {        
         if(r.compute())
         {
-            ucg->clearScreen(); 
-            r.draw(ucg,0);
+     //       ucg->clearScreen(); 
+            //r.draw(ucg,0);
         }
         xDelay(500);
     } 

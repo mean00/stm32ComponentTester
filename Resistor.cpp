@@ -3,7 +3,6 @@
 */
 
 #include <SPI.h>
-#include "Ucglib.h"
 #include "fancyLock.h"
 #include "testPins.h"
 #include "resistor.h"
@@ -17,7 +16,7 @@ static float computeResistance(float adcValue, int resistance);
  */
 bool Resistor::draw(Ucglib *ucg,int yOffset)
 {
-#if 1
+#if 0
     char st[16];    
     sprintf(st,"%3.1f",resistance);     
     ucg->drawString(10,30,0,st); 

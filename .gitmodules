@@ -1,9 +1,6 @@
 [submodule "cmake"]
 	path = cmake
 	url = https://github.com/mean00/arduino-cmake-stm32.git
-[submodule "ucg"]
-	path = ucg
-	url = https://github.com/olikraus/ucglib.git
 [submodule "FreeRTOS"]
 	path = FreeRTOS
 	url = https://github.com/mean00/MapleFreeRTOS1000.git

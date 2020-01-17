@@ -22,8 +22,8 @@ include_directories(${CMAKE_SOURCE_DIR})
 include_directories(FreeRTOS/)
 include_directories(FreeRTOS/Source/include)
 include_directories(adc)
-#  Build ucglib
-include(ucg.cmake)
+#  Build tft_espi.5
+include(./tft_espi.cmake)
 # Build ADC
 add_subdirectory(FreeRTOS)
 add_subdirectory(adc)
@@ -33,11 +33,11 @@ add_subdirectory(adc)
 ADD_DEFINITIONS(-D__NOP="")
 generate_arduino_firmware(stm32ComponentTester 
                 SKETCH stm32ComponentTester.ino
-                SRCS myCode.cpp fancyLock.cpp ucg/cppsrc/Ucglib.cpp ${ucg_src} testPins.cpp Resistor.cpp Capacitor.cpp Component.cpp cycleClock.cpp
+                SRCS myCode.cpp fancyLock.cpp  testPins.cpp Resistor.cpp Capacitor.cpp Component.cpp cycleClock.cpp
                 PORT ${ARDUINO_DEFAULT_PORT}
                 BOARD_CPU ${ARDUINO_CPU}
                 )
-target_link_libraries(stm32ComponentTester UCG)
+target_link_libraries(stm32ComponentTester TFT_ST7735)
 target_link_libraries(stm32ComponentTester ${libPrefix}ADC)
 target_link_libraries(stm32ComponentTester ${libPrefix}FreeRTOS)
 
