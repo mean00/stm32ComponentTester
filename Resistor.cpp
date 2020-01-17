@@ -101,8 +101,8 @@ bool Resistor::probe( TestPin &A,TestPin::TESTPIN_STATE stateA, TestPin &B,TestP
       B.setMode(stateB);
       int hiAdc, loAdc;
       int hiNb,loNb;    
-      A.slowSample(hiAdc,hiNb);
-      B.slowSample(loAdc,loNb);
+      A.slowDmaSample(hiAdc,hiNb);
+      B.slowDmaSample(loAdc,loNb);
       
       float delta=abs(hiAdc-loAdc);      
       if(delta<0.) delta=0.;

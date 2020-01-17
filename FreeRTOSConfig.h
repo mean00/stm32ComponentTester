@@ -52,7 +52,7 @@
 #define configTICK_RATE_HZ			( ( TickType_t ) 1000 )
 #define configMAX_PRIORITIES                    ( 31 )
 #define configMINIMAL_STACK_SIZE                ( ( unsigned short ) 256 )
-#define configTOTAL_HEAP_SIZE                   ( ( size_t ) ( 8 * 1024 ) ) // WAS : 8
+#define configTOTAL_HEAP_SIZE                   ( ( size_t ) ( 4 * 1024 ) ) // WAS : 8
 #define configMAX_TASK_NAME_LEN                 ( 16 )
 #define configUSE_TRACE_FACILITY                0
 #define configUSE_16_BIT_TICKS                  0
@@ -104,9 +104,23 @@ NVIC value of 255. */
 #define configCOM0_TX_BUFFER_LENGTH		128
 #define configCOM1_RX_BUFFER_LENGTH		128
 #define configCOM1_TX_BUFFER_LENGTH		128
-
-
 #endif
+extern void do_assert(const char  *x);
+#define traceQUEUE_CREATE_FAILED(x) {do_assert("");}
+#define traceCREATE_MUTEX_FAILED(x) {do_assert("");}
+#define traceGIVE_MUTEX_RECURSIVE_FAILED(x) {do_assert("");}
+#define traceTAKE_MUTEX_RECURSIVE_FAILED(x) {do_assert("");}
+#define traceCREATE_COUNTING_SEMAPHORE_FAILED(x) {do_assert("");}
+#define traceQUEUE_SEND_FROM_ISR_FAILED(x) {do_assert("");}
+#define traceQUEUE_RECEIVE_FROM_ISR_FAILED(x) {do_assert("");}
+#define traceTASK_CREATE_FAILED(x) {do_assert("");}
+#define traceTIMER_CREATE_FAILED(x) {do_assert("");}
+#define traceEVENT_GROUP_CREATE_FAILED(x) {do_assert("");}
+//#define traceMALLOC(x,y) {do_assert("");}
+#define configUSE_MALLOC_FAILED_HOOK 1
+
+#define configAPPLICATION_ALLOCATED_HEAP 1
+#define configTOTAL_HEAP_SIZE            (8*1024)
 
 #endif /* FREERTOS_CONFIG_H */
 

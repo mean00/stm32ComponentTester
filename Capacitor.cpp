@@ -9,6 +9,10 @@
 #include "Capacitor.h"
 #include "math.h"
 #include "calibration.h"
+#include "cycleClock.h"
+//
+CycleClock clk;
+extern Ucglib *ucg;
 /**
  * 
  * @param yOffset
@@ -55,6 +59,68 @@ bool Capacitor::doOne(TestPin::PULL_STRENGTH strength, bool grounded, float perc
  * 
  * @return 
  */
+extern int z;
+bool Capacitor::computeLowCap()
+{
+    capacitance=0;
+    uint32_t begin,end;
+    // Discharge cap
+    if(!zero(6)) return false;        
+    // go
+    _pB.setToGround();
+    begin=micros();
+    
+    // start the DMA
+    // max duration ~ 512 us
+    uint16_t *samples;
+    int nbSamples;
+    clk.start();        
+    
+    if(!_pA.prepareDmaSample(true,512)) 
+        return false;        
+    _pA.pullUp(TestPin::PULL_HI);   
+    
+    
+    if(!_pA.finishDmaSample(nbSamples,&samples)) 
+    {
+        return false;
+    }
+#if 0
+    char st[32];    
+    Component::prettyPrint((float)samples[nbSamples-1], "F",st);
+    ucg->drawString(10,30,0,st); 
+    while(1)
+    {
+        
+    };
+
+#endif    
+    
+    clk.stop();
+    end=micros();
+    //clk.stop();
+    z=end-begin;
+    // Each sample is ~ 1us
+    // check which one reaches 0.615
+    int candidate=-1;
+    for(int i=0;i<nbSamples;i++)
+    {
+        if(samples[i]>(4095.*0.6815))
+        {
+            candidate=i;
+            i=nbSamples+1;
+        }
+    }
+    if(candidate==-1)        
+        return false;
+    capacitance=computeCapacitance(candidate,_pA.getCurrentRes()+_pB.getCurrentRes(),samples[candidate]);   
+    return true;
+}
+
+/**
+ * 
+ * @return 
+ */
 bool Capacitor::compute()
 {
     capacitance=0;
@@ -74,6 +140,11 @@ bool Capacitor::compute()
     int overSampling=2;
     if(Cest<2)
     {
+#warning FIXME
+        if(Cest<0.05) // less than  500 pf
+        {
+          // return computeLowCap();
+        }
          strength=TestPin::PULL_HI;
          overSampling=10;
     }else

@@ -224,21 +224,45 @@ AutoDisconnect::~AutoDisconnect()
 {
     allPins.disconnectAll();
 }
-
+/**
+ * 
+ * @param nbSamples
+ * @return 
+ */
+bool    TestPin::prepareDmaSample(bool fast,int nbSamples)
+{
+    uint16_t *samples;
+    adc->setADCPin(_pin);    
+    if(fast)
+        adc->prepareDMASampling(ADC_SMPR_71_5,ADC_PRE_PCLK2_DIV_8);     
+    else
+       adc->prepareDMASampling(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_8);    
+    adc->startDMASampling(nbSamples);
+    return true;    
+}
+/**
+ * 
+ * @param nbSamples
+ * @param xsamples
+ * @return 
+ */
+bool    TestPin::finishDmaSample(int &nbSamples, uint16_t **xsamples)
+{
+    xAssert(true==adc->getSamples(xsamples,nbSamples));
+    return true;    
+}
 /**
  * 
  * @param adc
  * @param voltage
  */
-bool    TestPin::slowSample(int &xadc, int &nbSamples)
+bool    TestPin::slowDmaSample(int &xadc, int &nbSamples)
 {
     uint16_t *samples;
     xadc=0;
-    
-    adc->setADCPin(_pin);
+    adc->setADCPin(_pin);    
     xDelay(10); // wait a bit
-    adc->prepareDMASampling(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_8);    
-    adc->startDMASampling(32);
+    xAssert(prepareDmaSample(false,32));
     xAssert(true==adc->getSamples(&samples,nbSamples));
     int r=0;
    // if(nbSamples!=32) return false;

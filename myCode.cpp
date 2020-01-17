@@ -9,7 +9,7 @@
 #include "Capacitor.h"
 #include "dso_adc.h"
 #define LED PC13
-
+int z;
 void myLoop(void);
 DSOADC *adc;
 /*
@@ -17,12 +17,13 @@ DSOADC *adc;
  */
 int result[20];
 Ucglib_ST7735_18x128x160_HWSPI *ucg=NULL;
+uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
 
  //TestPin(int pinNo, int pin, int pinDriveHighRes, int pinDriveMed,int pinDriveLow, int hiRes, int medRes,int lowRes);
 
-TestPin   pin1(1,PA0, PB5, PB12,PB4,303800,20110,470);
+TestPin   pin1(1,PA2, PB5, PB12,PB4,303800,20110,470);
 TestPin   pin2(2,PA1, PB7, PB13,PB6,303300,20100,470);
-TestPin   pin3(3,PA2, PB9, PB14,PB8,303000,20130,468);
+TestPin   pin3(3,PA0, PB9, PB14,PB8,303000,20130,468);
 
 
 void MainTask( void *a )
@@ -34,8 +35,6 @@ void MainTask( void *a )
     ucg->clearScreen();    
     ucg->setColor(255, 255, 255);
     ucg->clearScreen();    
-    adc=new DSOADC(PA0);
-    adc->setupADCs();
     pin1.init();
     pin2.init();
     pin3.init();
@@ -61,6 +60,10 @@ void mySetup(void)
   
   Serial.begin(38400);
   interrupts();
+  
+  adc=new DSOADC(PA0);
+  adc->setupADCs();
+
   
   xTaskCreate( MainTask, "MainTask", 500, NULL, 10, NULL );   
   vTaskStartScheduler();      

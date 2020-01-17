@@ -49,7 +49,10 @@ public:
         void    setToVcc();
         void    setToGround();
         void    disconnect();
-        bool    slowSample(int &adcSum, int &nbSamples);
+        bool    slowDmaSample(int &adcSum, int &nbSamples);
+        bool    finishDmaSample(int &nbSamples, uint16_t **xsamples);
+        bool    prepareDmaSample(bool fast, int nbSamples);
+        //
         bool    fastSampleUp(int threshold,int &value, int &timeUs);
         bool    fastSampleDown(int threshold,int &value, int &timeUs)  ;
         TESTPIN_STATE getState() {return _state;}
