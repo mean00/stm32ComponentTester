@@ -41,6 +41,11 @@ bool Capacitor::doOne(TestPin::PULL_STRENGTH strength, bool grounded, float perc
         _pB.pullDown(strength);
     _pA.pullUp(strength);
     
+    // Wait for the ADC value to go over 4095*percent
+    // We introduce a small error here due to the fact the ADC
+    // is starting too late
+    // compensated by calibration
+    
     if(!_pA.fastSampleUp(4095*percent,value,timeUs)) 
     {
         //zero(6);
@@ -130,9 +135,9 @@ bool Capacitor::compute()
      if(!doOne(TestPin::PULL_MED,true,0.10,timeLow,resistanceLow,valueLow))
          return false;
     // if time is big, it means we have to use a lower resistance = bigger current
-    // if it is small, it means we have to use a bigger resitance = lower current
+    // if it is small, it means we have to use a bigger resistance = lower current
     // we target 200 ms
-    timeLow=timeLow*10; // Estimated value of RC   to charge the cap at 75% = RC
+    timeLow=timeLow*10; // Estimated value of RC   to charge the cap at 68% = RC
     float Cest=(float)timeLow/(float)resistanceLow;
     
     // it is actually 1E6*Cest, i.e. in uF
@@ -141,7 +146,7 @@ bool Capacitor::compute()
     if(Cest<2)
     {
 #warning FIXME
-        if(Cest<0.05) // less than  500 pf
+        if(Cest<0.05) // less than  50 pf
         {
           // return computeLowCap();
         }
