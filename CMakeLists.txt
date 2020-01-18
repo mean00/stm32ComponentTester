@@ -23,7 +23,7 @@ include_directories(FreeRTOS/)
 include_directories(FreeRTOS/Source/include)
 include_directories(adc)
 #  Build tft_espi.5
-include(./tft_espi.cmake)
+include(./st7735.cmake)
 # Build ADC
 add_subdirectory(FreeRTOS)
 add_subdirectory(adc)
@@ -37,7 +37,7 @@ generate_arduino_firmware(stm32ComponentTester
                 PORT ${ARDUINO_DEFAULT_PORT}
                 BOARD_CPU ${ARDUINO_CPU}
                 )
-target_link_libraries(stm32ComponentTester TFT_ST7735)
+target_link_libraries(stm32ComponentTester TFT7735)
 target_link_libraries(stm32ComponentTester ${libPrefix}ADC)
 target_link_libraries(stm32ComponentTester ${libPrefix}FreeRTOS)
 
