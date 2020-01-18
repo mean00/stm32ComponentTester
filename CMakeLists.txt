@@ -44,7 +44,7 @@ generate_arduino_firmware(stm32ComponentTester
                 )
 target_link_libraries(stm32ComponentTester ${libPrefix}ADC)
 target_link_libraries(stm32ComponentTester ${libPrefix}FreeRTOS)
-target_link_libraries(stm32ComponentTester ${libPrefix}/testerGfx)
+target_link_libraries(stm32ComponentTester ${libPrefix}testerGfx)
 
 
 # EOF
