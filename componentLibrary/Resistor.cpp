@@ -14,7 +14,7 @@ static float computeResistance(float adcValue, int resistance);
  * @param yOffset
  * @return 
  */
-bool Resistor::draw(Ucglib *ucg,int yOffset)
+bool Resistor::draw(int yOffset)
 {
 #if 0
     char st[16];    

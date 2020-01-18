@@ -11,19 +11,16 @@
 #include "cycleClock.h"
 //
 CycleClock clk;
-extern Ucglib *ucg;
 /**
  * 
  * @param yOffset
  * @return 
  */
-bool Capacitor::draw(Ucglib *ucg,int yOffset)
+bool Capacitor::draw(int yOffset)
 {
-#if 0
     char st[32];    
     Component::prettyPrint(capacitance, "F",st);
-    ucg->drawString(10,30,0,st); 
-#endif
+    TesterGfx::print(10,10,st);
     return true;
 }
 

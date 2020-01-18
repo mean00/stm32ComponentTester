@@ -11,7 +11,7 @@ public:
                       capacitance=0;
                     }
             virtual bool compute()            ;
-            virtual bool draw(Ucglib *u,int yOffset);
+            virtual bool draw(int yOffset);
                     int  getValue() {return capacitance;}
             
 protected:
