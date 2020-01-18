@@ -22,6 +22,8 @@ include_directories(${CMAKE_SOURCE_DIR})
 include_directories(FreeRTOS/)
 include_directories(FreeRTOS/Source/include)
 include_directories(adc)
+include_directories(utils)
+include_directories(componentLibrary)
 #  Build tft_espi.5
 include(./st7735.cmake)
 # Build ADC
@@ -30,10 +32,14 @@ add_subdirectory(adc)
 #
 # Our code
 #
+SET(UTILS utils/fancyLock.cpp    utils/cycleClock.cpp)
+SET(COMPT  componentLibrary/Resistor.cpp componentLibrary/Capacitor.cpp componentLibrary/Component.cpp )
+
+
 ADD_DEFINITIONS(-D__NOP="")
 generate_arduino_firmware(stm32ComponentTester 
                 SKETCH stm32ComponentTester.ino
-                SRCS myCode.cpp fancyLock.cpp  testPins.cpp Resistor.cpp Capacitor.cpp Component.cpp cycleClock.cpp
+                SRCS myCode.cpp testPins.cpp  ${UTILS} ${COMPT}
                 PORT ${ARDUINO_DEFAULT_PORT}
                 BOARD_CPU ${ARDUINO_CPU}
                 )
