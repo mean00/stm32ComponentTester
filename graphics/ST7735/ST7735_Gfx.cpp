@@ -11,13 +11,20 @@ void TesterGfx::init()
     instance->initR();
     instance->setRotation(2);
     instance->fillScreen(0x1f<<11);
-    instance->print("Hi!");
-            
+    instance->print("Hi!");            
+}
+/**
+ * 
+ */
+void TesterGfx::clear()
+{
+    instance->fillScreen(0);
 }
 /**
  */
 void TesterGfx::print(int x, int y, const char *txt)
 {
     
-  
+    instance->setCursor(x,y);
+    instance->print(txt);
 };

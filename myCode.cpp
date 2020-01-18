@@ -9,18 +9,15 @@
 #include "dso_adc.h"
 #include "testerGfx.h"
 #define LED PC13
-int z;
 void myLoop(void);
-DSOADC *adc;
-/*
- LCD : PA3, PA4, PA2 + PA5/Ä7
- */
+DSOADC *adc=NULL;
+//
 int result[20];
+int z;
+//
 uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
-
- //TestPin(int pinNo, int pin, int pinDriveHighRes, int pinDriveMed,int pinDriveLow, int hiRes, int medRes,int lowRes);
-
-TestPin   pin1(1,PA2, PB5, PB12,PB4,303800,20110,470);
+//
+TestPin   pin1(1,PA2, PB5, PB12,PB4,303800,20110,470);  //TestPin(int pinNo, int pin, int pinDriveHighRes, int pinDriveMed,int pinDriveLow, int hiRes, int medRes,int lowRes);
 TestPin   pin2(2,PA1, PB7, PB13,PB6,303300,20100,470);
 TestPin   pin3(3,PA0, PB9, PB14,PB8,303000,20130,468);
 
@@ -29,14 +26,6 @@ void MainTask( void *a )
 {
   
     TesterGfx::init();
-#if 0
-    ucg=new Ucglib_ST7735_18x128x160_HWSPI(/*cd=*/ PA3, /*cs=*/ PA4, /*reset=*/ PB0);
-    ucg->begin(UCG_FONT_MODE_TRANSPARENT); //UCG_FONT_MODE_SOLID);
-    ucg->setFont(ucg_font_helvB12_hr);
-    ucg->clearScreen();    
-    ucg->setColor(255, 255, 255);
-    ucg->clearScreen();    
-#endif
     pin1.init();
     pin2.init();
     pin3.init();
@@ -82,9 +71,9 @@ void myLoop(void)
     while(1)
     {        
         if(r.compute())
-        {
-     //       ucg->clearScreen(); 
-            //r.draw(ucg,0);
+        {     
+            TesterGfx::clear();
+            r.draw(0);
         }
         xDelay(500);
     } 

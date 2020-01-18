@@ -31,7 +31,7 @@ bool Capacitor::draw(int yOffset)
 
 bool Capacitor::doOne(TestPin::PULL_STRENGTH strength, bool grounded, float percent,int &timeUs, int &resistance,int &value)
 {
-    if(!zero(6)) return false;    
+    if(!zero(10)) return false;    
     // go
     if(grounded)
         _pB.setToGround();
