@@ -1,10 +1,9 @@
 SET(ST7735 ${CMAKE_CURRENT_SOURCE_DIR}/ST7735/)
-SET(ADA_AS ${PLATFORM_PATH}/libraries/Adafruit_GFX_AS/)
 SET(ADA    ${CMAKE_CURRENT_SOURCE_DIR}/Adafruit-GFX-Library)
 #
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/stubs)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${ST7735})
-include_directories(${ADA_AS})
 include_directories(${ADA})
 include_directories(${ST7735})
 #
