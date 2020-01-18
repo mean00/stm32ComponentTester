@@ -25,18 +25,15 @@ include_directories(adc)
 include_directories(utils)
 include_directories(componentLibrary)
 include_directories(graphics)
-include_directories(graphics/ST7735)
-#  Build tft_espi.5
-include(./st7735.cmake)
 # Build ADC
 add_subdirectory(FreeRTOS)
 add_subdirectory(adc)
+add_subdirectory(graphics)
 #
 # Our code
 #
 SET(UTILS utils/fancyLock.cpp    utils/cycleClock.cpp)
 SET(COMPT  componentLibrary/Resistor.cpp componentLibrary/Capacitor.cpp componentLibrary/Component.cpp )
-SET(GFX    graphics/ST7735/ST7735_ex.cpp graphics/ST7735/ST7735_Gfx.cpp)
 
 ADD_DEFINITIONS(-D__NOP="")
 generate_arduino_firmware(stm32ComponentTester 
@@ -45,9 +42,9 @@ generate_arduino_firmware(stm32ComponentTester
                 PORT ${ARDUINO_DEFAULT_PORT}
                 BOARD_CPU ${ARDUINO_CPU}
                 )
-target_link_libraries(stm32ComponentTester TFT7735)
 target_link_libraries(stm32ComponentTester ${libPrefix}ADC)
 target_link_libraries(stm32ComponentTester ${libPrefix}FreeRTOS)
+target_link_libraries(stm32ComponentTester ${libPrefix}/testerGfx)
 
 
 # EOF
