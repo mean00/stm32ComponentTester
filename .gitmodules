@@ -4,9 +4,6 @@
 [submodule "FreeRTOS"]
 	path = FreeRTOS
 	url = https://github.com/mean00/MapleFreeRTOS1000.git
-[submodule "graphics/Adafruit-ST7735-Library"]
-	path = graphics/Adafruit-ST7735-Library
-	url = https://github.com/KenjutsuGH/Adafruit-ST7735-Library.git
 [submodule "graphics/ST7735/Adafruit-ST7735"]
 	path = graphics/ST7735/Adafruit-ST7735
 	url = https://github.com/KenjutsuGH/Adafruit-ST7735-Library.git
