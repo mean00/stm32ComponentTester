@@ -7,7 +7,7 @@
 #include "resistor.h"
 #include "Capacitor.h"
 #include "dso_adc.h"
-#include "Adafruit_ST7735.h"
+#include "testerGfx.h"
 #define LED PC13
 int z;
 void myLoop(void);
@@ -23,16 +23,12 @@ uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
 TestPin   pin1(1,PA2, PB5, PB12,PB4,303800,20110,470);
 TestPin   pin2(2,PA1, PB7, PB13,PB6,303300,20100,470);
 TestPin   pin3(3,PA0, PB9, PB14,PB8,303000,20130,468);
-Adafruit_ST7735 *ucg;
+
 
 void MainTask( void *a )
 {
-    ucg=new Adafruit_ST7735(PA4,PA3,PB0); //int8_t CS, int8_t RS, int8_t RST = -1
-    //ucg->initB();
-    ucg->initR();
-    ucg->fillScreen(0x1f<<11);
-    ucg->print("Hi!");
-    
+  
+    TesterGfx::init();
 #if 0
     ucg=new Ucglib_ST7735_18x128x160_HWSPI(/*cd=*/ PA3, /*cs=*/ PA4, /*reset=*/ PB0);
     ucg->begin(UCG_FONT_MODE_TRANSPARENT); //UCG_FONT_MODE_SOLID);
