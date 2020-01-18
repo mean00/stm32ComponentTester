@@ -36,26 +36,30 @@ inline uint16_t swapcolor(uint16_t x) {
 
 #if defined (SPI_HAS_TRANSACTION) 
   static SPISettings mySPISettings;
-#elif defined (__AVR__)
-  static uint8_t SPCRbackup;
-  static uint8_t mySPCR;
-#endif
-
   class spiGuard
   {
+  public:      
       spiGuard()
       {
-#if defined (SPI_HAS_TRANSACTION)           
-           SPI.beginTransaction(mySPISettings);
-#endif
+            SPI.beginTransaction(mySPISettings);
       }
       ~spiGuard()
       {
-#if defined (SPI_HAS_TRANSACTION)                     
-         endTransaction(mySPISettings); 
-#endif
+            SPI.endTransaction(); 
       }
-  }
+  };
+#else
+   class spiGuard
+  {
+public:       
+      spiGuard()
+      {           
+      }
+      ~spiGuard()
+      {       
+      }
+  };
+#endif
   
   
 
