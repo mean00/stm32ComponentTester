@@ -31,6 +31,8 @@ void MainTask( void *a )
     //ucg->initB();
     ucg->initR();
     ucg->fillScreen(0x1f<<11);
+    ucg->print("Hi!");
+    
 #if 0
     ucg=new Ucglib_ST7735_18x128x160_HWSPI(/*cd=*/ PA3, /*cs=*/ PA4, /*reset=*/ PB0);
     ucg->begin(UCG_FONT_MODE_TRANSPARENT); //UCG_FONT_MODE_SOLID);
