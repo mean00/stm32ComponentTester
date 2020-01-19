@@ -3,7 +3,9 @@ SET(ADA_SRC ${ADA}/Adafruit_GFX.cpp  ${ADA}/Adafruit_SPITFT.cpp )
 #
 # For ST7735
 #
-SET(ST7735 ${CMAKE_CURRENT_SOURCE_DIR}/ST7735/Adafruit-ST7735-mod)
+# Ovveride the .h file so attributes are protected and not private
+include_directories(ST7735 ${CMAKE_CURRENT_SOURCE_DIR}/ST7735/Adafruit-ST7735-mod)
+#
 SET(ST7735 ${CMAKE_CURRENT_SOURCE_DIR}/ST7735/Adafruit-ST7735)
 SET(ST7735_EX ${CMAKE_CURRENT_SOURCE_DIR}/ST7735/)
 SET(GFX    ${ST7735}/Adafruit_ST7735.cpp)
