@@ -22,7 +22,7 @@ void Adafruit_ST7735Ex::init()
     memset(lineBuffer,0,sizeof(lineBuffer));
     CS_ON();
     SEND_DATA();
-    writecommand(ST7735_RAMWR); // Row addr set
+  
     SPI.setDataSize (SPI_CR1_DFF_8_BIT); // Set spi 16bit mode  
     SPI.dmaSend(lineBuffer, 128*2, true);
     CS_OFF();    
@@ -145,60 +145,10 @@ void Adafruit_ST7735Ex::drawRLEBitmap(int widthInPixel, int height, int wx, int 
             }
             x+=count;
         }    
-        pushColors(line,widthInPixel,true);
+        pushColors(line,widthInPixel,first);
         first=false;
     }   
 }
-
-/**
- * 
- * @param st
- * @param length
- * @param padd_up_to_n_pixels
- */
-void  Adafruit_ST7735Ex::myDrawStringN(const char *st,int length,int padd_up_to_n_pixels)
- {
-     if(!currentFont)
-         return;
-     int lastColumn=0;
-     
-     int endX=cursor_x+padd_up_to_n_pixels;
-     
-     for(int i=0;i<length;i++)
-     {
-         int of=myDrawChar(cursor_x,cursor_y+currentFont->maxHeight,
-                           st[i],
-                           textcolor,textbgcolor,*currentFont);
-         cursor_x+=of;
-         if(cursor_x>=_width) return;
-     }
-     int leftOver=endX-cursor_x;
-     if(leftOver>0)
-     {
-         while(leftOver>0)
-         {
-             int rnd=leftOver;
-            if(rnd>currentFont->maxWidth) rnd=currentFont->maxWidth;
-            mySquare(cursor_x,cursor_y,
-                  rnd, currentFont->maxHeight+2, textbgcolor);
-            cursor_x+=rnd;
-            leftOver=endX-cursor_x;
-            
-         }
-     }
- }
-
-/**
- * 
- * @param st
- */
- void  Adafruit_ST7735Ex::myDrawString(const char *st,int padd_up_to_n_pixels)
- {
-     if(!currentFont)
-         return;
-     int l=strlen(st);
-     myDrawStringN(st,l,padd_up_to_n_pixels);
- }
 
 /**
  * 
@@ -247,4 +197,55 @@ void  Adafruit_ST7735Ex::setFontFamily(const GFXfont *small, const GFXfont *medi
     checkFont(medium,fontInfo+1);
     checkFont(big,   fontInfo+2);
 }        
-  
+/**
+ * 
+ * @param color
+ */
+void Adafruit_ST7735Ex::fillScreen(uint16_t color) 
+{  
+
+    setAddrWindow(0, 0, _width - 1, _height - 1);    
+    flood(color,_width*_height);
+}
+
+/**
+ * 
+ * @param color
+ * @param len
+ */  
+void    Adafruit_ST7735Ex::flood(uint16_t color, uint32_t len)
+{
+    SEND_DATA();
+    CS_ON();    
+    SPI.setDataSize (SPI_CR1_DFF); // Set spi 16bit mode
+    lineBuffer[0] = color;
+    xAssert(len<65535);
+    SPI.dmaSend(lineBuffer, len, 0);
+    SPI.setDataSize (0);
+    CS_OFF();
+}
+/**
+ * 
+ * @param data
+ * @param len
+ * @param first
+ * @param fg
+ * @param bg
+ */
+void    Adafruit_ST7735Ex::push2Colors(uint8_t *data, int len, boolean first,uint16_t fg, uint16_t bg)
+{
+    xAssert(len<ST7735_TFTHEIGHT_18);
+    uint16_t *p=lineBuffer;
+    for(int i=0;i<len;i++)
+    {
+        if(data[i])
+            p[i]=fg;
+        else
+            p[i]=bg;
+    }
+   SEND_DATA();
+   CS_ON();
+   SPI.setDataSize (0*SPI_CR1_DFF_16_BIT); // Set spi 16bit mode  
+   SPI.dmaSend(lineBuffer, len*2, true);
+   CS_OFF();
+}

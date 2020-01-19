@@ -1,5 +1,6 @@
 
 #include "Adafruit_ST7735.h"
+#include "MapleFreeRTOS1000_pp.h"
 /**
  * Extension to ST7735 to allow block-blit and custom TrueType font
  * It should be fast enough
@@ -29,18 +30,13 @@ public:
         
         
         void  setFontFamily(const GFXfont *small, const GFXfont *medium, const GFXfont *big);
-        void  myDrawString(const char *st, int padd_up_to_n_pixels=0);
-        void  myDrawStringN(const char *st,int length,int padd_up_to_n_pixels=0);
         void  setFontSize(FontSize size);
-
+        void  fillScreen(uint16_t color) ;
 protected:
         FontInfo          fontInfo[3];
-        int                myDrawChar(int x, int y, unsigned char c,  int color, int bg,FontInfo &info);    
+        
         FontInfo          *currentFont;
         void    flood(uint16_t color, uint32_t len);
-        void    flood2(uint16_t color, uint16_t bg,uint32_t len);
-        int     mySquare(int x, int y, int w, int h, uint16_t filler);
         void    push2Colors(uint8_t *data, int len, boolean first,uint16_t fg, uint16_t bg);
-
 
 };

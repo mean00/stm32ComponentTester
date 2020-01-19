@@ -12,8 +12,13 @@ void TesterGfx::init()
     instance=new Adafruit_ST7735Ex(PA4,PA3,PB0);
     instance->init();    
     instance->setFontFamily(&Waree9pt7b, &Waree9pt7b, &Waree12pt7b);  
-    instance->fillScreen(0);
-    instance->drawRLEBitmap(128,96,0,0,0xffff,0,splash);
+    instance->fillScreen(0x1f);
+    //instance->drawRLEBitmap(128,96,0,0,0xffff,0,splash);
+    instance->setCursor(4,30);
+    instance->setFontSize(Adafruit_ST7735Ex::MediumFont);
+    instance->setTextColor(0xFFFF,0x3f);
+    instance->setFont(&Waree9pt7b);
+    instance->print("Component");
 }
 /**
  * 
