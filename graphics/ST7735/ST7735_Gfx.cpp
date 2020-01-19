@@ -1,6 +1,6 @@
 #include "ST7735_ex.h"
 #include "testerGfx.h"
-#include "splash_compressed.h"
+#include "assets.h"
 static Adafruit_ST7735Ex *instance=NULL;
 
 /**
@@ -28,3 +28,20 @@ void TesterGfx::print(int x, int y, const char *txt)
     instance->setCursor(x,y);
     instance->print(txt);
 };
+/**
+ * 
+ * @param offset
+ * @param value
+ * @param pinA
+ * @param pinB
+ */
+void TesterGfx::drawCapacitor(int offset, const char *value,int pinA, int pinB)
+{
+      instance->drawRLEBitmap(128,96,0,0,0xffff,0,cap);
+      instance->setCursor(20,48);
+      instance->print(pinA);
+      instance->setCursor(128-20-20,48);
+      instance->print(pinB);
+      instance->setCursor(50,100);
+      instance->print(value);
+}

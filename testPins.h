@@ -58,6 +58,7 @@ public:
         TESTPIN_STATE getState() {return _state;}
         void    disconnectAll();
         int     getCurrentRes();
+        int     pinNumber() {return _pinNumber;}
 
 protected:  
         void    configureOutput(int pinNo, int state);

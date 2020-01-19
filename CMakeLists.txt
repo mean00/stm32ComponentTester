@@ -25,10 +25,12 @@ include_directories(adc)
 include_directories(utils)
 include_directories(componentLibrary)
 include_directories(graphics)
+include_directories(assets)
 # Build ADC
 add_subdirectory(FreeRTOS)
 add_subdirectory(adc)
 add_subdirectory(graphics)
+add_subdirectory(assets)
 #
 # Our code
 #
@@ -45,6 +47,7 @@ generate_arduino_firmware(stm32ComponentTester
 target_link_libraries(stm32ComponentTester ${libPrefix}ADC)
 target_link_libraries(stm32ComponentTester ${libPrefix}FreeRTOS)
 target_link_libraries(stm32ComponentTester ${libPrefix}testerGfx)
+target_link_libraries(stm32ComponentTester ${libPrefix}assets)
 
 
 # EOF

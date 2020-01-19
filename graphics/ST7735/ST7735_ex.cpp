@@ -1,8 +1,6 @@
 #include "SPI.h"
 #include "ST7735_ex.h"
 
-
-
 #define CS_ON() { *csport &= ~cspinmask;}
 #define CS_OFF() {  *csport |= cspinmask;}
 #define SEND_DATA() {  *rsport |=  rspinmask;   }
@@ -101,8 +99,15 @@ void Adafruit_ST7735Ex::pushColors(const uint16_t *data, int len, boolean first)
    CS_OFF();
   
 }
-
 /**
+ * 
+ * @param widthInPixel
+ * @param height
+ * @param wx
+ * @param wy
+ * @param fgcolor
+ * @param bgcolor
+ * @param data
  */
 void Adafruit_ST7735Ex::drawRLEBitmap(int widthInPixel, int height, int wx, int wy, int fgcolor, int bgcolor, const uint8_t *data)
 {

@@ -18,9 +18,9 @@ CycleClock clk;
  */
 bool Capacitor::draw(int yOffset)
 {
-    char st[32];    
+    char st[32];        
     Component::prettyPrint(capacitance, "F",st);
-    TesterGfx::print(10,10,st);
+    TesterGfx::drawCapacitor(yOffset, st,_pA.pinNumber(), _pB.pinNumber());
     return true;
 }
 
