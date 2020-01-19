@@ -52,9 +52,8 @@ class Adafruit_ST7735 : public Adafruit_GFX {
   uint16_t Color565(uint8_t r, uint8_t g, uint8_t b);
 
 
- private:
+ protected:
   uint8_t  tabcolor;
-
   void     spiwrite(uint8_t),
            writecommand(uint8_t c),
            writedata(uint8_t d),

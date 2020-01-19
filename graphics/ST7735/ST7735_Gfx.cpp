@@ -1,6 +1,6 @@
 #include "ST7735_ex.h"
 #include "testerGfx.h"
-
+#include "splash_compressed.h"
 static Adafruit_ST7735Ex *instance=NULL;
 
 /**
@@ -8,10 +8,10 @@ static Adafruit_ST7735Ex *instance=NULL;
 void TesterGfx::init()
 {
     instance=new Adafruit_ST7735Ex(PA4,PA3,PB0);
-    instance->initR();
-    instance->setRotation(2);
+    instance->init();    
     instance->fillScreen(0x1f<<11);
     instance->print("Hi!");            
+    instance->drawRLEBitmap(128,96,0,0,0xffff,0,splash);
 }
 /**
  * 

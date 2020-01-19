@@ -28,7 +28,7 @@ as well as Adafruit raw 1.8" TFT display
 #include <SPI.h>
 #include "Adafruit_ST7735_internal.h"
 
-#define SPI_HAS_TRANSACTION 1
+#define SPI_HAS_TRANSACTION 1 // We DO!
 
 inline uint16_t swapcolor(uint16_t x) { 
   return (x << 11) | (x & 0x07E0) | (x >> 11);
@@ -39,26 +39,16 @@ inline uint16_t swapcolor(uint16_t x) {
   class spiGuard
   {
   public:      
-      spiGuard()
-      {
-            SPI.beginTransaction(mySPISettings);
-      }
-      ~spiGuard()
-      {
-            SPI.endTransaction(); 
-      }
+      spiGuard()      {            SPI.beginTransaction(mySPISettings);      }
+      ~spiGuard()      {            SPI.endTransaction();       }
   };
 #else
    class spiGuard
   {
 public:       
-      spiGuard()
-      {           
-      }
-      ~spiGuard()
-      {       
-      }
-  };
+      spiGuard()      {                 }
+      ~spiGuard()      {             }
+  }
 #endif
   
   
@@ -87,31 +77,15 @@ Adafruit_ST7735::Adafruit_ST7735(int8_t cs, int8_t rs, int8_t rst)
   _sid  = _sclk = 0;
 }
 
-#if defined(CORE_TEENSY) && !defined(__AVR__)
-#define __AVR__
-#endif
 
-inline void Adafruit_ST7735::spiwrite(uint8_t c) {
+inline void Adafruit_ST7735::spiwrite(uint8_t c) 
+{
 
-  //Serial.println(c, HEX);
+  
 
-  if (hwSPI) {
-#if defined (SPI_HAS_TRANSACTION)
+  if (hwSPI) 
+  {
       SPI.transfer(c);
-#elif defined (__AVR__)
-      SPCRbackup = SPCR;
-      SPCR = mySPCR;
-      SPI.transfer(c);
-      SPCR = SPCRbackup;
-//      SPDR = c;
-//      while(!(SPSR & _BV(SPIF)));
-#elif defined (__STM32F1__)
-      SPI.write(c);
-#elif defined (__arm__)
-      SPI.setClockDivider(21); //4MHz
-      SPI.setDataMode(SPI_MODE0);
-      SPI.transfer(c);
-#endif
   } else {
     // Fast SPI bitbang swiped from LPD8806 library
     for(uint8_t bit = 0x80; bit; bit >>= 1) {
@@ -185,27 +159,8 @@ void Adafruit_ST7735::commonInit(const uint8_t *cmdList) {
   rspinmask = digitalPinToBitMask(_rs);
 
   if(hwSPI) { // Using hardware SPI
-#if defined (SPI_HAS_TRANSACTION)
     SPI.begin();
     mySPISettings = SPISettings(8000000, MSBFIRST, SPI_MODE0);
-#elif defined (__AVR__)
-    SPCRbackup = SPCR;
-    SPI.begin();
-    SPI.setClockDivider(SPI_CLOCK_DIV4);
-    SPI.setDataMode(SPI_MODE0);
-    mySPCR = SPCR; // save our preferred state
-    //Serial.print("mySPCR = 0x"); Serial.println(SPCR, HEX);
-    SPCR = SPCRbackup;  // then restore
-#elif defined (__SAM3X8E__)
-    SPI.begin();
-    SPI.setClockDivider(21); //4MHz
-    SPI.setDataMode(SPI_MODE0);
-#elif defined (__STM32F1__)
-    SPI.begin();
-    SPI.setClockDivider(SPI_CLOCK_DIV2);
-    SPI.setDataMode(SPI_MODE0);
-    SPI.setBitOrder(MSBFIRST);
-#endif
   } else {
     pinMode(_sclk, OUTPUT);
     pinMode(_sid , OUTPUT);
@@ -271,7 +226,7 @@ void Adafruit_ST7735::setAddrWindow(uint8_t x0, uint8_t y0, uint8_t x1,
  uint8_t y1) {
 
   if (hwSPI) {
-#if defined (__STM32F1__)
+
     writecommand(ST7735_CASET);
     *rsport |=  rspinmask;
     *csport &= ~cspinmask;
@@ -288,7 +243,6 @@ void Adafruit_ST7735::setAddrWindow(uint8_t x0, uint8_t y0, uint8_t x1,
     SPI.setDataSize(0);
   
     writecommand(ST7735_RAMWR);
- #endif 
   } else {    
     writecommand(ST7735_CASET); // Column addr set
     writedata(0x00);
@@ -346,12 +300,11 @@ void Adafruit_ST7735::drawFastVLine(int16_t x, int16_t y, int16_t h,
   *csport &= ~cspinmask;
 
   if (hwSPI) {
-#if defined (__STM32F1__)
+
     SPI.setDataSize (SPI_CR1_DFF); // Set SPI 16bit mode
     lineBuffer[0] = color;
     SPI.dmaSend(lineBuffer, h, 0);
     SPI.setDataSize (0);
-#endif
   } else {
     uint8_t hi = color >> 8, lo = color;
     while (h--) {
@@ -376,12 +329,12 @@ spiGuard guard;
   *csport &= ~cspinmask;
   
   if (hwSPI) {
-#if defined (__STM32F1__)
+
     SPI.setDataSize (SPI_CR1_DFF); // Set spi 16bit mode
     lineBuffer[0] = color;
     SPI.dmaSend(lineBuffer, w, 0);
     SPI.setDataSize (0);
-#endif
+
   } else {    
     uint8_t hi = color >> 8, lo = color;
       while (w--) {
@@ -396,7 +349,7 @@ spiGuard guard;
 
 void Adafruit_ST7735::fillScreen(uint16_t color) {  
   if (hwSPI) {
-#if defined (__STM32F1__)
+
     setAddrWindow(0, 0, _width - 1, _height - 1);
     
     *rsport |=  rspinmask;
@@ -406,7 +359,7 @@ void Adafruit_ST7735::fillScreen(uint16_t color) {
     SPI.dmaSend(lineBuffer, (65535), 0);
     SPI.dmaSend(lineBuffer, ((_width * _height) - 65535), 0);
     SPI.setDataSize (0);  
-#endif
+
   } else {
     fillRect(0, 0,  _width, _height, color);
   } // end else 
@@ -429,7 +382,7 @@ void Adafruit_ST7735::fillRect(int16_t x, int16_t y, int16_t w, int16_t h,
   *csport &= ~cspinmask;
 
   if (hwSPI) {
-#if defined (__STM32F1__)
+
     SPI.setDataSize (SPI_CR1_DFF); // Set spi 16bit mode
     lineBuffer[0] = color;
     if (w*h <= 65535) {
@@ -440,7 +393,7 @@ void Adafruit_ST7735::fillRect(int16_t x, int16_t y, int16_t w, int16_t h,
     SPI.dmaSend(lineBuffer, ((w*h) - 65535), 0);
     }
     SPI.setDataSize (0);
-#endif
+
   } else {    
     uint8_t hi = color >> 8, lo = color;
     for(y=h; y>0; y--) {
