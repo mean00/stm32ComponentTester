@@ -1,6 +1,8 @@
 #include "ST7735_ex.h"
 #include "testerGfx.h"
 #include "assets.h"
+#include "Fonts/waree9.h"
+#include "Fonts/waree12.h"
 static Adafruit_ST7735Ex *instance=NULL;
 
 /**
@@ -9,8 +11,8 @@ void TesterGfx::init()
 {
     instance=new Adafruit_ST7735Ex(PA4,PA3,PB0);
     instance->init();    
-    instance->fillScreen(0x1f<<11);
-    instance->print("Hi!");            
+    instance->setFontFamily(&Waree9pt7b, &Waree9pt7b, &Waree12pt7b);  
+    instance->fillScreen(0);
     instance->drawRLEBitmap(128,96,0,0,0xffff,0,splash);
 }
 /**
@@ -37,7 +39,7 @@ void TesterGfx::print(int x, int y, const char *txt)
  */
 void TesterGfx::drawCapacitor(int offset, const char *value,int pinA, int pinB)
 {
-      instance->drawRLEBitmap(128,96,0,0,0xffff,0,cap);
+      instance->drawRLEBitmap(128,68,0,0,0xffff,0,cap);
       instance->setCursor(20,48);
       instance->print(pinA);
       instance->setCursor(128-20-20,48);

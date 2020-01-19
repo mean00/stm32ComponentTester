@@ -150,5 +150,101 @@ void Adafruit_ST7735Ex::drawRLEBitmap(int widthInPixel, int height, int wx, int 
     }   
 }
 
-        
+/**
+ * 
+ * @param st
+ * @param length
+ * @param padd_up_to_n_pixels
+ */
+void  Adafruit_ST7735Ex::myDrawStringN(const char *st,int length,int padd_up_to_n_pixels)
+ {
+     if(!currentFont)
+         return;
+     int lastColumn=0;
+     
+     int endX=cursor_x+padd_up_to_n_pixels;
+     
+     for(int i=0;i<length;i++)
+     {
+         int of=myDrawChar(cursor_x,cursor_y+currentFont->maxHeight,
+                           st[i],
+                           textcolor,textbgcolor,*currentFont);
+         cursor_x+=of;
+         if(cursor_x>=_width) return;
+     }
+     int leftOver=endX-cursor_x;
+     if(leftOver>0)
+     {
+         while(leftOver>0)
+         {
+             int rnd=leftOver;
+            if(rnd>currentFont->maxWidth) rnd=currentFont->maxWidth;
+            mySquare(cursor_x,cursor_y,
+                  rnd, currentFont->maxHeight+2, textbgcolor);
+            cursor_x+=rnd;
+            leftOver=endX-cursor_x;
+            
+         }
+     }
+ }
+
+/**
+ * 
+ * @param st
+ */
+ void  Adafruit_ST7735Ex::myDrawString(const char *st,int padd_up_to_n_pixels)
+ {
+     if(!currentFont)
+         return;
+     int l=strlen(st);
+     myDrawStringN(st,l,padd_up_to_n_pixels);
+ }
+
+/**
+ * 
+ * @param size
+ */
+void  Adafruit_ST7735Ex::setFontSize(FontSize size)
+{
+    switch(size)
+    {
+        case SmallFont :  currentFont=fontInfo+0;break;
+        default:
+        case MediumFont :   currentFont=fontInfo+1;break;
+        case BigFont :   currentFont=fontInfo+2;break;
+    }    
+}
+/**
+ * \fn checkFont
+ * \brief extract max width/ max height from the font
+ */
+static void checkFont(const GFXfont *font, Adafruit_ST7735Ex::FontInfo *info)
+{
+    int mW=0,mH=0;
+    int x,y;
+   for(int i=font->first;i<font->last;i++)
+   {
+         GFXglyph *glyph  = font->glyph+i-font->first;
+         x=glyph->xAdvance;
+         y=-glyph->yOffset;
+         if(x>mW) mW=x;         
+         if(y>mH) mH=y;
+   }
+    info->maxHeight=mH + 1;
+    info->maxWidth=mW;    
+    info->font=font;
+}
+
+/**
+ * 
+ * @param small
+ * @param medium
+ * @param big
+ */
+void  Adafruit_ST7735Ex::setFontFamily(const GFXfont *small, const GFXfont *medium, const GFXfont *big)
+{
+    checkFont(small, fontInfo+0);
+    checkFont(medium,fontInfo+1);
+    checkFont(big,   fontInfo+2);
+}        
   
