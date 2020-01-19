@@ -1,13 +1,19 @@
 #include "SPI.h"
 #include "ST7735_ex.h"
 
-const uint16_t data[]={0,0xff,0,0xff,00,0,0xC3,0};
+
+
+#define CS_ON() { *csport &= ~cspinmask;}
+#define CS_OFF() {  *csport |= cspinmask;}
+#define SEND_DATA() {  *rsport |=  rspinmask;   }
 
 /**
 */
 void Adafruit_ST7735Ex::init()
 {
     Adafruit_ST7735::initR(); 
+    
+    // update for our screen
     _width = 128;
     _height = 128;
     rotation = 0;
@@ -16,12 +22,12 @@ void Adafruit_ST7735Ex::init()
     
     setAddrWindow(0, 128, 128, 129);
     memset(lineBuffer,0,sizeof(lineBuffer));
-     *rsport |=  rspinmask;
-    *csport &= ~cspinmask;
+    CS_ON();
+    SEND_DATA();
     writecommand(ST7735_RAMWR); // Row addr set
     SPI.setDataSize (SPI_CR1_DFF_8_BIT); // Set spi 16bit mode  
     SPI.dmaSend(lineBuffer, 128*2, true);
-    *csport |= cspinmask;
+    CS_OFF();    
 }
 /**
  * 
@@ -36,9 +42,15 @@ Adafruit_ST7735Ex::Adafruit_ST7735Ex(int8_t CS, int8_t RS, int8_t RST ) : Adafru
   
 }
 
-
-
 /**
+ * 
+ * @param width
+ * @param height
+ * @param wx
+ * @param wy
+ * @param fgcolor
+ * @param bgcolor
+ * @param data
  */
 void Adafruit_ST7735Ex::drawBitmap(int width, int height, int wx, int wy, int fgcolor, int bgcolor, const uint8_t *data)
 {
@@ -82,11 +94,11 @@ void Adafruit_ST7735Ex::pushColors(const uint16_t *data, int len, boolean first)
     writecommand(ST7735_RAMWR); // Row addr set
   }  
   // Send data
-   *rsport |=  rspinmask;
-   *csport &= ~cspinmask;
+   SEND_DATA();
+   CS_ON();
    SPI.setDataSize (SPI_CR1_DFF_8_BIT); // Set spi 16bit mode  
    SPI.dmaSend(data, len*2, true);
-   *csport |= cspinmask;
+   CS_OFF();
   
 }
 
