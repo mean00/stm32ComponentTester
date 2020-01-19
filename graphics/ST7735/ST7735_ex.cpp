@@ -11,6 +11,17 @@ void Adafruit_ST7735Ex::init()
     _width = 128;
     _height = 128;
     rotation = 0;
+    
+    // There is a garbled line at the bottom, fill it with black
+    
+    setAddrWindow(0, 128, 128, 129);
+    memset(lineBuffer,0,sizeof(lineBuffer));
+     *rsport |=  rspinmask;
+    *csport &= ~cspinmask;
+    writecommand(ST7735_RAMWR); // Row addr set
+    SPI.setDataSize (SPI_CR1_DFF_8_BIT); // Set spi 16bit mode  
+    SPI.dmaSend(lineBuffer, 128*2, true);
+    *csport |= cspinmask;
 }
 /**
  * 
@@ -73,9 +84,8 @@ void Adafruit_ST7735Ex::pushColors(const uint16_t *data, int len, boolean first)
   // Send data
    *rsport |=  rspinmask;
    *csport &= ~cspinmask;
-   SPI.setDataSize (SPI_CR1_DFF); // Set spi 16bit mode  
+   SPI.setDataSize (SPI_CR1_DFF_8_BIT); // Set spi 16bit mode  
    SPI.dmaSend(data, len*2, true);
-   SPI.setDataSize (0);  
    *csport |= cspinmask;
   
 }
@@ -118,9 +128,7 @@ void Adafruit_ST7735Ex::drawRLEBitmap(int widthInPixel, int height, int wx, int 
             }
             x+=count;
         }    
-        //pushColors(line,widthInPixel,first);
-        for(int i=0;i<widthInPixel;i++)
-              pushColor(line[i]);
+        pushColors(line,widthInPixel,true);
         first=false;
     }   
 }
