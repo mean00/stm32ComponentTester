@@ -18,19 +18,21 @@ set(ARDUINO_DEFAULT_PORT ttyACM0) # Default Port, when not specified
 set(ARDUINO_CPU          STM32F103C8)
 SET(libPrefix ${ARDUINO_DEFAULT_BOARD}_)
 #
+
+SET(SUB_COMPONENTS FreeRTOS adc graphics assets)
+FOREACH(comp ${SUB_COMPONENTS})
+    include_directories(${comp})
+ENDFOREACH(comp ${SUB_COMPONENTS})
+
 include_directories(${CMAKE_SOURCE_DIR})
-include_directories(FreeRTOS/)
 include_directories(FreeRTOS/Source/include)
-include_directories(adc)
 include_directories(utils)
 include_directories(componentLibrary)
-include_directories(graphics)
-include_directories(assets)
-# Build ADC
-add_subdirectory(FreeRTOS)
-add_subdirectory(adc)
-add_subdirectory(graphics)
-add_subdirectory(assets)
+
+# Build 
+FOREACH(comp ${SUB_COMPONENTS})
+    add_subdirectory(${comp})
+ENDFOREACH(comp ${SUB_COMPONENTS})
 #
 # Our code
 #
@@ -44,10 +46,9 @@ generate_arduino_firmware(stm32ComponentTester
                 PORT ${ARDUINO_DEFAULT_PORT}
                 BOARD_CPU ${ARDUINO_CPU}
                 )
-target_link_libraries(stm32ComponentTester ${libPrefix}ADC)
-target_link_libraries(stm32ComponentTester ${libPrefix}FreeRTOS)
-target_link_libraries(stm32ComponentTester ${libPrefix}testerGfx)
-target_link_libraries(stm32ComponentTester ${libPrefix}assets)
+FOREACH(comp ${SUB_COMPONENTS})
+    target_link_libraries(stm32ComponentTester ${libPrefix}${comp})
+ENDFOREACH(comp ${SUB_COMPONENTS})
 
 
 # EOF

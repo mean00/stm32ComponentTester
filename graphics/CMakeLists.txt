@@ -15,7 +15,7 @@ include_directories(${ST7735})
 include_directories(${ADA})
 include_directories(${ST7735})
 
-generate_arduino_library(${libPrefix}testerGfx 
+generate_arduino_library(${libPrefix}graphics 
                             SRCS ${GFX} ${ADA_SRC} ${TESTER_GFX}
                             BOARD ${ARDUINO_DEFAULT_BOARD}
                         )
