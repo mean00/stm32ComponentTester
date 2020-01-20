@@ -50,7 +50,7 @@ for y in range(0,height):
     xx=0
     value=0
     for x in range(0,width):
-        if arr[x] >0x40:
+        if arr[x] >0x0:
             value+=mask
         mask>>=1
         if mask==0:

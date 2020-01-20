@@ -47,7 +47,7 @@ void TesterGfx::print(int x, int y, const char *txt)
  */
 void TesterGfx::drawCapacitor(int offset, const char *value,int pinA, int pinB)
 {
-      instance->drawRLEBitmap(128,68,1,1,0x1fff,0,cap);
+      instance->drawRLEBitmap(cap_width,cap_height,0,0,0x1fff,0,cap);
       instance->setCursor(20,48);
       instance->print(pinA);
       instance->setCursor(128-20-20,48);
