@@ -8,10 +8,13 @@ import sys
 
 mpretty=0
 stuct_name=""
-def print_header(f):
+def print_external_header(f):
     global struct_name
     f.write("#define "+str(struct_name)+"_width "+str(width)+"\n")
     f.write("#define "+str(struct_name)+"_height "+str(height)+"\n")
+    f.write("extern const unsigned char "+str(struct_name)+"[];\n");
+def print_header(f):
+    global struct_name
     f.write("const unsigned char "+str(struct_name)+"[]={\n");
 def print_footer(f):
     f.write("};\n")
@@ -24,12 +27,12 @@ def printout(value):
         mpretty=0
         f.write("\n")
 
-if 4!=len(sys.argv):
-    print("convert intput.png output.bin var_name")
+if 5!=len(sys.argv):
+    print("convert intput.png output.bin decl.h var_name")
     exit(1)
 f= open(sys.argv[2], 'wt')
 image=Image.open(sys.argv[1])
-struct_name=sys.argv[3]
+struct_name=sys.argv[4]
 (width,height) = image.size
 pixels = image.load
 print("loaded image "+str(sys.argv[1])+" "+str(width)+"x"+str(height))
@@ -71,5 +74,8 @@ for y in range(0,height):
             x+=1
 #        print(str(x)+":  "+str(current)+"x"+str(count))
 print_footer(f)
+f.close()
+f= open(sys.argv[3], 'wt')
+print_external_header(f);
 f.close()
 print("Done generating "+str(sys.argv[2])+"\n")

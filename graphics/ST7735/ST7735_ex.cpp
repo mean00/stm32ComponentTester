@@ -145,7 +145,7 @@ void Adafruit_ST7735Ex::drawRLEBitmap(int widthInPixel, int height, int wx, int 
             }
             x+=count;
         }    
-        pushColors(line,widthInPixel,first);
+        pushColors(line,widthInPixel,true);
         first=false;
     }   
 }
