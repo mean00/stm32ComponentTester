@@ -47,11 +47,53 @@ void TesterGfx::print(int x, int y, const char *txt)
  */
 void TesterGfx::drawCapacitor(int offset, const char *value,int pinA, int pinB)
 {
+#define CAP_COL (128-20-10)
       instance->drawRLEBitmap(cap_width,cap_height,0,0,0x1fff,0,cap);
-      instance->setCursor(20,48);
+      instance->setCursor(CAP_COL,16);
       instance->print(pinA);
-      instance->setCursor(128-20-20,48);
+      instance->setCursor(CAP_COL,60);
       instance->print(pinB);
-      instance->setCursor(30,98);
+      instance->setCursor(5,98);
+      instance->print("C=");
       instance->print(value);
+}
+
+/**
+ * 
+ * @param offset
+ * @param value
+ * @param pinA
+ * @param pinB
+ */
+void TesterGfx::drawResistor(int offset, const char *value,int pinA, int pinB)
+{
+#define CAP_COL (128-20-10)
+      instance->drawRLEBitmap(resistor_width,resistor_height,0,0,0x1fff,0,resistor);
+      instance->setCursor(CAP_COL,16);
+      instance->print(pinA);
+      instance->setCursor(CAP_COL,60);
+      instance->print(pinB);
+      instance->setCursor(5,98);
+      instance->print("R=");
+      instance->print(value);
+}
+/**
+ * 
+ * @param offset
+ * @param value
+ * @param pinA
+ * @param pinB
+ */
+void TesterGfx::drawDiode(int offset, const char *value,int pinA, int pinB)
+{
+#define CAP_COL (128-20-10)
+      instance->drawRLEBitmap(resistor_width,resistor_height,0,0,0x1fff,0,resistor);
+      instance->setCursor(CAP_COL,16);
+      instance->print(pinA);
+      instance->setCursor(CAP_COL,60);
+      instance->print(pinB);
+      instance->setCursor(5,98);
+      instance->print("V=");
+      instance->print(value);
+    
 }

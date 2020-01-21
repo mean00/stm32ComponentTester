@@ -5,19 +5,17 @@
 #include <SPI.h>
 #include "fancyLock.h"
 #include "testPins.h"
-#include "resistor.h"
-static float checkResistor(TestPin &A, TestPin &B);
-static float computeResistance(float adcValue, int resistance);
+#include "Diode.h"
 
 /**
  * 
  * @param yOffset
  * @return 
  */
-bool Resistor::draw(int yOffset)
+bool Diode::draw(int yOffset)
 {
     char st[32];        
-    Component::prettyPrint(resistance, "O",st);
+    Component::prettyPrint(forward, "V",st);
     TesterGfx::drawResistor(yOffset, st,_pA.pinNumber(), _pB.pinNumber());
     return true;
 }
@@ -26,8 +24,9 @@ bool Resistor::draw(int yOffset)
  * 
  * @return 
  */
-bool Resistor::compute()
+bool Diode::compute()
 {
+#if 0
     typedef struct probePoints
     {
         TestPin::TESTPIN_STATE A,B;        
@@ -79,45 +78,9 @@ bool Resistor::compute()
     }
 #endif    
     resistance=computeResistance(adcs[candidate],resistances[candidate]);    
+#endif
     return true;
     
 }
 
-/**
- * 
- * @param A
- * @param stateA
- * @param B
- * @param stateB
- * @return 
- */
-bool Resistor::probe( TestPin &A,TestPin::TESTPIN_STATE stateA, TestPin &B,TestPin::TESTPIN_STATE stateB,float &adc, int &resistance)
-{
-      AutoDisconnect ad;
-      A.setMode(stateA);
-      B.setMode(stateB);
-      int hiAdc, loAdc;
-      int hiNb,loNb;    
-      A.slowDmaSample(hiAdc,hiNb);
-      B.slowDmaSample(loAdc,loNb);
-      
-      float delta=abs(hiAdc-loAdc);      
-      if(delta<0.) delta=0.;
-      adc=delta/(float)(hiNb); // assume hiNB=loNB   
-      resistance=A.getCurrentRes()+B.getCurrentRes();      
-      return true;
-}
-
-/**
- * 
- * @param adcValue
- * @param resistance
- * @return 
- */     
-float computeResistance(float adcValue, int resistance)
-{
-      if(adcValue>4090.) return 0;
-      float r=((float)(resistance))*adcValue/((4095.-adcValue));
-      return r;
-}
 // EOF

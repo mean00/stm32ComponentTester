@@ -6,6 +6,7 @@
 #include "testPins.h"
 #include "resistor.h"
 #include "Capacitor.h"
+#include "Diode.h"
 #include "dso_adc.h"
 #include "testerGfx.h"
 #define LED PC13
@@ -67,7 +68,9 @@ void mySetup(void)
 void myLoop(void)
 {
     //ucg->clearScreen(); 
-    Capacitor r(pin1,pin2,pin3);
+    //Capacitor r(pin1,pin2,pin3);
+    //Resistor r(pin1,pin2,pin3);
+    Diode r(pin1,pin2,pin3);
     while(1)
     {        
         if(r.compute())

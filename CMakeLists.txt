@@ -37,7 +37,7 @@ ENDFOREACH(comp ${SUB_COMPONENTS})
 # Our code
 #
 SET(UTILS utils/fancyLock.cpp    utils/cycleClock.cpp)
-SET(COMPT  componentLibrary/Resistor.cpp componentLibrary/Capacitor.cpp componentLibrary/Component.cpp )
+SET(COMPT  componentLibrary/Resistor.cpp componentLibrary/Capacitor.cpp componentLibrary/Component.cpp componentLibrary/Diode.cpp)
 
 ADD_DEFINITIONS(-D__NOP="")
 generate_arduino_firmware(stm32ComponentTester 
