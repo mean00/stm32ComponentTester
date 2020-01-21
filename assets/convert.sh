@@ -8,3 +8,4 @@ python3 convert.py generated/$1_preview.png generated/$1_compressed.h generated/
 conv resistor
 conv cap
 conv splash
+conv diode

@@ -56,7 +56,7 @@ public:
     static void setWatchdogTriggerValue(uint32_t high, uint32_t low);
             void stopDmaCapture();
             void stopTimeCapture();
-    
+    static  float adcToVolt(float adc);
             void captureComplete();
 protected:
   

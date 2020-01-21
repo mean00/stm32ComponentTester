@@ -16,7 +16,7 @@ bool Diode::draw(int yOffset)
 {
     char st[32];        
     Component::prettyPrint(forward, "V",st);
-    TesterGfx::drawResistor(yOffset, st,_pA.pinNumber(), _pB.pinNumber());
+    TesterGfx::drawDiode(yOffset, st,_pA.pinNumber(), _pB.pinNumber());
     return true;
 }
 
@@ -26,61 +26,26 @@ bool Diode::draw(int yOffset)
  */
 bool Diode::compute()
 {
-#if 0
-    typedef struct probePoints
-    {
-        TestPin::TESTPIN_STATE A,B;        
-    };
     
-    // do all the possibilities
-    // the most accurate one is when the ADC is closer to center = 2047
+    // even with the lowest resistance we are at max at 
+    // 3.3v/470 Ohm= 7 mA, which is fine
+    _pA.pullUp(TestPin::PULL_LOW);
+    _pB.setToGround();
+    xDelay(5);
     
-    const probePoints probes[]={  
 
-        {TestPin::PULLUP_LOW,TestPin::GND},
-        {TestPin::PULLUP_LOW,TestPin::PULLDOWN_LOW},        
-        {TestPin::PULLUP_MED,TestPin::GND},
-        {TestPin::PULLUP_MED,TestPin::PULLDOWN_MED},                
-        {TestPin::PULLUP_HI,TestPin::GND},
-        {TestPin::PULLUP_HI,TestPin::PULLDOWN_HI},        
-    };
-    int n=sizeof(probes)/sizeof(probePoints);
-    float adcs[n];
-    int resistances[n];
+    int adcA,nbA;
+    int adcB,nbB;
     
-    
-    for(int i=0;i<n;i++)
+    //for(int i=0;i<5;i++)
     {
-       probe( _pA,probes[i].A,_pB,probes[i].B,adcs[i],resistances[i]);       
+      _pA.slowDmaSample(adcA,nbA);
+      _pB.slowDmaSample(adcB,nbB);
     }
-    // find the ADC closest to 4095/2=2047
-    int candidate=-1;
-    float match=4095.;
-    for(int i=0;i<n;i++)
-    {
-        float a=adcs[i];
-        if(a<10. || a > (4095-10)) continue; // not reliable
-        float r=fabs(a-2047.); // delta to center of ADC
-        if(r<match)
-        {
-            match=r;
-            candidate=i;
-        }
-    }
-#if 0       
-    extern Ucglib *ucg;
-    for(int i=0;i<n;i++)
-    {
-        float r=computeResistance(adcs[i],resistances[i]);   
-        char st[16];    
-        sprintf(st,"%3.1f",r);     
-        ucg->drawString(10,30+20*i,0,st); 
-    }
-#endif    
-    resistance=computeResistance(adcs[candidate],resistances[candidate]);    
-#endif
+    float vf=(float)(adcA-adcB);
+    vf/=(float)nbA;
+    forward=adcToVolt(vf);
     return true;
-    
 }
-
+ 
 // EOF

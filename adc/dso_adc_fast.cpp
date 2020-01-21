@@ -59,8 +59,20 @@ DSOADC::DSOADC(int pin)
   enableDisableIrq(false);
   enableDisableIrqSource(false,ADC_AWD);
   enableDisableIrqSource(false,ADC_EOC);  
-  
+  readVCCmv();
 }
+/**
+ * 
+ * @param adc
+ * @return 
+ */
+float DSOADC::adcToVolt(float adc)
+{
+    adc=adc*vcc;
+    adc/=4095000.;
+    return adc;
+}
+
 /**
  */
 bool    DSOADC::setADCPin(int pin)

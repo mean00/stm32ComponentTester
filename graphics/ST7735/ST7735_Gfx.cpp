@@ -87,13 +87,13 @@ void TesterGfx::drawResistor(int offset, const char *value,int pinA, int pinB)
 void TesterGfx::drawDiode(int offset, const char *value,int pinA, int pinB)
 {
 #define CAP_COL (128-20-10)
-      instance->drawRLEBitmap(resistor_width,resistor_height,0,0,0x1fff,0,resistor);
+      instance->drawRLEBitmap(diode_width,diode_height,0,0,0x1fff,0,diode);
       instance->setCursor(CAP_COL,16);
       instance->print(pinA);
       instance->setCursor(CAP_COL,60);
       instance->print(pinB);
       instance->setCursor(5,98);
-      instance->print("V=");
+      instance->print("Vf=");
       instance->print(value);
     
 }

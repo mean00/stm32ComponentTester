@@ -2,7 +2,7 @@
 #include <SPI.h>
 #include "Component.h"
 #include "math.h"
-
+#include "dso_adc.h"
 void Component::prettyPrint(float value, const char *unit,  char *output)
 {
     const char *big[]={"","k","M","G","P"};
@@ -33,4 +33,13 @@ void Component::prettyPrint(float value, const char *unit,  char *output)
         value*=mul;
     }
     sprintf(output,"%3.2f%s%s",value,scale[dex],unit);
+}
+/**
+ * 
+ * @param adc
+ * @return 
+ */
+float Component::adcToVolt(float adc)
+{
+    return DSOADC::adcToVolt(adc);
 }
