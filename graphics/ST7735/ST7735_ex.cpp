@@ -295,13 +295,13 @@ void Adafruit_ST7735Ex::myDrawChar(int16_t x, int16_t y, unsigned char c,  uint1
     }
     endWrite();
 #else
-    #define OFFSET 1
-    
+    #define OFFSET -1
+    bool first=true;
+    setAddrWindow(x,y,
+                  x+w+OFFSET,y+h+OFFSET);
     uint8_t xx, yy, bits = 0, bit = 0;
-    startWrite();
     for (yy = 0; yy < h; yy++) 
-    {
-      this->setAddrWindow(x,y+yy,x+w+OFFSET,y+h+OFFSET);
+    {      
       for (xx = 0; xx < w; xx++) 
       {
         if (!(bit++ & 7)) {
@@ -316,9 +316,9 @@ void Adafruit_ST7735Ex::myDrawChar(int16_t x, int16_t y, unsigned char c,  uint1
         }
         bits <<= 1;
       }
-       pushColors(lineBuffer,w,true);
+       pushColors(lineBuffer,w,first);
+       first=false;
     }
-    endWrite();
     return;
 #endif    
 #if 0
