@@ -278,26 +278,28 @@ void Adafruit_ST7735Ex::myDrawChar(int16_t x, int16_t y, unsigned char c,  uint1
     #define OFFSET -1
     bool first=true;
     int dex=0;
-    setAddrWindow(x,y,
-                  x+w+OFFSET,y+h+OFFSET);
+    setAddrWindow(x,y,   x+w+OFFSET,y+h+OFFSET);
     int bits = 0, bit = 0;
     int n=h*w;
-    int yy,xx;
+    int mask=0;
+    uint8_t *data=bitmap+bo;
     for (int i=0;i<n;i++) 
     {      
-        if (!(bit++ & 7)) {
-          bits = bitmap[bo++];
+        if (!mask) 
+        {
+          bits = *data++;
+          mask=0x80;
         }
-        if (bits & 0x80) 
+        if (bits & mask) 
         {          
             lineBuffer[dex]=color;          
         }else
         {
             lineBuffer[dex]=bg;          
         }
-        bits <<= 1;
+        mask>>=1;
         dex++;
-        if(dex==ST7735_TFTHEIGHT_18)
+        if(dex==ST7735_BUFFER_SIZE)
         {
             pushColors(lineBuffer,dex,first);
             first=false;

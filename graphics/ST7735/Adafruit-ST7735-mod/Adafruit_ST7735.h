@@ -156,7 +156,7 @@ class Adafruit_ST7735 : public Adafruit_GFX {
   uint32_t readcommand32(uint8_t);
   void     dummyclock(void);
   */
-
+#define ST7735_BUFFER_SIZE  256
  protected:
   uint8_t  tabcolor;
 
@@ -174,7 +174,7 @@ class Adafruit_ST7735 : public Adafruit_GFX {
   uint32_t _cs, _rs, _rst, _sid, _sclk,
            datapinmask, clkpinmask, cspinmask, rspinmask,
            colstart, rowstart; // some displays need this changed
-  uint16_t lineBuffer[ST7735_TFTHEIGHT_18]; // DMA buffer. 16bit color data per pixel
+  uint16_t lineBuffer[ST7735_BUFFER_SIZE]; // DMA buffer. 16bit color data per pixel
 #elif defined(__AVR__) || defined(CORE_TEENSY)
   volatile uint8_t *dataport, *clkport, *csport, *rsport;
   uint8_t  _cs, _rs, _rst, _sid, _sclk,
