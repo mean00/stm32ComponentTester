@@ -274,29 +274,10 @@ void Adafruit_ST7735Ex::myDrawChar(int16_t x, int16_t y, unsigned char c,  uint1
     int h = glyph->height;
     x+=glyph->xOffset;
     y+=glyph->yOffset;
-    
-    
-#if 0
-    uint8_t xx, yy, bits = 0, bit = 0;
-    startWrite();
-    for (yy = 0; yy < h; yy++) 
-    {
-      for (xx = 0; xx < w; xx++) 
-      {
-        if (!(bit++ & 7)) {
-          bits = pgm_read_byte(&bitmap[bo++]);
-        }
-        if (bits & 0x80) 
-        {          
-            writePixel(x + xx, y  + yy, color);          
-        }
-        bits <<= 1;
-      }
-    }
-    endWrite();
-#else
+   
     #define OFFSET -1
     bool first=true;
+    int dex=0;
     setAddrWindow(x,y,
                   x+w+OFFSET,y+h+OFFSET);
     uint8_t xx, yy, bits = 0, bit = 0;
@@ -309,56 +290,25 @@ void Adafruit_ST7735Ex::myDrawChar(int16_t x, int16_t y, unsigned char c,  uint1
         }
         if (bits & 0x80) 
         {          
-            lineBuffer[xx]=color;          
+            lineBuffer[dex]=color;          
         }else
         {
-            lineBuffer[xx]=bg;          
+            lineBuffer[dex]=bg;          
         }
         bits <<= 1;
-      }
-       pushColors(lineBuffer,w,first);
-       first=false;
-    }
-    return;
-#endif    
-#if 0
-    bool first=true;
-    int bits;
-    uint16_t s;
-    this->setAddrWindow(x,y,x+w+OFFSET,y+h+OFFSET);
-    int n=w*h;
-    int dex=0;
-    uint8_t *data=bitmap+bo;
-    int mask=0x0;
-    for(int yy=0;yy<<h;yy++)
-    {
-        for(int xx=0;xx<<w;xx++)
+        dex++;
+        if(dex==ST7735_TFTHEIGHT_18)
         {
-            if(!mask) 
-            {
-              bits = *data;
-              data++;
-              mask=0x80;
-            }
-            if (bits & mask)  
-                s=color;
-            else
-                s=bg;
-            lineBuffer[xx]=s;
-            mask>>=1;
-            dex++;    
+            pushColors(lineBuffer,dex,first);
+            first=false;
+            dex=0;
         }
-        pushColors(lineBuffer,w,true);
-        first=false;
+      }
     }
     if(dex)
-    {
-         pushColors(lineBuffer,dex,first);
-         first=false;
-    }
-    
-    
-#endif
+        pushColors(lineBuffer,dex,first);
+    return;
+
 }
 
 /**
