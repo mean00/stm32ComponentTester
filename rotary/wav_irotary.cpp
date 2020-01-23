@@ -16,18 +16,29 @@ static void myInterrupt()
 
 /**
  */
- WavRotary::WavRotary(int pinA,int pinB ) : _rotary(pinA,pinB)
+ WavRotary::WavRotary(int pinA,int pinB ) 
  {
     current=this;
     _count=0;
-    noInterrupts(); 
-#define SETPIN(x) {    pinMode(x,INPUT_PULLUP);    attachInterrupt(x, myInterrupt, CHANGE); }
-    
-    SETPIN(pinA);
-    SETPIN(pinB);
-
-    interrupts();
+    _rotary=new Rotary(pinA,pinB);
+    _pinA=pinA;
+    _pinB=pinB;
+    pinMode(pinA,INPUT_PULLUP); 
+    pinMode(pinB,INPUT_PULLUP); 
  }
+ /**
+  * 
+  */
+ void        WavRotary::start()
+ {
+    noInterrupts(); 
+    attachInterrupt(_pinA, myInterrupt, CHANGE);
+    attachInterrupt(_pinB, myInterrupt, CHANGE);
+    interrupts();
+     
+ }
+ /*
+  */
  int          WavRotary::getCount()
  {
      noInterrupts();
@@ -41,7 +52,7 @@ static void myInterrupt()
   */
  void WavRotary::interrupt()
  {
-     switch(_rotary.process())
+     switch(_rotary->process())
      {
         case DIR_CCW:  _count++;break;
         case DIR_CW:   _count--;break;

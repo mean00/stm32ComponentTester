@@ -9,8 +9,9 @@ static Adafruit_ST7735Ex *instance=NULL;
  */
 void TesterGfx::init()
 {
-    instance=new Adafruit_ST7735Ex(PA4,PA3,PB0);
+    instance=new Adafruit_ST7735Ex(PA4,PA3,PB0);    
     instance->init();    
+    instance->setRotation(2);
     instance->setFontFamily(&Waree9pt7b, &Waree9pt7b, &Waree12pt7b);  
     instance->setFont(&Waree9pt7b);
     instance->fillScreen(0x0);  
