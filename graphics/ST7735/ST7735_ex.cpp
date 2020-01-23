@@ -249,3 +249,158 @@ void    Adafruit_ST7735Ex::push2Colors(uint8_t *data, int len, boolean first,uin
    SPI.dmaSend(lineBuffer, len*2, true);
    CS_OFF();
 }
+
+// hooks
+static GFXglyph *pgm_read_glyph_ptr(const GFXfont *gfxFont, uint8_t c) {  return gfxFont->glyph + c;}
+static  uint8_t *pgm_read_bitmap_ptr(const GFXfont *gfxFont) {  return gfxFont->bitmap;}
+
+/**
+ * 
+ * @param x
+ * @param y
+ * @param c
+ * @param color
+ * @param bg
+ */
+void Adafruit_ST7735Ex::myDrawChar(int16_t x, int16_t y, unsigned char c,  uint16_t color, uint16_t bg) 
+{
+    int cr=c;
+    cr -= gfxFont->first;
+    GFXglyph *glyph =  gfxFont->glyph + cr;
+    uint8_t *bitmap = gfxFont->bitmap;
+
+    int bo = glyph->bitmapOffset;
+    int w = glyph->width;
+    int h = glyph->height;
+    x+=glyph->xOffset;
+    y+=glyph->yOffset;
+    
+    
+#if 0
+    uint8_t xx, yy, bits = 0, bit = 0;
+    startWrite();
+    for (yy = 0; yy < h; yy++) 
+    {
+      for (xx = 0; xx < w; xx++) 
+      {
+        if (!(bit++ & 7)) {
+          bits = pgm_read_byte(&bitmap[bo++]);
+        }
+        if (bits & 0x80) 
+        {          
+            writePixel(x + xx, y  + yy, color);          
+        }
+        bits <<= 1;
+      }
+    }
+    endWrite();
+#else
+    #define OFFSET 1
+    
+    uint8_t xx, yy, bits = 0, bit = 0;
+    startWrite();
+    for (yy = 0; yy < h; yy++) 
+    {
+      this->setAddrWindow(x,y+yy,x+w+OFFSET,y+h+OFFSET);
+      for (xx = 0; xx < w; xx++) 
+      {
+        if (!(bit++ & 7)) {
+          bits = bitmap[bo++];
+        }
+        if (bits & 0x80) 
+        {          
+            lineBuffer[xx]=color;          
+        }else
+        {
+            lineBuffer[xx]=bg;          
+        }
+        bits <<= 1;
+      }
+       pushColors(lineBuffer,w,true);
+    }
+    endWrite();
+    return;
+#endif    
+#if 0
+    bool first=true;
+    int bits;
+    uint16_t s;
+    this->setAddrWindow(x,y,x+w+OFFSET,y+h+OFFSET);
+    int n=w*h;
+    int dex=0;
+    uint8_t *data=bitmap+bo;
+    int mask=0x0;
+    for(int yy=0;yy<<h;yy++)
+    {
+        for(int xx=0;xx<<w;xx++)
+        {
+            if(!mask) 
+            {
+              bits = *data;
+              data++;
+              mask=0x80;
+            }
+            if (bits & mask)  
+                s=color;
+            else
+                s=bg;
+            lineBuffer[xx]=s;
+            mask>>=1;
+            dex++;    
+        }
+        pushColors(lineBuffer,w,true);
+        first=false;
+    }
+    if(dex)
+    {
+         pushColors(lineBuffer,dex,first);
+         first=false;
+    }
+    
+    
+#endif
+}
+
+/**
+ * 
+ * @param c
+ * @return 
+ */
+size_t Adafruit_ST7735Ex::write(uint8_t c) 
+{
+  if (!gfxFont)
+    { return Adafruit_ST7735::write(c);}// 'Classic' built-in font
+  if((textsize_x!=1 ) || (textsize_y!=1))  { return Adafruit_ST7735::write(c);}
+
+    if (c == '\n') 
+    {
+      cursor_x = 0;
+      cursor_y +=          (int16_t)textsize_y * (uint8_t)pgm_read_byte(&gfxFont->yAdvance);
+      return 1;
+    } 
+    if(c=='\r')
+      return 1;
+    uint8_t first = pgm_read_byte(&gfxFont->first);
+    if ((c < first) || (c > (uint8_t)pgm_read_byte(&gfxFont->last))) 
+        return 1;
+    
+    GFXglyph *glyph = pgm_read_glyph_ptr(gfxFont, c - first);
+      uint8_t w = pgm_read_byte(&glyph->width),   h = pgm_read_byte(&glyph->height);
+      if ((w > 0) && (h > 0)) 
+      { // Is there an associated bitmap?
+        int16_t xo = (int8_t)pgm_read_byte(&glyph->xOffset); // sic
+        if (wrap && ((cursor_x + textsize_x * (xo + w)) > _width)) 
+        {
+          cursor_x = 0;
+          cursor_y += (int16_t)textsize_y *
+                      (uint8_t)pgm_read_byte(&gfxFont->yAdvance);
+        }
+#if 0        
+        drawChar(cursor_x, cursor_y, c, textcolor, textbgcolor, textsize_x,  textsize_y);
+#else
+        myDrawChar(cursor_x, cursor_y, c, textcolor, textbgcolor);
+#endif
+      }
+      cursor_x += (uint8_t)pgm_read_byte(&glyph->xAdvance) * (int16_t)textsize_x;    
+  return 1;
+}
