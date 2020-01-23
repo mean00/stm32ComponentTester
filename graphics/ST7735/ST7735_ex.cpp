@@ -280,11 +280,11 @@ void Adafruit_ST7735Ex::myDrawChar(int16_t x, int16_t y, unsigned char c,  uint1
     int dex=0;
     setAddrWindow(x,y,
                   x+w+OFFSET,y+h+OFFSET);
-    uint8_t xx, yy, bits = 0, bit = 0;
-    for (yy = 0; yy < h; yy++) 
+    int bits = 0, bit = 0;
+    int n=h*w;
+    int yy,xx;
+    for (int i=0;i<n;i++) 
     {      
-      for (xx = 0; xx < w; xx++) 
-      {
         if (!(bit++ & 7)) {
           bits = bitmap[bo++];
         }
@@ -303,12 +303,10 @@ void Adafruit_ST7735Ex::myDrawChar(int16_t x, int16_t y, unsigned char c,  uint1
             first=false;
             dex=0;
         }
-      }
     }
     if(dex)
         pushColors(lineBuffer,dex,first);
     return;
-
 }
 
 /**
