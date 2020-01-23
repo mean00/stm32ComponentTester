@@ -28,9 +28,9 @@ bool Diode::compute()
 {
     
     // even with the lowest resistance we are at max at 
-    // 3.3v/470 Ohm= 7 mA, which is fine
+    // 3.3v/470*2 Ohm= 3 mA, which is fine
     _pA.pullUp(TestPin::PULL_LOW);
-    _pB.setToGround();
+    _pB.pullDown(TestPin::PULL_LOW);   
     xDelay(5);
     
 

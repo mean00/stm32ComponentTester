@@ -13,3 +13,9 @@
 [submodule "Arduino_STM32"]
 	path = Arduino_STM32
 	url = https://github.com/rogerclarkmelbourne/Arduino_STM32
+[submodule "Rotarty/Rotary"]
+	path = Rotarty/Rotary
+	url = https://github.com/brianlow/Rotary.git
+[submodule "rotary/Rotary"]
+	path = rotary/Rotary
+	url = https://github.com/brianlow/Rotary.git

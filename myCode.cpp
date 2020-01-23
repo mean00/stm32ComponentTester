@@ -57,7 +57,7 @@ void mySetup(void)
   adc->setupADCs();
 
   
-  xTaskCreate( MainTask, "MainTask", 500, NULL, 10, NULL );   
+  xTaskCreate( MainTask, "MainTask", 750,NULL, 10, NULL );   
   vTaskStartScheduler();      
   
 }

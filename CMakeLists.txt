@@ -19,7 +19,7 @@ set(ARDUINO_CPU          STM32F103C8)
 SET(libPrefix ${ARDUINO_DEFAULT_BOARD}_)
 #
 
-SET(SUB_COMPONENTS FreeRTOS adc graphics assets)
+SET(SUB_COMPONENTS FreeRTOS adc graphics assets rotary)
 FOREACH(comp ${SUB_COMPONENTS})
     include_directories(${comp})
 ENDFOREACH(comp ${SUB_COMPONENTS})
