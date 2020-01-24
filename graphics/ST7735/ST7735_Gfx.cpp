@@ -41,8 +41,9 @@ void TesterGfx::print(int x, int y, const char *txt)
 
 
 #define CAP_LINE 54
-#define CAP_COL1 16
+#define CAP_COL1 8
 #define CAP_COL2 128-20
+#define COMPONENT_COLOR (0x1f<<6)
 
 static void printPins(Adafruit_ST7735Ex *instance, int pinA, int pinB)
 {
@@ -64,7 +65,7 @@ static void printPins(Adafruit_ST7735Ex *instance, int pinA, int pinB)
 void TesterGfx::drawCapacitor(int offset, const char *value,int pinA, int pinB)
 {
 
-      instance->drawRLEBitmap(cap_width,cap_height,0,0,0x1fff,0,cap);
+      instance->drawRLEBitmap(cap_width,cap_height,0,0,COMPONENT_COLOR,0,cap);
       printPins(instance,pinA,pinB);
       instance->setCursor(5,98);
       instance->print("C=");
@@ -81,7 +82,7 @@ void TesterGfx::drawCapacitor(int offset, const char *value,int pinA, int pinB)
 void TesterGfx::drawResistor(int offset, const char *value,int pinA, int pinB)
 {
 
-      instance->drawRLEBitmap(resistor_width,resistor_height,0,0,0x1fff,0,resistor);
+      instance->drawRLEBitmap(resistor_width,resistor_height,0,0,COMPONENT_COLOR,0,resistor);
       printPins(instance,pinA,pinB);
       instance->setCursor(5,98);
       instance->print("R=");
@@ -97,7 +98,7 @@ void TesterGfx::drawResistor(int offset, const char *value,int pinA, int pinB)
 void TesterGfx::drawDiode(int offset, const char *value,int pinA, int pinB)
 {
 
-      instance->drawRLEBitmap(diode_width,diode_height,0,0,0x1fff,0,diode);
+      instance->drawRLEBitmap(diode_width,diode_height,0,0,COMPONENT_COLOR,0,diode);
       printPins(instance,pinA,pinB);      
       instance->setCursor(5,98);
       instance->print("Vf=");

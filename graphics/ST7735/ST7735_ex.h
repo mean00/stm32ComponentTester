@@ -38,6 +38,7 @@ protected:
         FontInfo          *currentFont;
         void    flood(uint16_t color, uint32_t len);
         void    push2Colors(uint8_t *data, int len, boolean first,uint16_t fg, uint16_t bg);
+        void    pushColors16(const uint16_t *data, int len, boolean first);
         size_t  write(uint8_t c);
         void    myDrawChar(int16_t x, int16_t y, unsigned char c,  uint16_t color, uint16_t bg) ;
 };

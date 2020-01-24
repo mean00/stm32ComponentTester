@@ -99,6 +99,20 @@ void Adafruit_ST7735Ex::pushColors(const uint16_t *data, int len, boolean first)
    CS_OFF();
   
 }
+void Adafruit_ST7735Ex::pushColors16(const uint16_t *data, int len, boolean first)
+{
+  if(first == true) 
+  { // Issue GRAM write command only on first call
+    writecommand(ST7735_RAMWR); // Row addr set
+  }  
+  // Send data
+   SEND_DATA();
+   CS_ON();
+   SPI.setDataSize (SPI_CR1_DFF_16_BIT); // Set spi 16bit mode  
+   SPI.dmaSend(data, len, true);
+   CS_OFF();
+  
+}
 /**
  * 
  * @param widthInPixel
@@ -145,7 +159,7 @@ void Adafruit_ST7735Ex::drawRLEBitmap(int widthInPixel, int height, int wx, int 
             }
             x+=count;
         }    
-        pushColors(line,widthInPixel,true);
+        pushColors16(line,widthInPixel,true);
         first=false;
     }   
 }
@@ -301,13 +315,13 @@ void Adafruit_ST7735Ex::myDrawChar(int16_t x, int16_t y, unsigned char c,  uint1
         dex++;
         if(dex==ST7735_BUFFER_SIZE)
         {
-            pushColors(lineBuffer,dex,first);
+            pushColors16(lineBuffer,dex,first);
             first=false;
             dex=0;
         }
     }
     if(dex)
-        pushColors(lineBuffer,dex,first);
+        pushColors16(lineBuffer,dex,first);
     return;
 }
 
