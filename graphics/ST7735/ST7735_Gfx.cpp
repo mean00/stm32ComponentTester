@@ -2,7 +2,7 @@
 #include "testerGfx.h"
 #include "assets.h"
 #include "Fonts/waree9.h"
-#include "Fonts/waree12.h"
+#include "Fonts/FreeSansBold9pt7b.h"
 static Adafruit_ST7735Ex *instance=NULL;
 
 /**
@@ -12,8 +12,8 @@ void TesterGfx::init()
     instance=new Adafruit_ST7735Ex(PA4,PA3,PB0);    
     instance->init();    
     instance->setRotation(2);
-    instance->setFontFamily(&Waree9pt7b, &Waree9pt7b, &Waree12pt7b);  
-    instance->setFont(&Waree9pt7b);
+    instance->setFontFamily(&Waree9pt7b, &Waree9pt7b, &FreeSansBold9pt7b);  
+    instance->setFont(&FreeSansBold9pt7b /*&Waree9pt7b*/);
     instance->fillScreen(0x0);  
     
     instance->setFontSize(Adafruit_ST7735Ex::MediumFont);
