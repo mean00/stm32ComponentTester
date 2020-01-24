@@ -22,7 +22,6 @@ void TesterGfx::init()
     instance->print("Component");
     instance->setCursor(4,50);
     instance->print("   Tester");
-
 }
 /**
  * 
@@ -39,6 +38,22 @@ void TesterGfx::print(int x, int y, const char *txt)
     instance->setCursor(x,y);
     instance->print(txt);
 };
+
+
+#define CAP_LINE 54
+#define CAP_COL1 16
+#define CAP_COL2 128-20
+
+static void printPins(Adafruit_ST7735Ex *instance, int pinA, int pinB)
+{
+      instance->setTextColor(0x1f,0);      
+      instance->setCursor(CAP_COL1,CAP_LINE);
+      instance->print(pinA);
+      instance->setCursor(CAP_COL2,CAP_LINE);
+      instance->print(pinB);
+      instance->setTextColor(0xffff,0);      
+}
+
 /**
  * 
  * @param offset
@@ -48,12 +63,9 @@ void TesterGfx::print(int x, int y, const char *txt)
  */
 void TesterGfx::drawCapacitor(int offset, const char *value,int pinA, int pinB)
 {
-#define CAP_COL (128-20-10)
+
       instance->drawRLEBitmap(cap_width,cap_height,0,0,0x1fff,0,cap);
-      instance->setCursor(CAP_COL,16);
-      instance->print(pinA);
-      instance->setCursor(CAP_COL,60);
-      instance->print(pinB);
+      printPins(instance,pinA,pinB);
       instance->setCursor(5,98);
       instance->print("C=");
       instance->print(value);
@@ -68,12 +80,9 @@ void TesterGfx::drawCapacitor(int offset, const char *value,int pinA, int pinB)
  */
 void TesterGfx::drawResistor(int offset, const char *value,int pinA, int pinB)
 {
-#define CAP_COL (128-20-10)
+
       instance->drawRLEBitmap(resistor_width,resistor_height,0,0,0x1fff,0,resistor);
-      instance->setCursor(CAP_COL,16);
-      instance->print(pinA);
-      instance->setCursor(CAP_COL,60);
-      instance->print(pinB);
+      printPins(instance,pinA,pinB);
       instance->setCursor(5,98);
       instance->print("R=");
       instance->print(value);
@@ -87,14 +96,10 @@ void TesterGfx::drawResistor(int offset, const char *value,int pinA, int pinB)
  */
 void TesterGfx::drawDiode(int offset, const char *value,int pinA, int pinB)
 {
-#define CAP_COL (128-20-10)
+
       instance->drawRLEBitmap(diode_width,diode_height,0,0,0x1fff,0,diode);
-      instance->setCursor(CAP_COL,16);
-      instance->print(pinA);
-      instance->setCursor(CAP_COL,60);
-      instance->print(pinB);
+      printPins(instance,pinA,pinB);      
       instance->setCursor(5,98);
       instance->print("Vf=");
-      instance->print(value);
-    
+      instance->print(value);    
 }
