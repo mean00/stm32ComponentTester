@@ -372,37 +372,42 @@ size_t Adafruit_ST7735Ex::write(uint8_t c)
 {
   if (!gfxFont)
     { return Adafruit_ST7735::write(c);}// 'Classic' built-in font
-  if((textsize_x!=1 ) || (textsize_y!=1))  { return Adafruit_ST7735::write(c);}
+  if((textsize_x!=1 ) || (textsize_y!=1))  
+    { return Adafruit_ST7735::write(c);}
 
     if (c == '\n') 
     {
       cursor_x = 0;
-      cursor_y +=          (int16_t)textsize_y * (uint8_t)pgm_read_byte(&gfxFont->yAdvance);
+      cursor_y +=          textsize_y * gfxFont->yAdvance;
       return 1;
     } 
     if(c=='\r')
       return 1;
-    uint8_t first = pgm_read_byte(&gfxFont->first);
-    if ((c < first) || (c > (uint8_t)pgm_read_byte(&gfxFont->last))) 
+    uint8_t first = gfxFont->first;
+    if ((c < first) || (c > gfxFont->last)) 
         return 1;
     
-    GFXglyph *glyph = pgm_read_glyph_ptr(gfxFont, c - first);
-      uint8_t w = pgm_read_byte(&glyph->width),   h = pgm_read_byte(&glyph->height);
-      if ((w > 0) && (h > 0)) 
-      { // Is there an associated bitmap?
-        int16_t xo = (int8_t)pgm_read_byte(&glyph->xOffset); // sic
-        if (wrap && ((cursor_x + textsize_x * (xo + w)) > _width)) 
-        {
-          cursor_x = 0;
-          cursor_y += (int16_t)textsize_y *
-                      (uint8_t)pgm_read_byte(&gfxFont->yAdvance);
-        }
+    GFXglyph *glyph = gfxFont->glyph + c-first;
+    int w = glyph->width,   h = glyph->height;
+    if ((w <= 0) || (h <= 0)) 
+    {
+        cursor_x += glyph->xAdvance ;    
+        return 1;
+    }
+
+    int xo = glyph->xOffset; // sic
+    if (wrap && ((cursor_x +  (xo + w)) > _width)) 
+    {
+      cursor_x = 0;
+      cursor_y +=   gfxFont->yAdvance;
+    }
 #if 0        
         drawChar(cursor_x, cursor_y, c, textcolor, textbgcolor, textsize_x,  textsize_y);
 #else
-        myDrawChar(cursor_x, cursor_y, c, textcolor, textbgcolor);
+        // this one is about 10 times faster
+        myDrawChar(cursor_x, cursor_y, c, textcolor, textbgcolor); 
 #endif
-      }
-      cursor_x += (uint8_t)pgm_read_byte(&glyph->xAdvance) * (int16_t)textsize_x;    
-  return 1;
+      
+    cursor_x += glyph->xAdvance ;    
+    return 1;
 }
