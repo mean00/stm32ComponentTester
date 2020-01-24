@@ -23,8 +23,8 @@ static void myInterrupt()
     _rotary=new Rotary(pinA,pinB);
     _pinA=pinA;
     _pinB=pinB;
-    pinMode(pinA,INPUT_PULLUP); 
-    pinMode(pinB,INPUT_PULLUP); 
+    pinMode(_pinA,INPUT_PULLUP); 
+    pinMode(_pinB,INPUT_PULLUP); 
  }
  /**
   * 
@@ -35,6 +35,7 @@ static void myInterrupt()
     attachInterrupt(_pinA, myInterrupt, CHANGE);
     attachInterrupt(_pinB, myInterrupt, CHANGE);
     interrupts();
+    _rotary->begin(true);
      
  }
  /*
