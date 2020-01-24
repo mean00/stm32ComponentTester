@@ -32,7 +32,7 @@ void MainTask( void *a )
     pin2.init();
     pin3.init();
     rotary.start();
-#if 0    
+#if 1    
     int  rot=0;
     int  c=0;
     char st[32];
@@ -47,7 +47,7 @@ void MainTask( void *a )
         TesterGfx::print(2,60,"TEST STRING"); // takes 0.3 ms
         z=micros()-z;
         c++;
-        xDelay(200);
+        //xDelay(200);
     }
 #endif
     while(1)

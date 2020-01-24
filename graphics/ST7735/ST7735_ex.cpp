@@ -297,11 +297,49 @@ void Adafruit_ST7735Ex::myDrawChar(int16_t x, int16_t y, unsigned char c,  uint1
     int n=h*w;
     int mask=0;
     uint8_t *data=bitmap+bo;
-    for (int i=0;i<n;i++) 
+    for (int i=n-1;i>=0;i--) 
     {      
         if (!mask) 
         {
           bits = *data++;
+          if(1 && dex<(ST7735_BUFFER_SIZE-16) && i>7)
+          {
+              uint16_t *p=lineBuffer+dex;
+              switch(bits)
+              {
+              case 0:
+                *p++=bg;*p++=bg;*p++=bg;*p++=bg;
+                *p++=bg;*p++=bg;*p++=bg;*p++=bg;
+                dex+=8;
+                i-=7;
+                continue;                 
+                break;
+              
+              case 0xff:
+                *p++=color;*p++=color;*p++=color;*p++=color;
+                *p++=color;*p++=color;*p++=color;*p++=color;
+                dex+=8;
+                i-=7;
+                continue;                 
+                break;
+              case 0x0f:
+                *p++=bg;*p++=bg;*p++=bg;*p++=bg;
+                *p++=color;*p++=color;*p++=color;*p++=color; // compiler is smart enough to optimize this
+                dex+=8;
+                i-=7;
+                continue;                                   
+                break;
+              case 0xF0:
+                *p++=color;*p++=color;*p++=color;*p++=color;
+                *p++=bg;*p++=bg;*p++=bg;*p++=bg;
+                dex+=8;
+                i-=7;
+                continue;                                   
+                break;
+             default:
+                break;       
+            }
+          }
           mask=0x80;
         }
         if (bits & mask) 
