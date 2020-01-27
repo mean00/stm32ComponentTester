@@ -1,7 +1,7 @@
 /*
 */
 
-#include <SPI.h>
+#include "../../SPI/src/SPI.h"
 #include "fancyLock.h"
 #include "testPins.h"
 #include "resistor.h"
@@ -32,16 +32,16 @@ void MainTask( void *a )
     pin2.init();
     pin3.init();
     rotary.start();
-#if 1    
+#if 0    
     int  rot=0;
     int  c=0;
     char st[32];
     xDelay(100);
     while(1)
     {
-        rot+=rotary.getCount();
-        TesterGfx::clear();
+        rot+=rotary.getCount();        
         sprintf(st,"%d-%d",rot,c);
+        TesterGfx::clear();
         TesterGfx::print(20,20,st);
         z=micros();
         TesterGfx::print(2,60,"TEST STRING"); // takes 0.3 ms

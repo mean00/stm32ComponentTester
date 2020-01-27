@@ -15,7 +15,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../assets)
 include_directories(${ST7735})
 include_directories(${ADA})
 include_directories(${ST7735})
-
+# This is because there is spi.h and SPI.h
+# it causes problems in case insensitive filesystems
+add_definitions("-include ../../SPI/src/SPI.h")
 generate_arduino_library(${libPrefix}graphics 
                             SRCS ${GFX} ${ADA_SRC} ${TESTER_GFX}
                             BOARD ${ARDUINO_DEFAULT_BOARD}
