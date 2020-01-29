@@ -11,6 +11,26 @@
 #include "cycleClock.h"
 //
 CycleClock clk;
+
+
+
+typedef struct CapScale
+{
+    float capMax; // in pF
+    adc_smp_rate rate;
+    adc_prescaler scale;
+};
+
+const CapScale capScales[]=
+{
+    {500,ADC_SMPR_13_5,ADC_PRE_PCLK2_DIV_2}, // max 500pf
+    {50*1000,ADC_SMPR_55_5,ADC_PRE_PCLK2_DIV_4},  // max 50nF
+    {1000*1000,ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_4},  // max 1Uf
+    {10,ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_8}  // and up
+};
+
+#define LAST_SCALE ((sizeof(capScales)/sizeof(CapScale))-1)
+
 /**
  * 
  * @param yOffset
@@ -29,7 +49,7 @@ bool Capacitor::draw(int yOffset)
  * @return 
  */
 
-bool Capacitor::doOne(TestPin::PULL_STRENGTH strength, bool grounded, float percent,int &timeUs, int &resistance,int &value)
+bool Capacitor::doOne(int dex,TestPin::PULL_STRENGTH strength, bool grounded, float percent,int &timeUs, int &resistance,int &value)
 {
     if(!zero(10)) return false;    
     // go
@@ -58,12 +78,15 @@ bool Capacitor::doOne(TestPin::PULL_STRENGTH strength, bool grounded, float perc
     
     return true;
 }
+
+
+
 /**
  * 
  * @return 
  */
 extern int z;
-bool Capacitor::computeLowCap()
+bool Capacitor::computeLowCap(int dex)
 {
     capacitance=0;
     uint32_t begin,end;
@@ -79,7 +102,7 @@ bool Capacitor::computeLowCap()
     int nbSamples;
     clk.start();        
     
-    if(!_pA.prepareDmaSample(true,512)) 
+    if(!_pA.prepareDmaSample(capScales[dex].rate,capScales[dex].scale,512)) 
         return false;        
     _pA.pullUp(TestPin::PULL_HI);   
     
@@ -98,28 +121,36 @@ bool Capacitor::computeLowCap()
     };
 
 #endif    
-    
-    clk.stop();
-    end=micros();
-    //clk.stop();
-    z=end-begin;
-    // Each sample is ~ 1us
-    // check which one reaches 0.615
-    int candidate=-1;
-    for(int i=0;i<nbSamples;i++)
+    return false;
+}
+/**
+ */
+bool Capacitor::computeHiCap(float Cest)
+{
+    int overSampling=2;
+    TestPin::PULL_STRENGTH    strength=TestPin::PULL_LOW;
+    float targetPc=0.6281;
+    // do the real ones
+    float capSum=0;
+    int totalTime=0;
+    int totalR=0;
+    int totalAdc=0;
+    int timeLow;
+    int resistanceLow;
+    int valueLow;
+    for(int i=0;i<overSampling;i++)
     {
-        if(samples[i]>(4095.*0.6815))
-        {
-            candidate=i;
-            i=nbSamples+1;
-        }
+         if(!doOne(LAST_SCALE,strength,true,targetPc,timeLow,resistanceLow,valueLow))
+             return false;
+         totalTime+=timeLow;
+         totalR+=resistanceLow;
+         totalAdc+=valueLow;
+        
     }
-    if(candidate==-1)        
-        return false;
-    capacitance=computeCapacitance(candidate,_pA.getCurrentRes()+_pB.getCurrentRes(),samples[candidate]);   
+    totalAdc/=overSampling;
+    capacitance=computeCapacitance(totalTime,totalR,totalAdc);   
     return true;
 }
-
 /**
  * 
  * @return 
@@ -130,7 +161,7 @@ bool Capacitor::compute()
     int timeLow,resistanceLow,valueLow;
     
     // do a quick  estimate of the cap at 10%
-     if(!doOne(TestPin::PULL_MED,true,0.10,timeLow,resistanceLow,valueLow))
+     if(!doOne(2,TestPin::PULL_MED,true,0.10,timeLow,resistanceLow,valueLow))
          return false;
     // if time is big, it means we have to use a lower resistance = bigger current
     // if it is small, it means we have to use a bigger resistance = lower current
@@ -138,43 +169,21 @@ bool Capacitor::compute()
     timeLow=timeLow*10; // Estimated value of RC   to charge the cap at 68% = RC
     float Cest=(float)timeLow/(float)resistanceLow;
     
-    // it is actually 1E6*Cest, i.e. in uF
-    TestPin::PULL_STRENGTH strength=TestPin::PULL_MED;
-    int overSampling=2;
-    if(Cest<2)
+    // it is actually 1E12*Cest, i.e. in pF
+    Cest=Cest*1000000.;    
+    int n=sizeof(capScales)/sizeof(CapScale);
+    int scale=0;
+    for(int i=0;i<n;i++)
     {
-#warning FIXME
-        if(Cest<0.05) // less than  50 pf
+        if(Cest<capScales[i].capMax)
         {
-          // return computeLowCap();
+            scale=i;
+            i=n;
         }
-         strength=TestPin::PULL_HI;
-         overSampling=10;
-    }else
-        if(Cest>40)
-        {
-            overSampling=1;
-            strength=TestPin::PULL_LOW;
-        }
-    
-    float targetPc=0.6281;
-    // do the real ones
-    float capSum=0;
-    int totalTime=0;
-    int totalR=0;
-    int totalAdc=0;
-    for(int i=0;i<overSampling;i++)
-    {
-         if(!doOne(strength,true,targetPc,timeLow,resistanceLow,valueLow))
-             return false;
-         totalTime+=timeLow;
-         totalR+=resistanceLow;
-         totalAdc+=valueLow;
-        
     }
-    totalAdc/=overSampling;
-    capacitance=computeCapacitance(totalTime,totalR,totalAdc);   
-    return true;
+    //if(Cest>200000.) // more than 200 nf, do slow
+        return computeHiCap(Cest);
+
 }
 /**
  * 

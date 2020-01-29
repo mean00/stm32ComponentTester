@@ -229,14 +229,11 @@ AutoDisconnect::~AutoDisconnect()
  * @param nbSamples
  * @return 
  */
-bool    TestPin::prepareDmaSample(bool fast,int nbSamples)
+bool    TestPin::prepareDmaSample(adc_smp_rate rate,  adc_prescaler scale,int nbSamples)
 {
     uint16_t *samples;
     adc->setADCPin(_pin);    
-    if(fast)
-        adc->prepareDMASampling(ADC_SMPR_71_5,ADC_PRE_PCLK2_DIV_8);     
-    else
-       adc->prepareDMASampling(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_8);    
+    adc->prepareDMASampling(rate,scale);     
     adc->startDMASampling(nbSamples);
     return true;    
 }
@@ -262,7 +259,7 @@ bool    TestPin::slowDmaSample(int &xadc, int &nbSamples)
     xadc=0;
     adc->setADCPin(_pin);    
     xDelay(10); // wait a bit
-    xAssert(prepareDmaSample(false,32));
+    xAssert(prepareDmaSample(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_8,32));
     xAssert(true==adc->getSamples(&samples,nbSamples));
     int r=0;
    // if(nbSamples!=32) return false;

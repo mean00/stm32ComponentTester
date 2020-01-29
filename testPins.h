@@ -51,7 +51,7 @@ public:
         void    disconnect();
         bool    slowDmaSample(int &adcSum, int &nbSamples);
         bool    finishDmaSample(int &nbSamples, uint16_t **xsamples);
-        bool    prepareDmaSample(bool fast, int nbSamples);
+        bool    prepareDmaSample(adc_smp_rate rate,  adc_prescaler scale,int nbSamples);
         //
         bool    fastSampleUp(int threshold,int &value, int &timeUs);
         bool    fastSampleDown(int threshold,int &value, int &timeUs)  ;

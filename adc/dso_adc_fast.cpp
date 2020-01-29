@@ -358,7 +358,7 @@ void DSOADC::defaultAdcIrqHandler()
  */
 bool DSOADC::getSamples(uint16_t **samples, int &nbSamples)
 {
-    if(!dmaSemaphore->take(100)) // dont busy loop
+    if(!dmaSemaphore->take(200)) // dont busy loop
         return false;       
     *samples=adcInternalBuffer;
     nbSamples=requestedSamples;
