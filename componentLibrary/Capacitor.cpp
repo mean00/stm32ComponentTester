@@ -9,6 +9,7 @@
 #include "math.h"
 #include "calibration.h"
 #include "cycleClock.h"
+#include "MapleFreeRTOS1000_pp.h"
 //
 CycleClock clk;
 
@@ -19,14 +20,15 @@ typedef struct CapScale
     float capMax; // in pF
     adc_smp_rate rate;
     adc_prescaler scale;
+    float tickUs;
 };
 
 const CapScale capScales[]=
 {
-    {500,ADC_SMPR_13_5,ADC_PRE_PCLK2_DIV_2}, // max 500pf
-    {50*1000,ADC_SMPR_55_5,ADC_PRE_PCLK2_DIV_4},  // max 50nF
-    {1000*1000,ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_4},  // max 1Uf
-    {10,ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_8}  // and up
+    {500,ADC_SMPR_13_5,ADC_PRE_PCLK2_DIV_2,0.72}, // max 500pf
+    {50*1000,ADC_SMPR_55_5,ADC_PRE_PCLK2_DIV_4,3.78},  // max 50nF
+    {1000*1000,ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_4,14},  // max 1Uf
+    {10,ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_8,28}  // and up
 };
 
 #define LAST_SCALE ((sizeof(capScales)/sizeof(CapScale))-1)
@@ -49,33 +51,82 @@ bool Capacitor::draw(int yOffset)
  * @return 
  */
 
-bool Capacitor::doOne(int dex,TestPin::PULL_STRENGTH strength, bool grounded, float percent,int &timeUs, int &resistance,int &value)
+bool Capacitor::doOne(int dex,TestPin::PULL_STRENGTH strength, bool grounded, float &cap)
 {
+    int resistance;
     if(!zero(10)) return false;    
     // go
     if(grounded)
         _pB.setToGround();
     else
         _pB.pullDown(strength);
-    _pA.pullUp(strength);
     
-    // Wait for the ADC value to go over 4095*percent
-    // We introduce a small error here due to the fact the ADC
-    // is starting too late
-    // compensated by calibration
+        
+    uint32_t begin,end;
+    // Discharge cap
+    begin=micros();    
+    // start the DMA
+    // max duration ~ 512 us
+    uint16_t *samples;
+    int nbSamples;
+    clk.start();        
     
-    if(!_pA.fastSampleUp(4095*percent,value,timeUs)) 
+    if(!_pA.prepareDmaSample(capScales[dex].rate,capScales[dex].scale,512)) 
+        return false;        
+    _pA.pullUp(TestPin::PULL_HI);   
+    
+    
+    if(!_pA.finishDmaSample(nbSamples,&samples)) 
     {
-        //zero(6);
         return false;
     }
-    //zero(6);
-    // compensate for B resistance
-    float v;
-    v=((4095.-(float)value)*(float)_pB.getCurrentRes())/(float)_pA.getCurrentRes()    ;
-    value-=v;
     resistance=_pA.getCurrentRes()+_pB.getCurrentRes();
+    _pA.pullDown(TestPin::PULL_LOW);   
     
+    
+    int limitA,limitB;
+    if(grounded)
+    {
+        limitA=50;
+        limitB=2784;
+    }else
+    {
+        xAssert(0);
+    }
+    
+    // We need 2 points...
+    // Lookup up 5% and 1-1/e
+    int pointA=-1,pointB=-1;
+    for(int i=1;i<nbSamples;i++)
+    {
+        if(samples[i]>limitA) // 5%
+        {
+            pointA=i;
+            i=4095;
+        }
+    }
+    if(pointA==-1) return false;
+    for(int i=pointA+1;i<nbSamples;i++)
+    {
+        if(samples[i]>limitB) // 68%
+        {
+            pointB=i;
+            i=4095;
+        }
+    }
+    if(pointB==-1) pointB=nbSamples-1;
+    
+    // Compute
+    float timeElapsed=(pointB-pointA);
+    timeElapsed*=capScales[dex].tickUs;
+    timeElapsed/=1000000.; // In seconds
+
+    float valueA=samples[pointA];
+    float valueB=samples[pointB];
+
+    float den=(4095-valueA)/(4095-valueB);
+    den=log(den);
+    cap=timeElapsed/(resistance*den);
     return true;
 }
 
@@ -111,6 +162,7 @@ bool Capacitor::computeLowCap(int dex)
     {
         return false;
     }
+    _pA.pullDown(TestPin::PULL_LOW);   
 #if 0
     char st[32];    
     Component::prettyPrint((float)samples[nbSamples-1], "F",st);
@@ -140,15 +192,14 @@ bool Capacitor::computeHiCap(float Cest)
     int valueLow;
     for(int i=0;i<overSampling;i++)
     {
-         if(!doOne(LAST_SCALE,strength,true,targetPc,timeLow,resistanceLow,valueLow))
+         if(!doOne(LAST_SCALE,strength,true,capacitance))
              return false;
          totalTime+=timeLow;
          totalR+=resistanceLow;
          totalAdc+=valueLow;
         
     }
-    totalAdc/=overSampling;
-    capacitance=computeCapacitance(totalTime,totalR,totalAdc);   
+ 
     return true;
 }
 /**
@@ -158,11 +209,16 @@ bool Capacitor::computeHiCap(float Cest)
 bool Capacitor::compute()
 {
     capacitance=0;
-    int timeLow,resistanceLow,valueLow;
-    
-    // do a quick  estimate of the cap at 10%
-     if(!doOne(2,TestPin::PULL_MED,true,0.10,timeLow,resistanceLow,valueLow))
+    float cap;
+     if(!doOne(1,TestPin::PULL_MED,true,cap))
          return false;
+    
+    float offset=INTERNAL_CAPACITANCE_IN_PF;
+    offset/=1000000000000.; // In pf
+    capacitance=cap-offset;
+    if(capacitance<0.) capacitance=0.;    
+    return true;
+#if 0    
     // if time is big, it means we have to use a lower resistance = bigger current
     // if it is small, it means we have to use a bigger resistance = lower current
     // we target 200 ms
@@ -181,8 +237,8 @@ bool Capacitor::compute()
             i=n;
         }
     }
-    //if(Cest>200000.) // more than 200 nf, do slow
-        return computeHiCap(Cest);
+    return computeHiCap(Cest);
+#endif    
 
 }
 /**
