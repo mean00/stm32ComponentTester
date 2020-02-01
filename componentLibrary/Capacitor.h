@@ -17,8 +17,8 @@ public:
 protected:
             float capacitance;
             bool  zero(int threshold); 
-            bool  doOne(int dex, TestPin::PULL_STRENGTH strengthA,bool grounded,float &cap);
+            bool  doOne(int dex, float &cap);
             float computeCapacitance(int time, int iresistance, int actualValue);
             bool  computeLowCap(int dex);
-            bool  computeHiCap(float Cest);
+            bool  computeHiCap(int overSampling,float Cest);
 };

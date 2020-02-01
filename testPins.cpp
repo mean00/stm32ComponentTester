@@ -204,10 +204,12 @@ void    TestPin::setToGround()
  */
 void    TestPin::disconnectAll()
 {
+    
     pinMode(_pin,INPUT_FLOATING);
     pinMode(_pinDriveHighRes,INPUT_FLOATING);
     pinMode(_pinDriveLowRes,INPUT_FLOATING);
     pinMode(_pinDriveMedRes,INPUT_FLOATING);
+ 
 }       
 /**
  * 
