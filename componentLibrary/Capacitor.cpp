@@ -125,7 +125,7 @@ bool Capacitor::doOne(int dex, float &cap)
     }
     if(pointB==-1) pointB=nbSamples-1;
     
-    if((pointB-pointA)<5) return false; // not enough points
+    if((pointB-pointA)<1) return false; // not enough points, need at least one
     
     // Compute
     float timeElapsed=(pointB-pointA);
@@ -157,61 +157,18 @@ bool Capacitor::doOne(int dex, float &cap)
 
 
 /**
- * 
- * @return 
  */
-extern int z;
-bool Capacitor::computeLowCap(int dex)
-{
-    capacitance=0;
-    uint32_t begin,end;
-    // Discharge cap
-    if(!zero(6)) return false;        
-    // go
-    _pB.setToGround();
-    begin=micros();
-    
-    // start the DMA
-    // max duration ~ 512 us
-    uint16_t *samples;
-    int nbSamples;
-    clk.start();        
-    
-    if(!_pA.prepareDmaSample(capScales[dex].rate,capScales[dex].scale,512)) 
-        return false;        
-    _pA.pullUp(TestPin::PULL_HI);   
-    
-    
-    if(!_pA.finishDmaSample(nbSamples,&samples)) 
-    {
-        return false;
-    }
-    _pA.pullDown(TestPin::PULL_LOW);   
-#if 0
-    char st[32];    
-    Component::prettyPrint((float)samples[nbSamples-1], "F",st);
-    ucg->drawString(10,30,0,st); 
-    while(1)
-    {
-        
-    };
-
-#endif    
-    return false;
-}
-/**
- */
-bool Capacitor::computeHiCap(int overSampling,float Cest)
+bool Capacitor::computeHiCap(int dex,int overSampling,float &Cest)
 {    
     float cap;
     capacitance=0;
     for(int i=0;i<overSampling;i++)
     {
-         if(!doOne(4,cap))
+         if(!doOne(dex,cap))
              return false;        
          capacitance+=cap;
     }
-    capacitance/=overSampling;
+    Cest/=overSampling;
     return true;
 }
 /**
@@ -222,14 +179,39 @@ bool Capacitor::compute()
 {
     capacitance=0;
     float CEstimated;
- //  while(1)
+    
+    if(!Capacitor::quickEval(CEstimated))
+        return false;
+    
+    // Depending on CEst, pick the best scale...
+    if(CEstimated>(4.6/1000000.)) // more than 5 uf,use time based method
     {
-     if(!computeHiCap(2,CEstimated))
-         return false;
+        int timeUs,resistance,value;
+        if(!Capacitor::doOneQuick(TestPin::PULL_LOW, false, 0.68,timeUs,resistance,value))
+            return false;
+        capacitance=computeCapacitance(timeUs,resistance,value);
+        return true;
     }
+    // Search the best range...
+    int n=LAST_SCALE;    
+    int gotit=-1;
+    for(int i=0;i<n;i++)
+    {
+        if(capScales[i].doubled) continue;
+        if(!computeHiCap(i,4,CEstimated))
+            continue;
+        if(CEstimated<capScales[i].capMin)
+        {
+            
+            gotit=i;
+            i=n+1;
+        }
+    }
+    if(gotit==-1)
+        return false;
     float offset=INTERNAL_CAPACITANCE_IN_PF;
     offset/=pPICO; // In pf
-    capacitance=capacitance-offset;
+    capacitance=CEstimated-offset;
     if(capacitance<0.) capacitance=0.;    
     return true;
 }

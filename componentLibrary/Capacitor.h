@@ -19,8 +19,7 @@ protected:
             bool  zero(int threshold); 
             bool  doOne(int dex, float &cap);
             float computeCapacitance(int time, int iresistance, int actualValue);
-            bool  computeLowCap(int dex);
-            bool  computeHiCap(int overSampling,float Cest);
+            bool  computeHiCap(int dex,int overSampling,float &c);
             
             bool quickEval(float &cap);
             bool doOneQuick(TestPin::PULL_STRENGTH strength, bool doubled, float percent,int &timeUs, int &resistance,int &value);

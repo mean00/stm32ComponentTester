@@ -35,12 +35,14 @@ bool Capacitor::doOneQuick(TestPin::PULL_STRENGTH strength, bool doubled, float 
         //zero(6);
         return false;
     }
+    
     //zero(6);
     // compensate for B resistance
     float v;
     v=((4095.-(float)value)*(float)_pB.getCurrentRes())/(float)_pA.getCurrentRes()    ;
     value-=v;
     resistance=_pA.getCurrentRes()+_pB.getCurrentRes();    
+    _pA.setToGround();
     return true;
 }
 
@@ -57,19 +59,11 @@ bool Capacitor::quickEval(float &cap)
      if(!doOneQuick(TestPin::PULL_MED,false,0.10,timeLow,resistanceLow,valueLow))
          return false;
     
-    //--
-    char st[20];
-    sprintf(st,"T=%d\n",timeLow);
-    TesterGfx::print(10,10,st);
-
-    while(1)
-    {
-        
-    }
     
+    // Time is proportial to to capacitance
     if(timeLow<20)
     {
-     if(!doOneQuick(TestPin::PULL_HI,false,0.10,timeLow,resistanceLow,valueLow))
+     if(!doOneQuick(TestPin::PULL_HI,false,0.50,timeLow,resistanceLow,valueLow))
          return false;        
     }else
     {
@@ -80,9 +74,7 @@ bool Capacitor::quickEval(float &cap)
         }
     }
     // we target 200 ms
-    timeLow=timeLow*10; // Estimated value of RC   to charge the cap at 68% = RC
-    float Cest=(float)timeLow/(float)resistanceLow;
-    cap=Cest;
+    cap=Capacitor::computeCapacitance(timeLow,resistanceLow,valueLow);
     return true;
 }
 // EOF
