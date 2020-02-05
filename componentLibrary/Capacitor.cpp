@@ -60,7 +60,7 @@ bool Capacitor::draw(int yOffset)
  * @return 
  */
 
-bool Capacitor::doOne(int dex, float &cap)
+bool Capacitor::doOne(float target,int dex, float &cap)
 {
     int resistance;
     if(!zero(10)) return false;    
@@ -93,12 +93,12 @@ bool Capacitor::doOne(int dex, float &cap)
 
     
     limitA=10;
-    limitB=4095*0.7;
+    limitB=4095.*target;
 
     if(doubled)
     {
-        limitA=4095/2+1;
-        limitB=4095*4/5+1;
+        limitA=4095/2+10;
+        limitB=4095.*(1.+target)/2.+1;
     }
   
     
@@ -213,19 +213,54 @@ bool Capacitor::getRange(int dex, int &range)
 
 /**
  */
-bool Capacitor::computeHiCap(int dex,int overSampling,float &Cest)
+bool Capacitor::computeMediumCap(int dex,int overSampling,float &Cest)
 {    
     float cap;
     Cest=0;
     for(int i=0;i<overSampling;i++)
     {
-         if(!doOne(dex,cap))
+         if(!doOne(0.63,dex,cap))
              return false;        
          Cest+=cap;
     }
     Cest/=overSampling;
-    Cest=Cest-INTERNAL_CAPACITANCE_IN_PF/pPICO;
+    // We are with cap > 300 pf, internal cap is neglectable Cest=Cest-INTERNAL_CAPACITANCE_IN_PF/pPICO;
     if(Cest<0.) Cest=0.;
+    return true;
+}
+/**
+ * 
+ * @return 
+ */
+bool Capacitor::computeLowCap()
+{    
+    float cap;
+    float Cest=0;
+    int overSampling=4;
+    for(int i=0;i<overSampling;i++)
+    {
+         if(!doOne(0.9,0,cap))
+             return false;        
+         Cest+=cap;
+    }
+    Cest/=overSampling;
+    capacitance=Cest;
+    if(capacitance<300./pPICO)
+    {
+        capacitance=Cest-INTERNAL_CAPACITANCE_IN_PF/pPICO;
+    }
+    if(capacitance<0.) capacitance=0.;
+    return true;
+}
+
+/**
+ */
+bool Capacitor::computeHiCap()
+{    
+    int timeUs,resistance,value;
+    if(!Capacitor::doOneQuick(TestPin::PULL_LOW, false, 0.63,timeUs,resistance,value))
+            return false;
+    capacitance=computeCapacitance(timeUs,resistance,value);
     return true;
 }
 /**
@@ -235,24 +270,29 @@ bool Capacitor::computeHiCap(int dex,int overSampling,float &Cest)
 bool Capacitor::compute()
 {
     capacitance=0;
+    int range;
     float CEstimated;
     
-    if(!Capacitor::quickEval(CEstimated))
-        return false;
-    
-    // Depending on CEst, pick the best scale...
-    if(CEstimated>(4.6/1000000.)) // more than 5 uf,use time based method
+    // check for big cap
+    if(getRange(LAST_SCALE,range))
     {
-        int timeUs,resistance,value;
-        if(!Capacitor::doOneQuick(TestPin::PULL_LOW, false, 0.68,timeUs,resistance,value))
-            return false;
-        capacitance=computeCapacitance(timeUs,resistance,value);
-        return true;
+        if(range>505) // out of scale, it is high cap..
+        {
+            return computeHiCap();
+        }
     }
+    // Check for small cap
+     if(getRange(0,range))
+    {
+        if(range<120) // Low value, it is low cap..
+        {
+            return computeLowCap();
+        }
+    }
+    
     // Search the best range...
     int n=LAST_SCALE;    
     int gotit=-1;
-    int range;
     for(int i=0;i<n;i++)
     {
       //  if(capScales[i].doubled) continue;
@@ -267,7 +307,7 @@ bool Capacitor::compute()
         return false;
     
     // Now loop on the range
-    computeHiCap(1*1+0*gotit,4,CEstimated);    
+    computeMediumCap(0*1+1*gotit,4,CEstimated);    
     capacitance=CEstimated;
     if(capacitance<0.) capacitance=0.;    
     return true;
@@ -293,12 +333,6 @@ float Capacitor::computeCapacitance(int time, int iresistance, int actualValue)
     if(-den<0.000001) return 0;    
     cap=-t/(resistance*den);
     cap/=1000.;
-#if 1
-    float offset=INTERNAL_CAPACITANCE_IN_PF;
-    offset=offset/pPICO;
-    cap=cap-offset;
-    if(cap<=0) cap=1/pPICO;
-#endif    
     return cap;
 }
 

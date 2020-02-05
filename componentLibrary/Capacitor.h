@@ -17,11 +17,12 @@ public:
 protected:
             float capacitance;
             bool  zero(int threshold); 
-            bool  doOne(int dex, float &cap);
+            bool  doOne(float target,int dex, float &cap);
             float computeCapacitance(int time, int iresistance, int actualValue);
-            bool  computeHiCap(int dex,int overSampling,float &c);
+            bool  computeMediumCap(int dex,int overSampling,float &c);
+            bool  computeHiCap();
+            bool  computeLowCap();
             
-            bool quickEval(float &cap);
             bool doOneQuick(TestPin::PULL_STRENGTH strength, bool doubled, float percent,int &timeUs, int &resistance,int &value);
             bool getRange(int dex, int &range);
 };
