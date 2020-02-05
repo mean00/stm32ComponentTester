@@ -23,4 +23,5 @@ protected:
             
             bool quickEval(float &cap);
             bool doOneQuick(TestPin::PULL_STRENGTH strength, bool doubled, float percent,int &timeUs, int &resistance,int &value);
+            bool getRange(int dex, int &range);
 };

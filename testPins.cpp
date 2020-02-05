@@ -67,10 +67,11 @@ AllPins allPins;
  * @param hiRes
  * @param internal
  */
- TestPin::TestPin(int pinNo, int pin, int pinDriveHighRes, int pinDriveMed,int pinDriveLow, int hiRes, int medRes,int lowRes)
+ TestPin::TestPin(int pinNo, int pinAdc,int pinVolt, int pinDriveHighRes, int pinDriveMed,int pinDriveLow, int hiRes, int medRes,int lowRes)
 {
      _pinNumber=pinNo;
-     _pin=pin;
+     _pin=pinAdc;
+     _pinVolt=pinVolt;
      _pinDriveHighRes=pinDriveHighRes;
      _pinDriveLowRes=pinDriveLow;
      _pinDriveMedRes=pinDriveMed;
@@ -78,8 +79,9 @@ AllPins allPins;
      _hiRes=hiRes;
      _medRes=medRes;
      
-#if 1     
-     pinMode(pin,INPUT_PULLDOWN);
+#if 1
+     pinMode(pinAdc,INPUT_PULLDOWN);     
+     pinMode(pinVolt,INPUT_PULLDOWN);
      pinMode(pinDriveHighRes,INPUT_PULLDOWN);
      pinMode(pinDriveLow,INPUT_PULLDOWN);
      pinMode(pinDriveMed,INPUT_PULLDOWN);
@@ -184,8 +186,8 @@ void    TestPin::setToVcc()
 {
     allPins.checkVcc(*this);
     disconnectAll();
-    digitalWrite(_pin,1);
-    pinMode(_pin,OUTPUT);
+    digitalWrite(_pinVolt,1);
+    pinMode(_pinVolt,OUTPUT);
     _state=VCC;    
 }
 /**
@@ -195,8 +197,8 @@ void    TestPin::setToGround()
 {
     allPins.checkGnd(*this);
     disconnectAll();
-    digitalWrite(_pin,0);
-    pinMode(_pin,OUTPUT);
+    digitalWrite(_pinVolt,0);
+    pinMode(_pinVolt,OUTPUT);
     _state=GND;    
 }
 /**
@@ -209,6 +211,7 @@ void    TestPin::disconnectAll()
     pinMode(_pinDriveHighRes,INPUT_FLOATING);
     pinMode(_pinDriveLowRes,INPUT_FLOATING);
     pinMode(_pinDriveMedRes,INPUT_FLOATING);
+    pinMode(_pinVolt,INPUT_FLOATING);
  
 }       
 /**

@@ -41,7 +41,7 @@ public:
         };
         
   
-                TestPin(int pinNo, int pin, int pinDriveHighRes, int pinDriveMed,int pinDriveLow, int hiRes, int medRes,int lowRes);
+                TestPin(int pinNo, int pinAdc,int pinVolt, int pinDriveHighRes, int pinDriveMed,int pinDriveLow, int hiRes, int medRes,int lowRes);
         void    setMode(TESTPIN_STATE mode);
         void    init();
         void    pullUp(PULL_STRENGTH strength);
@@ -64,6 +64,7 @@ protected:
         void    configureOutput(int pinNo, int state);
         adc_reg_map    *fastSetup()  ;
         int _pinNumber,_pin,_pinDriveHighRes, _pinDriveLowRes,_pinDriveMedRes;
+        int _pinVolt; // GND or VCC
         int _lowRes,_hiRes,_medRes;
         TESTPIN_STATE _state;
 };
