@@ -321,7 +321,7 @@ adc_reg_map    *TestPin::fastSetup()
     ADC_SMPR_71_5,              **< 71.5 ADC cycles *
     ADC_SMPR_239_5,             **< 239.5 ADC cycles *
  */    
-    adc->setTimeScale(ADC_SMPR_7_5, ADC_PRE_PCLK2_DIV_2);
+    adc->setTimeScale(ADC_SMPR_13_5, ADC_PRE_PCLK2_DIV_6); // Fastest to stay withing 14MH adc clock
     adc_dev *dev = PIN_MAP[_pin].adc_device;
     int channel=PIN_MAP[_pin].adc_channel;    
     adc_reg_map *regs = dev->regs;    
@@ -336,23 +336,57 @@ adc_reg_map    *TestPin::fastSetup()
  * @param value
  * @return 
  */
-bool    TestPin::fastSampleUp(int threshold,int &value, int &timeUs)  
+bool    TestPin::fastSampleUp(int threshold1,int threshold2,int &value1,int &value2, int &timeUs1,int &timeUs2)
 {
+    
     adc_reg_map *regs=fastSetup();
     // go
     int c;
     uint32_t start=micros();
+    uint32_t sampleTime;
+    bool first=true;
+    int value;
     while(1)
     {
-        if(!singleShot(regs,c)) 
-            return false;
-        if(c>threshold)
+        uint32_t oldCr2=regs->CR2;
+        uint32_t cr2=ADC_CR2_ADON+1*ADC_CR2_EXTSEL_SWSTART+0*ADC_CR2_SWSTART; 
+        regs->CR2=cr2;  
+        uint32_t sampleStart=millis();
+        while(1)
         {
-            timeUs=micros()-start; 
-#warning fixme wrap around
-            value=c;
-            return true;
+            uint32_t sr=regs->SR;
+            if(!(sr & ADC_SR_EOC))
+            {
+                int now=millis();
+                if((now-sampleStart)>10)
+                {
+                    regs->CR2 &= ~ADC_CR2_SWSTART;
+                    return false;
+                }
+            }
+            sampleTime=micros();
+            break;
         }
+        value=regs->DR & ADC_DR_DATA;
+        if(first)
+        {
+            if(value>threshold1)
+            {
+                timeUs1=sampleTime-start; 
+                value1=value;
+                first=false;
+            }
+        }
+        else
+        {
+             if(value>threshold2)
+            {
+                timeUs2=sampleTime-start; 
+                value2=value;
+                return true;
+            }
+        }
+     
     }
 }
 /**

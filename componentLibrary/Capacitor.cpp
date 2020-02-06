@@ -12,7 +12,7 @@
 #include "MapleFreeRTOS1000_pp.h"
 //
 CycleClock clk;
-
+float capz;
 #define pPICO (1000.*1000.*1000.*1000.)
 
 typedef struct CapScale
@@ -145,7 +145,7 @@ bool Capacitor::doOne(float target,int dex, float &cap)
     if(fabs(valueA-4095.)<2) return false;
     if(fabs(valueB-4095.)<2) return false;
     
-    float den=(4095-valueA)/(4095-valueB);
+    float den=(4095.-(float)valueA)/(4095.-(float)valueB);
     
     if(fabs(den-2.718)<0.01) 
         return false;
@@ -254,16 +254,6 @@ bool Capacitor::computeLowCap()
 }
 
 /**
- */
-bool Capacitor::computeHiCap()
-{    
-    int timeUs,resistance,value;
-    if(!Capacitor::doOneQuick(TestPin::PULL_LOW, false, 0.63,timeUs,resistance,value))
-            return false;
-    capacitance=computeCapacitance(timeUs,resistance,value);
-    return true;
-}
-/**
  * 
  * @return 
  */
@@ -353,4 +343,23 @@ bool Capacitor::zero(int threshold)
     return true;
 }
 
+/**
+ */
+bool Capacitor::computeHiCap()
+{    
+    int timeUs,resistance,value;
+    int overSampling=2;
+    int resTotal=0,timeTotal=0,valueTotal=0;
+    for(int i=0;i<overSampling;i++)
+    {
+        if(!Capacitor::doOneQuick(TestPin::PULL_LOW, false, 0.63,timeUs,resistance,value))
+            return false;
+        resTotal+=resistance;
+        timeTotal+=timeUs;
+        valueTotal+=value;
+    }
+    valueTotal=(valueTotal+overSampling/2)/overSampling;
+    capacitance=computeCapacitance(timeTotal,resTotal,valueTotal);
+    return true;
+}
 // EOF
