@@ -434,7 +434,16 @@ void xFail(const char *message)
  */
 int TestPin::getCurrentRes()
 {
-    switch(_state)
+    return getRes(_state);
+}
+/**
+ * 
+ * @param state
+ * @return 
+ */
+int TestPin::getRes(TESTPIN_STATE state)
+{
+    switch(state)
     {
         case DISCONNECTED: 
                     xFail("Invalid");
@@ -450,7 +459,6 @@ int TestPin::getCurrentRes()
         case PULLDOWN_MED:       return _medRes+WIRE_RESISTANCE_AND_INTERNAL;break;        
     }
     xFail("Invalid");
-    return 0;
+    return 0; 
 }
-
 // EOF

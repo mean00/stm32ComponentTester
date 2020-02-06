@@ -352,13 +352,19 @@ bool Capacitor::computeHiCap()
     int resTotal=0,timeTotal=0,valueTotal=0;
     for(int i=0;i<overSampling;i++)
     {
-        if(!Capacitor::doOneQuick(TestPin::PULL_LOW, false, 0.63,timeUs,resistance,value))
+        if(!Capacitor::doOneQuick(TestPin::PULL_LOW, false, 0.70,timeUs,resistance,value))
             return false;
         resTotal+=resistance;
         timeTotal+=timeUs;
         valueTotal+=value;
     }
-    valueTotal=(valueTotal+overSampling/2)/overSampling;
+    // correct B
+    float v=valueTotal;
+    float alpha=(float)_pB.getRes(TestPin::GND)/(float)(_pA.getRes(TestPin::PULLUP_LOW));
+    float coef=(v)*(alpha)-4095.*alpha*overSampling;
+    v=v+coef;
+    v=(v+(float)overSampling/2.)/(float)overSampling;
+    valueTotal=v;
     capacitance=computeCapacitance(timeTotal,resTotal,valueTotal);
     return true;
 }
