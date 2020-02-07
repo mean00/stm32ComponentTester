@@ -19,7 +19,7 @@ set(ARDUINO_CPU          STM32F103C8)
 SET(libPrefix ${ARDUINO_DEFAULT_BOARD}_)
 #
 
-SET(SUB_COMPONENTS FreeRTOS adc graphics assets rotary)
+SET(SUB_COMPONENTS FreeRTOS adc graphics assets rotary componentLibrary)
 FOREACH(comp ${SUB_COMPONENTS})
     include_directories(${comp})
 ENDFOREACH(comp ${SUB_COMPONENTS})
@@ -37,12 +37,12 @@ ENDFOREACH(comp ${SUB_COMPONENTS})
 # Our code
 #
 SET(UTILS utils/fancyLock.cpp    utils/cycleClock.cpp)
-SET(COMPT  componentLibrary/Resistor.cpp componentLibrary/Capacitor.cpp componentLibrary/Capacitor_quickEval.cpp componentLibrary/Component.cpp componentLibrary/Diode.cpp)
+SET(COMPT  componentLibrary/Resistor.cpp componentLibrary/Capacitor.cpp  componentLibrary/Component.cpp componentLibrary/Diode.cpp)
 
 ADD_DEFINITIONS(-D__NOP="")
 generate_arduino_firmware(stm32ComponentTester 
                 SKETCH stm32ComponentTester.ino
-                SRCS myCode.cpp testPins.cpp  ${UTILS} ${COMPT} ${GFX}
+                SRCS myCode.cpp testPins.cpp  ${UTILS}  ${GFX}
                 PORT ${ARDUINO_DEFAULT_PORT}
                 BOARD_CPU ${ARDUINO_CPU}
                 )
