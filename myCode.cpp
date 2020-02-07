@@ -4,7 +4,7 @@
 #include "../../SPI/src/SPI.h"
 #include "fancyLock.h"
 #include "testPins.h"
-#include "resistor.h"
+#include "Resistor.h"
 #include "Capacitor.h"
 #include "Diode.h"
 #include "dso_adc.h"

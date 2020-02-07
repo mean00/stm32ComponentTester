@@ -5,7 +5,7 @@
 #include <SPI.h>
 #include "fancyLock.h"
 #include "testPins.h"
-#include "resistor.h"
+#include "Resistor.h"
 static float checkResistor(TestPin &A, TestPin &B);
 static float computeResistance(float adcValue, int resistance);
 
