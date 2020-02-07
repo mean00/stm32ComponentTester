@@ -26,4 +26,5 @@ protected:
             bool doOneQuick(TestPin::PULL_STRENGTH strength, bool doubled, float percent,int &timeUs, int &resistance,int &value);
             bool getRange(int dex, int &range);
             bool getEsr(float &esr);
+            bool minMax(bool high,int &minmax);
 };

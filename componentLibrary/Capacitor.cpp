@@ -254,7 +254,7 @@ bool Capacitor::computeLowCap()
     {
         capacitance=Cest-INTERNAL_CAPACITANCE_IN_PF/pPICO;
     }
-    if(capacitance<0.) capacitance=0.;
+    if(capacitance<MINIMUM_DETECTED_CAP/pPICO) capacitance=0.;
     return true;
 }
 
@@ -266,7 +266,8 @@ bool Capacitor::compute()
 {
     capacitance=0;
     int range;
-    float CEstimated;
+    //float est;
+    //getEsr(est);
     
     // check for big cap
     if(getRange(LAST_SCALE,range))
@@ -302,8 +303,7 @@ bool Capacitor::compute()
         return false;
     
     // Now loop on the range
-    computeMediumCap(0*1+1*gotit,4,CEstimated);    
-    capacitance=CEstimated;
+    computeMediumCap(0*1+1*gotit,4,capacitance);    
     if(capacitance<0.) capacitance=0.;    
     return true;
 }
