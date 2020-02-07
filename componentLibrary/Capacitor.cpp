@@ -56,7 +56,7 @@ bool Capacitor::draw(int yOffset)
 }
 
 /**
- * 
+ * Perform a DMA sampling buffer and extract 2 points
  * @return 
  */
 
@@ -154,7 +154,8 @@ bool Capacitor::doOne(float target,int dex, float &cap)
     return true;
 }
 /**
- * 
+ *  comput the fullness of the DMA buffer for a given sampling freq
+ * The idea is if is ==511 it means that we need a slower sampling freq
  * @param dex
  * @param cap
  * @return 
@@ -212,6 +213,10 @@ bool Capacitor::getRange(int dex, int &range)
 
 
 /**
+ * For medium value cap, we take the sampling time needed so that
+ * we have a full charge within 512 samples
+ * Then we can take 2 points in the samples and compute C
+ * The aim is to have a wide enough span so that the computation is somehow accurate
  */
 bool Capacitor::computeMediumCap(int dex,int overSampling,float &Cest)
 {    
@@ -303,7 +308,8 @@ bool Capacitor::compute()
     return true;
 }
 /**
- * 
+ * This is for high value cap. They need a lot of time to charge so we can't use a dma filled buffer
+ * instead we'll poll their voltage
  * @param time
  * @param resistance
  * @param actualValue
@@ -359,6 +365,8 @@ bool Capacitor::computeHiCap()
         valueTotal+=value;
     }
     // correct B
+    // Some voltage is dropped due to the parasitic resistor on the B pin
+    // compensate for that
     float v=valueTotal;
     float alpha=(float)_pB.getRes(TestPin::GND)/(float)(_pA.getRes(TestPin::PULLUP_LOW));
     float coef=(v)*(alpha)-4095.*alpha*overSampling;
