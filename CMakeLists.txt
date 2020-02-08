@@ -37,12 +37,11 @@ ENDFOREACH(comp ${SUB_COMPONENTS})
 # Our code
 #
 SET(UTILS utils/fancyLock.cpp    utils/cycleClock.cpp)
-SET(COMPT  componentLibrary/Resistor.cpp componentLibrary/Capacitor.cpp  componentLibrary/Component.cpp componentLibrary/Diode.cpp)
 
 ADD_DEFINITIONS(-D__NOP="")
 generate_arduino_firmware(stm32ComponentTester 
                 SKETCH stm32ComponentTester.ino
-                SRCS myCode.cpp testPins.cpp  ${UTILS}  ${GFX}
+                SRCS myCode.cpp testPins.cpp  pinAutoTest.cpp ${UTILS}  ${GFX}
                 PORT ${ARDUINO_DEFAULT_PORT}
                 BOARD_CPU ${ARDUINO_CPU}
                 )

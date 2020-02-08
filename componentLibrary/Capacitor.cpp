@@ -264,6 +264,7 @@ bool Capacitor::computeLowCap()
  */
 bool Capacitor::compute()
 {
+    AutoDisconnect ad;
     capacitance=0;
     int range;
     //float est;
