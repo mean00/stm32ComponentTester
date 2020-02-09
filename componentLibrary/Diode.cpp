@@ -26,7 +26,7 @@ bool Diode::draw(int yOffset)
  */
 bool Diode::compute()
 {
-    
+    AutoDisconnect ad;
     // even with the lowest resistance we are at max at 
     // 3.3v/470*2 Ohm= 3 mA, which is fine
     _pA.pullUp(TestPin::PULL_LOW);

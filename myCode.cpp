@@ -4,14 +4,14 @@
 #include "../../SPI/src/SPI.h"
 #include "fancyLock.h"
 #include "testPins.h"
-#include "Resistor.h"
-#include "Capacitor.h"
-#include "Diode.h"
+#include "allComponents.h"
 #include "dso_adc.h"
 #include "testerGfx.h"
 #include "wav_irotary.h"
+#include "componentSignature.h"
 #define LED PC13
 void myLoop(void);
+extern void pinTest();
 DSOADC *adc=NULL;
 //
 int result[20];
@@ -50,6 +50,11 @@ void MainTask( void *a )
         //xDelay(200);
     }
 #endif
+    
+    //pinTest();
+    
+    
+    
     while(1)
     {
         myLoop();
@@ -91,17 +96,18 @@ void mySetup(void)
  */
 void myLoop(void)
 {
-    //ucg->clearScreen(); 
-    Capacitor r(pin1,pin2,pin3);
-    //Resistor r(pin1,pin2,pin3);
-    //Diode r(pin1,pin2,pin3);
-    while(1)
-    {        
-        if(r.compute())
-        {     
-            TesterGfx::clear();
-            r.draw(0);
-        }
-        xDelay(500);
-    } 
+    COMPONENT_TYPE type;
+    Component *c=identity(pin1,pin2,pin3,type);
+    if(!c)
+    {
+        xDelay(1000);
+        return;
+    }
+      
+    if(c->compute())
+    {     
+        TesterGfx::clear();
+        c->draw(0);
+    }
+    xDelay(5000);
 }
