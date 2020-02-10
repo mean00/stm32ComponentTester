@@ -60,6 +60,7 @@ public:
         int     getCurrentRes();
         int     getRes(TESTPIN_STATE state);
         int     pinNumber() {return _pinNumber;}
+        int     pinADC() {return _pin;}
 
 protected:  
         void    configureOutput(int pinNo, int state);
