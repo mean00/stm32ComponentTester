@@ -28,7 +28,7 @@ int CycleClock::elapsedUs()
     if(_start<_end)
         delta=_end-_start;
     else
-        delta=(SYSTICK_RELOAD_VAL+1-_start)+_end;
+        delta=(SYSTICK_RELOAD_VAL+2-_start)+_end;
     
     return (delta+CYCLES_PER_MICROSECOND/2)/CYCLES_PER_MICROSECOND;
     
