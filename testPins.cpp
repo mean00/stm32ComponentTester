@@ -6,6 +6,7 @@
 #include "testPins.h"
 #include "dso_adc.h"
 #include "MapleFreeRTOS1000_pp.h"
+#include "calibration.h"
 extern DSOADC *adc;
 
 void xFail(const char *message);
@@ -48,11 +49,35 @@ public:
             _pins[i]->disconnect();
         }
     }
+    bool zero()
+    {
+        int n=_pins.size();
+        for(int i=0;i<n;i++)
+        {
+            _pins[i]->pullDown(TestPin::PULL_LOW);
+        }
+        int v,tus;
+        for(int i=0;i<n;i++)
+        {
+            _pins[i]->fastSampleDown(PIN_ZERO_THRESHOLD,v,tus);
+        }
+      
+        xDelay(10);
+        return true;
+    }
+    
 public:    
     std::vector<TestPin *>_pins;
 };
 AllPins allPins;
 
+/**
+ * 
+ */
+void zeroAllPins()
+{
+    allPins.zero();
+}
 /**
  */
 #pragma once
@@ -473,4 +498,8 @@ int TestPin::getRes(TESTPIN_STATE state)
     xFail("Invalid");
     return 0; 
 }
+
+
+
+
 // EOF

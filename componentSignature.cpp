@@ -53,7 +53,9 @@ int getSignature(TestPin &A,TestPin &B)
 Component *identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type)
 {
     TestPin::PULL_STRENGTH st=TestPin::PULL_LOW;
-            
+         
+    zeroAllPins();
+    
     int topLeft,topRight,bottomLeft,bottomRight;
     
     {
@@ -76,7 +78,7 @@ Component *identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type)
         C.pullUp(st);
         bottomRight=getSignature(A,B);
     }
-    
+    zeroAllPins();
     if(bottomLeft==bottomRight && topLeft==topRight) // dipole
     {
         
@@ -96,6 +98,8 @@ Component *identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type)
            return new Diode(B,A,C);
         }
     }
-    return NULL;
+    zeroAllPins();
+    return new Capacitor(A,B,C);
+    
     
 }

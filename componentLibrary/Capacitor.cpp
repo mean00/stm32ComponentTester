@@ -63,7 +63,7 @@ bool Capacitor::draw(int yOffset)
 bool Capacitor::doOne(float target,int dex, float &cap)
 {
     int resistance;
-    if(!zero(10)) return false;    
+    zeroAllPins();
     // go
     bool doubled=(capScales[dex].doubled);
     TestPin::PULL_STRENGTH strength=capScales[dex].strength;
@@ -163,7 +163,7 @@ bool Capacitor::doOne(float target,int dex, float &cap)
 bool Capacitor::getRange(int dex, int &range)
 {
     int resistance;
-    if(!zero(10)) return false;    
+    zeroAllPins();
     // go
     bool doubled=(capScales[dex].doubled);
     TestPin::PULL_STRENGTH strength=capScales[dex].strength;
@@ -333,22 +333,6 @@ float Capacitor::computeCapacitance(int time, int iresistance, int actualValue)
     return cap;
 }
 
-/**
- * \brief discharge the capacitor
- * @return 
- */
-bool Capacitor::zero(int threshold)
-{
-    _pA.pullDown(TestPin::PULL_LOW);
-    _pB.pullDown(TestPin::PULL_LOW);
-    
-    int v,tus;
-    _pA.fastSampleDown(threshold,v,tus);
-    _pB.fastSampleDown(threshold,v,tus);
-    
-    xDelay(10);
-    return true;
-}
 
 /**
  */
@@ -389,7 +373,7 @@ bool Capacitor::computeHiCap()
  */
 bool Capacitor::doOneQuick(TestPin::PULL_STRENGTH strength, bool doubled, float percent,int &timeUs, int &resistance,int &value)
 {
-    if(!zero(10)) return false;    
+    zeroAllPins();
     // go
     if(!doubled)
         _pB.setToGround();

@@ -71,4 +71,6 @@ protected:
         TESTPIN_STATE _state;
 };
 
+void zeroAllPins();
 
+// EOF
