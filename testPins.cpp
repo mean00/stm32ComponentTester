@@ -346,7 +346,35 @@ adc_reg_map    *TestPin::fastSetup()
     regs->SQR3 = channel;    
     return regs;
 }
-
+/**
+ * 
+ * @param value
+ * @return 
+ */
+bool    TestPin::sample(int &value)
+{
+     adc_reg_map *regs=fastSetup();
+    // go
+        int sampleStart=millis();
+        uint32_t oldCr2=regs->CR2;
+        uint32_t cr2=oldCr2 | ADC_CR2_SWSTART; 
+        regs->CR2=cr2;  
+        while(1)
+        {
+            uint32_t sr=regs->SR;
+            if(!(sr & ADC_SR_EOC))
+            {
+                int now=millis();
+                if((now-sampleStart)>10)
+                {
+                    regs->CR2 &= ~ADC_CR2_SWSTART;
+                    return false;
+                }
+            }
+            value=regs->DR & ADC_DR_DATA;
+            return true;
+        }     
+} 
 /**
  * 
  * @param threshold

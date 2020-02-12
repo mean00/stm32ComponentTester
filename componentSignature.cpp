@@ -50,7 +50,7 @@ int getSignature(TestPin &A,TestPin &B)
  * @param type
  * @return 
  */
-Component *identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type)
+Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type)
 {
     TestPin::PULL_STRENGTH st=TestPin::PULL_LOW;
          
@@ -81,11 +81,12 @@ Component *identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type)
     zeroAllPins();
     if(bottomLeft==bottomRight && topLeft==topRight) // dipole
     {
-        
+#if 0        
         if((topLeft==SIG(HIGH,LOW)) && bottomLeft==SIG(LOW,HIGH))
         {               
                return NULL;
         }
+#endif
         
         if(topLeft==SIG(MEDIUM,MEDIUM) && bottomLeft==SIG(LOW,HIGH)) // Diodie anode = A
         {
@@ -98,8 +99,41 @@ Component *identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type)
            return new Diode(B,A,C);
         }
     }
-    zeroAllPins();
-    return new Capacitor(A,B,C);
+    
+    // Resistor, coil or capacitor
+    // if it is a capacitor, it will keep its charge
+    // let's charge it
+    A.pullUp(TestPin::PULL_MED);
+    B.setToGround();
+    xDelay(100); // 100 ms should give a decent charge
+    
+    //now connect both to ground
+    
+    // Disconnect them now, they should be connected to Vcc high impedance
+    
+    // connect A & B to ground through 300k
+    // if it is a cap, it will "slowly" discharge
+    
+     if(!A.prepareDmaSample(  ADC_SMPR_13_5,  ADC_PRE_PCLK2_DIV_6, 512)) 
+        return false;        
+    // Go!    
+    A.disconnect();
+    B.pullDown(  TestPin::PULL_HI );   
+    int nbSamples;
+    uint16_t *samples;
+    if(!A.finishDmaSample(nbSamples,&samples)) 
+    {
+        return false;
+    }
+    if(samples[10]>100)  // ok it's a cap
+    {
+        type=COMPONENT_CAPACITOR;
+        zeroAllPins();
+        return new Capacitor(A,B,C);
+    }
+    type=COMPONENT_RESISTOR;
+    zeroAllPins();    
+    return new Resistor(A,B,C);
     
     
 }

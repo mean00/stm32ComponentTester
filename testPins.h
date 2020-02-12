@@ -53,6 +53,7 @@ public:
         bool    finishDmaSample(int &nbSamples, uint16_t **xsamples);
         bool    prepareDmaSample(adc_smp_rate rate,  adc_prescaler scale,int nbSamples);
         //
+        bool    sample(int &value);
         bool    fastSampleUp(int threshold1,int threshold2,int &value1,int &value2, int &timeUs1,int &timeUs2);
         bool    fastSampleDown(int threshold,int &value, int &timeUs)  ;
         TESTPIN_STATE getState() {return _state;}

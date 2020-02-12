@@ -3,6 +3,14 @@
 #include "testPins.h"
 #include "testerGfx.h"
 
+enum COMPONENT_TYPE
+{
+  COMPONENT_OPEN=0,
+  COMPONENT_RESISTOR=1,
+  COMPONENT_CAPACITOR=2,
+  COMPONENT_DIODE=3,
+};
+
 /**
  * 
  * @param A
@@ -21,4 +29,7 @@ public:
                     float adcToVolt(float adc);
 protected:
             TestPin &_pA, &_pB, &_pC;
+            
+public:
+    static          Component *identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type);
 };

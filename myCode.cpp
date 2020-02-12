@@ -97,7 +97,7 @@ void mySetup(void)
 void myLoop(void)
 {
     COMPONENT_TYPE type;
-    Component *c=identity(pin1,pin2,pin3,type);
+    Component *c=Component::identity(pin1,pin2,pin3,type);
     if(!c)
     {
         xDelay(1000);
