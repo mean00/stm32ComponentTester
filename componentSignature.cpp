@@ -79,6 +79,7 @@ Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE
         bottomRight=getSignature(A,B);
     }
     zeroAllPins();
+    AutoDisconnect ad;
     if(bottomLeft==bottomRight && topLeft==topRight) // dipole
     {
 #if 0        

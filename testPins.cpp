@@ -252,7 +252,8 @@ void    TestPin::disconnect()
  */
 AutoDisconnect::~AutoDisconnect()
 {
-    allPins.disconnectAll();
+    allPins.zero();
+    allPins.disconnectAll();    
 }
 /**
  * 
