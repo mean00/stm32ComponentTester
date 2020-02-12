@@ -109,5 +109,5 @@ void myLoop(void)
         TesterGfx::clear();
         c->draw(0);
     }
-    xDelay(5000);
+    xDelay(2000);
 }

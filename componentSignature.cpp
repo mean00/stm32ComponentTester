@@ -104,7 +104,7 @@ Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE
     // Resistor, coil or capacitor
     // if it is a capacitor, it will keep its charge
     // let's charge it
-    A.pullUp(TestPin::PULL_MED);
+    A.pullUp(TestPin::PULL_LOW);
     B.setToGround();
     xDelay(100); // 100 ms should give a decent charge
     
@@ -126,7 +126,7 @@ Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE
     {
         return false;
     }
-    if(samples[10]>100)  // ok it's a cap
+    if(samples[100]>100)  // ok it's a cap
     {
         type=COMPONENT_CAPACITOR;
         zeroAllPins();
