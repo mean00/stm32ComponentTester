@@ -22,7 +22,7 @@ bool Coil::draw(int yOffset)
     char st3[64];    
     Component::prettyPrint(inductance, "H",st);
     Component::prettyPrint(resistance, "O",st2);
-    sprintf(st3,"%s \n %s",st,st2);
+    sprintf(st3,"%s \n R=%s",st,st2);
     TesterGfx::drawCoil(yOffset, st3,_pA.pinNumber(), _pB.pinNumber());
     return true;
 }
@@ -158,14 +158,13 @@ bool Coil::computeResistance()
     // The last value are the resitance divider
     
     float r=(samples[nbSamples-2]+samples[nbSamples-1])/2;
-    if(r<4090)
+    if(r>3500) // above = very high resistance > 2.7 k
     {
-        float alpha=r/4095.;    
-        resistance=(alpha*Ra+Rb*(1.-alpha))/(1-alpha);
-    }else
-    {
-        resistance=0;
+        resistance=0;        
+        return false;
     }
+    float alpha=r/4095.;    
+    resistance=(alpha*Ra+Rb*(1.-alpha))/(1-alpha);
     return true;
 }
 /**
