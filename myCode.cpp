@@ -97,7 +97,11 @@ void mySetup(void)
 void myLoop(void)
 {
     COMPONENT_TYPE type;
+#if 0    
     Component *c=Component::identity(pin1,pin2,pin3,type);
+#else
+    Component *c=new Coil(pin1,pin2,pin3);
+#endif
     if(!c)
     {
         xDelay(1000);

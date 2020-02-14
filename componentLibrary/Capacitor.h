@@ -16,7 +16,6 @@ public:
             
 protected:
             float capacitance;
-            bool  zero(int threshold); 
             bool  doOne(float target,int dex, float &cap);
             float computeCapacitance(int time, int iresistance, int actualValue);
             bool  computeMediumCap(int dex,int overSampling,float &c);

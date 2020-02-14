@@ -79,6 +79,23 @@ void TesterGfx::drawCapacitor(int offset, const char *value,int pinA, int pinB)
  * @param pinA
  * @param pinB
  */
+void TesterGfx::drawCoil(int offset, const char *value,int pinA, int pinB)
+{
+
+      instance->drawRLEBitmap(cap_width,cap_height,0,0,COMPONENT_COLOR,0,cap);
+      printPins(instance,pinA,pinB);
+      instance->setCursor(5,98);
+      instance->print("H=");
+      instance->print(value);
+      
+}
+/**
+ * 
+ * @param offset
+ * @param value
+ * @param pinA
+ * @param pinB
+ */
 void TesterGfx::drawResistor(int offset, const char *value,int pinA, int pinB)
 {
 

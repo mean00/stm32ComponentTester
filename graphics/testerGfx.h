@@ -10,4 +10,5 @@ public:
   static void drawCapacitor(int offset, const char *value,int pinA, int pinB);
   static void drawResistor(int offset, const char *value,int pinA, int pinB);
   static void drawDiode(int offset, const char *value,int pinA, int pinB);
+  static void drawCoil(int offset, const char *value,int pinA, int pinB);
 };
