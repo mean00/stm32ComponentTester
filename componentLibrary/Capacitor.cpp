@@ -13,7 +13,7 @@
 //
 CycleClock clk;
 float capz;
-#define pPICO (1000.*1000.*1000.*1000.)
+
 
 typedef struct CapScale
 {
@@ -341,10 +341,18 @@ bool Capacitor::computeHiCap()
     int timeUs,resistance,value;
     int overSampling=2;
     int resTotal=0,timeTotal=0,valueTotal=0;
+    
+    // with large cap, only charge them up to 29% so that it does not exceed 1v
+    // in case they are reversed polarised
     for(int i=0;i<overSampling;i++)
     {
-        if(!Capacitor::doOneQuick(TestPin::PULL_LOW, false, 0.70,timeUs,resistance,value))
+#if 0
+        if(!Capacitor::doOneQuick(TestPin::PULL_LOW, false, 0.7,timeUs,resistance,value))
             return false;
+#else        
+        if(!Capacitor::doOneQuick(TestPin::PULL_LOW, false, 0.28,timeUs,resistance,value))
+            return false;
+#endif
         resTotal+=resistance;
         timeTotal+=timeUs;
         valueTotal+=value;
