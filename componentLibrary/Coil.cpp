@@ -127,10 +127,10 @@ bool Coil::computeInductance()
         if(z>4095) z=4095;
         samples[i]=(uint16_t)(z+0.49);        
     }
-    // Look up the max, happens withing the 10 first samples
+    // Look up the max, happens withing the 200 first samples
     int zmax=0,zmin;
     int top=-1,bottom=-1;
-    for(int i=0;i<10;i++)
+    for(int i=0;i<200;i++)
     {
         if(samples[i]>zmax)
         {

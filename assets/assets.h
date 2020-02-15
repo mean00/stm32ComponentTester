@@ -2,3 +2,4 @@
 #include "generated/resistor_decl.h"
 #include "generated/splash_decl.h"
 #include "generated/diode_decl.h"
+#include "generated/coil_decl.h"

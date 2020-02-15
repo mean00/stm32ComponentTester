@@ -14,3 +14,4 @@ conv resistor
 conv cap
 conv splash
 conv2 diode
+conv coil

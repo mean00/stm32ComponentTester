@@ -4,3 +4,4 @@
 #include "generated/resistor_compressed.h"
 #include "generated/splash_compressed.h"
 #include "generated/diode_compressed.h"
+#include "generated/coil_compressed.h"
