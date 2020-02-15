@@ -10,6 +10,25 @@
 #include "calibration.h"
 #include "cycleClock.h"
 #include "MapleFreeRTOS1000_pp.h"
+
+
+
+typedef struct coilScale
+{   
+    adc_smp_rate    rate;
+    adc_prescaler   scale;
+    float           tickUs;
+};
+const coilScale coilScales[]=
+{
+    { ADC_SMPR_1_5,  ADC_PRE_PCLK2_DIV_6,   1.17},  // T=500 us, LMax =~ 50 mH
+    { ADC_SMPR_41_5,  ADC_PRE_PCLK2_DIV_6,  4.5},   // T=2.3 ms, LMax =~ 200 mH
+    { ADC_SMPR_239_5,  ADC_PRE_PCLK2_DIV_8, 28.},  //  T=14 ms   LMax =~ 1500 mH
+};
+
+#define LAST_SCALE ((sizeof(coilScales)/sizeof(coilScale))-1)
+
+
 /**
  * 
  * @param yOffset
@@ -27,104 +46,6 @@ bool Coil::draw(int yOffset)
     return true;
 }
 
-/**
- * Perform a DMA sampling buffer and extract 2 points
- * @return 
- */
-
-bool Coil::doOne(float target,int dex, float &cap)
-{
-    int resistance;
-    zeroAllPins();
-    // go
-    bool doubled=false;
-    TestPin::PULL_STRENGTH strength=TestPin::PULL_LOW;
-    if(doubled)
-        _pB.pullDown(strength);
-    else    
-        _pB.setToGround();
-
-    // start the DMA
-    // max duration ~ 512 us
-    uint16_t *samples;
-    int nbSamples;
-    
-    if(!_pA.prepareDmaSample(ADC_SMPR_1_5,ADC_PRE_PCLK2_DIV_6,512)) 
-        return false;        
-    // Go!
-    _pA.pullUp(strength);   
-    if(!_pA.finishDmaSample(nbSamples,&samples)) 
-    {
-        return false;
-    }
-    resistance=_pA.getCurrentRes()+_pB.getCurrentRes();
-    _pA.pullDown(TestPin::PULL_LOW);   
-    
-    
-    int limitA,limitB;
-
-    
-    limitA=10;
-    limitB=4095.*target;
-
-    if(doubled)
-    {
-        limitA=4095/2+10;
-        limitB=4095.*(1.+target)/2.+1;
-    }
-  
-    
-    // We need 2 points...
-    // Lookup up 5% and 1-1/e
-    int pointA=-1,pointB=-1;
-    for(int i=1;i<nbSamples;i++)
-    {
-        if(samples[i]>limitA) // 5%
-        {
-            pointA=i;
-            i=4095;
-        }
-    }
-    if(pointA==-1 || pointA >512) 
-        return false;
-    for(int i=pointA+1;i<nbSamples;i++)
-    {
-        if(samples[i]>limitB) // 68%
-        {
-            pointB=i;
-            i=4095;
-        }
-    }
-    if(pointB==-1) pointB=nbSamples-1;
-    
-    if((pointB-pointA)<1) return false; // not enough points, need at least one
-    
-    // Compute
-    float timeElapsed=(pointB-pointA);
-    timeElapsed*=2.17;
-    timeElapsed/=1000000.; // In seconds
-
-    float valueA=samples[pointA];
-    float valueB=samples[pointB];
-
-    
-    if(doubled)
-    {
-        valueA=2*valueA-4095;
-        valueB=2*valueB-4095;
-    }
-    
-    if(fabs(valueA-4095.)<2) return false;
-    if(fabs(valueB-4095.)<2) return false;
-    
-    float den=(4095.-(float)valueA)/(4095.-(float)valueB);
-    
-    if(fabs(den-2.718)<0.01) 
-        return false;
-    den=log(den);
-    cap=timeElapsed/(resistance*den);
-    return true;
-}
 /**
  * 
  * @return 
@@ -171,6 +92,79 @@ bool Coil::computeResistance()
  * 
  * @return 
  */
+bool Coil::computeInductance()
+{    
+    int range=0;
+    int nbSamples;
+    uint16_t *samples=NULL;
+    float Ra,Rb;
+   // first compute resistance
+    zeroAllPins();
+    _pB.setToGround();
+    if(!_pA.prepareDmaSample(coilScales[range].rate,coilScales[range].scale,512))
+        return false;        
+    // Go!
+    _pA.pullUp(TestPin::PULL_LOW);   
+    if(!_pA.finishDmaSample(nbSamples,&samples)) 
+    {
+        return false;
+    }    
+    Ra=_pA.getCurrentRes();
+    Rb=_pB.getCurrentRes();
+            
+    _pA.pullDown(TestPin::PULL_LOW);   
+    
+  // Rescale to get voltage across coil
+    // taking internal resitance into account
+    float beta=(resistance+Rb)/Ra;
+    float offset=4095.*beta;
+    float mul=1.+beta;
+    for(int i=0;i<nbSamples;i++)
+    {
+        float z=samples[i];
+        z=z*mul-offset;
+        if(z<0) z=0;
+        if(z>4095) z=4095;
+        samples[i]=(uint16_t)(z+0.49);        
+    }
+    // Look up the max, happens withing the 10 first samples
+    int zmax=0,zmin;
+    int top=-1,bottom=-1;
+    for(int i=0;i<10;i++)
+    {
+        if(samples[i]>zmax)
+        {
+            zmax=samples[i];
+            top=i;
+        }
+    }
+    if(zmax<3000) return false; // something is wrong
+    // take a 2nd point at less than 10%
+    for(int i=top+1;i<(nbSamples-1) && bottom==-1;i++)
+    {
+        if(samples[i]<409 ) // must not be zero !
+        {
+            zmin=samples[i];
+            bottom=i;
+        }
+    }
+    
+    
+    
+    float totalResitance=Ra+Rb+resistance;
+    float totalTime=(bottom-top)*coilScales[range].tickUs;
+    float den=-1.*log((float)zmin/(float)zmax);
+    
+    inductance=(totalResitance*totalTime)/den;
+    inductance=inductance/1000000.; // us -> second    
+    return true;
+
+}
+
+/**
+ * 
+ * @return 
+ */
 bool Coil::compute()
 {
     AutoDisconnect ad;
@@ -182,7 +176,8 @@ bool Coil::compute()
     if(!computeResistance())
         return false;
     
-    
+    if(!computeInductance())
+        return false;
     
     return true;
 }
