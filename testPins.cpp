@@ -281,6 +281,19 @@ bool    TestPin::finishDmaSample(int &nbSamples, uint16_t **xsamples)
 }
 /**
  * 
+ * @param nbSamples
+ * @return 
+ */
+bool    TestPin::prepareDualDmaSample(TestPin &otherPin,adc_smp_rate rate,  adc_prescaler scale,int nbSamples)
+{
+    uint16_t *samples;
+    adc->setADCPin(_pin);    
+    adc->prepareDMASampling(rate,scale);     
+    adc->startDualDMASampling(otherPin._pin,nbSamples);
+    return true;    
+}
+/**
+ * 
  * @param adc
  * @param voltage
  */

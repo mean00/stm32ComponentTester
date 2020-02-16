@@ -33,6 +33,7 @@ public:
             
 
             bool startDMASampling (int count);
+            bool startDualDMASampling (int otherPin,int count);
 
     static  void adc_dma_disable(const adc_dev * dev) ;            
     static  void adc_dma_enable(const adc_dev * dev) ;    
@@ -47,6 +48,7 @@ protected:
     
 public:        
     static void setupAdcDmaTransfer(   int count,uint16_t *buffer, void (*handler)(void) );
+    static void setupAdcDualDmaTransfer(   int otherPin, int count,uint32_t *buffer, void (*handler)(void) );
     static void nextAdcDmaTransfer( int count,uint16_t *buffer);
 
     static void enableDisableIrqSource(bool onoff, int interruptMask);

@@ -101,6 +101,21 @@ bool DSOADC::startDMASampling (int count)
   setupAdcDmaTransfer( requestedSamples,adcInternalBuffer, DMA1_CH1_Event );
   return true;
 }
+/**
+ * 
+ * @param count
+ * @return 
+ */
+bool DSOADC::startDualDMASampling (int otherPin, int count)
+{
+  if(count>ADC_INTERNAL_BUFFER_SIZE/4)
+        count=ADC_INTERNAL_BUFFER_SIZE/4;  
+  requestedSamples=count;    
+  enableDisableIrqSource(false,ADC_AWD);
+  enableDisableIrq(true);
+  setupAdcDualDmaTransfer( otherPin, requestedSamples,(uint32_t *)adcInternalBuffer, DMA1_CH1_Event );
+  return true;
+}
 
 /**
  * 
@@ -254,6 +269,16 @@ void DSOADC::setupAdcDmaTransfer(   int count,uint16_t *buffer, void (*handler)(
   dma_init(DMA1);
   dma_attach_interrupt(DMA1, DMA_CH1, handler); 
   dma_setup_transfer(DMA1, DMA_CH1, &ADC1->regs->DR, DMA_SIZE_32BITS, (uint32_t *)buffer, DMA_SIZE_16BITS, (DMA_MINC_MODE | DMA_TRNS_CMPLT));// Receive buffer DMA
+  dma_set_num_transfers(DMA1, DMA_CH1, count );
+  adc_dma_enable(ADC1);
+  dma_enable(DMA1, DMA_CH1); // Enable the channel and start the transfer.
+
+}
+void DSOADC::setupAdcDualDmaTransfer( int otherPin,  int count,uint32_t *buffer, void (*handler)(void) )
+{
+  dma_init(DMA1);
+  dma_attach_interrupt(DMA1, DMA_CH1, handler); 
+  dma_setup_transfer(DMA1, DMA_CH1, &ADC1->regs->DR, DMA_SIZE_32BITS, buffer, DMA_SIZE_32BITS, (DMA_MINC_MODE | DMA_TRNS_CMPLT));// Receive buffer DMA
   dma_set_num_transfers(DMA1, DMA_CH1, count );
   adc_dma_enable(ADC1);
   dma_enable(DMA1, DMA_CH1); // Enable the channel and start the transfer.
