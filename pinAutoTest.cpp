@@ -12,19 +12,6 @@ extern uint32_t  deviceId;
 #define LED PC13
 
 
-static int singleTwoPints(TestPin &A, int adc)
-{
-    pinMode(adc,INPUT_ANALOG);
-    A.setToGround();
-    xDelay(5);
-    int value=analogRead(adc);
-    A.setToVcc();
-    xDelay(5);
-    pinMode(adc,INPUT_ANALOG);
-    int value2=analogRead(adc);
-    return (value<<16)+value2;
-    
-}
 
 static bool singlePinTest(TestPin &A, TestPin &MeasurePin, const char **failure)
 {
@@ -86,11 +73,11 @@ static bool singlePinTest(TestPin &A, TestPin &MeasurePin, const char **failure)
     return true;
     
 }
-#define RUNTEST(PIN,LINE) \
+#define RUNTEST(PIN,MPIN,LINE) \
 { \
     const char *failure; \
     TesterGfx::print(2,LINE,"PIN " #PIN ":"); \
-    if(singlePinTest(pin##PIN,pin##PIN,&failure)) \
+    if(singlePinTest(pin##PIN,pin##MPIN,&failure)) \
         TesterGfx::print(80,LINE,"OK"); \
     else \
     { \
@@ -104,15 +91,15 @@ void pinTest()
 {
     TesterGfx::clear();
 #if 0
-    uint32_t zz=singleTwoPints(pin2,PA1);
-    while(1)
-    {
-        
-    }
+    RUNTEST(1,1,20)
+    RUNTEST(2,2,50)
+    RUNTEST(3,3,80)
+#else
+    RUNTEST(1,2,20)
+    RUNTEST(2,1,50)
+    RUNTEST(3,3,80)            
 #endif
-    RUNTEST(1,20)
-    RUNTEST(2,50)
-    RUNTEST(3,80)
+            
     while(1)
     {
         digitalWrite(LED,LOW);

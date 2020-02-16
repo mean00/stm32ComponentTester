@@ -62,15 +62,22 @@ bool Coil::computeResistance()
     float Ra,Rb;
    // first compute resistance
     zeroAllPins();
+    _pA.pullUp(TestPin::PULL_LOW);   
+    //_pB.pullDown(TestPin::PULL_LOW);   
     _pB.setToGround();
     if(!_pA.prepareDmaSample(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_6,512)) 
         return false;        
-    // Go!
-    _pA.pullUp(TestPin::PULL_LOW);   
+    // Go!    
     if(!_pA.finishDmaSample(nbSamples,&samples)) 
     {
         return false;
     }    
+    
+    float sum=0;
+    for(int i=nbSamples-10;i<nbSamples;i++)
+        sum+=samples[i];
+    sum/=10.*4095.;
+               
     Ra=_pA.getCurrentRes();
     Rb=_pB.getCurrentRes();
             
@@ -78,14 +85,9 @@ bool Coil::computeResistance()
     
     // The last value are the resitance divider
     
-    float r=(samples[nbSamples-2]+samples[nbSamples-1])/2;
-    if(r>3500) // above = very high resistance > 2.7 k
-    {
-        resistance=0;        
-        return false;
-    }
-    float alpha=r/4095.;    
-    resistance=(alpha*Ra+Rb*(1.-alpha))/(1-alpha);
+    float r=sum*(Ra+Rb)-Rb;    
+    r=r/(1.-sum);
+    resistance=r;
     return true;
 }
 /**
@@ -138,7 +140,7 @@ bool Coil::computeInductance()
             top=i;
         }
     }
-    if(zmax<3000) return false; // something is wrong
+    if(zmax<200) return false; // something is wrong
     // take a 2nd point at less than 10%
     for(int i=top+1;i<(nbSamples-1) && bottom==-1;i++)
     {

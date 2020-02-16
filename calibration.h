@@ -3,3 +3,5 @@
 #define INTERNAL_CAPACITANCE_IN_PF (1*14) // 6 pf is the ADC internal cap also
 #define MINIMUM_DETECTED_CAP 4
 #define PIN_ZERO_THRESHOLD   10
+
+#define WIRE_RESISTANCE_AND_INTERNAL 24

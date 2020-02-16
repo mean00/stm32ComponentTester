@@ -12,6 +12,7 @@
 #define LED PC13
 void myLoop(void);
 extern void pinTest();
+uint32_t  deviceId;
 DSOADC *adc=NULL;
 //
 int result[20];
@@ -51,7 +52,7 @@ void MainTask( void *a )
     }
 #endif
     
-    //pinTest();
+  //  pinTest();
     
     
     
@@ -101,6 +102,7 @@ void myLoop(void)
     Component *c=Component::identity(pin1,pin2,pin3,type);
 #else
     Component *c=new Coil(pin1,pin2,pin3);
+    //Component *c=new Capacitor(pin3,pin2,pin1);
 #endif
     if(!c)
     {
