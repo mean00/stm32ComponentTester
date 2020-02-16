@@ -6,7 +6,7 @@
 #include "Arduino.h"
 
 // mostly internal pin resistance when pulled to VCC or GND
-#define WIRE_RESISTANCE_AND_INTERNAL 21
+
 #define ADC_OFFSET  0 
 
 class AutoDisconnect
