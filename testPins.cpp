@@ -232,7 +232,7 @@ void    TestPin::setToGround()
 void    TestPin::disconnectAll()
 {
     
-    pinMode(_pin,INPUT_FLOATING);
+    pinMode(_pin,INPUT_ANALOG); // protected by op amp
     pinMode(_pinDriveHighRes,INPUT_FLOATING);
     pinMode(_pinDriveLowRes,INPUT_FLOATING);
     pinMode(_pinDriveMedRes,INPUT_FLOATING);
