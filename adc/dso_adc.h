@@ -26,6 +26,7 @@ public:
             bool    setADCPin(int pin);
             bool    setTimeScale(adc_smp_rate one, adc_prescaler two);
             bool    prepareDMASampling (adc_smp_rate rate,adc_prescaler scale);                        
+            bool    prepareDualDMASampling (int otherPin, adc_smp_rate rate,adc_prescaler scale);
             void    clearSemaphore() ;
     static  uint32_t getVCCmv(); // this one is cached
     static  float    readVCCmv();    

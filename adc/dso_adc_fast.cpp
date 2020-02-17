@@ -20,8 +20,9 @@ Adafruit Libraries released under their specific licenses Copyright (c) 2013 Ada
 #include "adc.h"
 /**
  */
-
-
+#ifndef ADC_CR1_FASTINT
+    #define ADC_CR1_FASTINT 0x70000
+#endif ADC_CR1_FASTINT
 
 adc_reg_map *adc_Register;
 
@@ -219,6 +220,20 @@ bool    DSOADC::prepareDMASampling (adc_smp_rate rate,adc_prescaler scale)
 
     setTimeScale(rate,scale);
     return true;
+}/**
+  * 
+  * @param count
+  * @return 
+  */
+bool    DSOADC::prepareDualDMASampling (int otherPin, adc_smp_rate rate,adc_prescaler scale)
+{  
+    ADC1->regs->CR1|=ADC_CR1_FASTINT; // fast interleaved mode
+    ADC2->regs->SQR3 = PIN_MAP[otherPin].adc_channel ;      
+    ADC2->regs->CR2 |= ADC_CR2_CONT;
+    ADC1->regs->CR2 |= ADC_CR2_CONT;
+    adc_set_sample_rate(ADC2, rate); 
+    setTimeScale(rate,scale);
+    return true;
 }
 /**
  * 
@@ -276,6 +291,8 @@ void DSOADC::setupAdcDmaTransfer(   int count,uint16_t *buffer, void (*handler)(
 }
 void DSOADC::setupAdcDualDmaTransfer( int otherPin,  int count,uint32_t *buffer, void (*handler)(void) )
 {
+ 
+    
   dma_init(DMA1);
   dma_attach_interrupt(DMA1, DMA_CH1, handler); 
   dma_setup_transfer(DMA1, DMA_CH1, &ADC1->regs->DR, DMA_SIZE_32BITS, buffer, DMA_SIZE_32BITS, (DMA_MINC_MODE | DMA_TRNS_CMPLT));// Receive buffer DMA

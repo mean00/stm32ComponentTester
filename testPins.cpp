@@ -232,7 +232,7 @@ void    TestPin::setToGround()
 void    TestPin::disconnectAll()
 {
     
-    pinMode(_pin,INPUT_ANALOG);
+    pinMode(_pin,INPUT_FLOATING);
     pinMode(_pinDriveHighRes,INPUT_FLOATING);
     pinMode(_pinDriveLowRes,INPUT_FLOATING);
     pinMode(_pinDriveMedRes,INPUT_FLOATING);
@@ -287,8 +287,8 @@ bool    TestPin::finishDmaSample(int &nbSamples, uint16_t **xsamples)
 bool    TestPin::prepareDualDmaSample(TestPin &otherPin,adc_smp_rate rate,  adc_prescaler scale,int nbSamples)
 {
     uint16_t *samples;
-    adc->setADCPin(_pin);    
-    adc->prepareDMASampling(rate,scale);     
+    adc->setADCPin(_pin); 
+    adc->prepareDualDMASampling(otherPin._pin,rate,scale);     
     adc->startDualDMASampling(otherPin._pin,nbSamples);
     return true;    
 }
