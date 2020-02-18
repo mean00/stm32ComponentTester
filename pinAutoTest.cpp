@@ -88,9 +88,12 @@ static bool singlePinTest(TestPin &A, TestPin &MeasurePin, const char **failure)
 
 bool dualDmaTest(const char *text, TestPin &A, TestPin & B, int line)
 {
+       
+    
+    
     AutoDisconnect ad;
     A.setToVcc();
-    B.pullUp(TestPin::PULL_MED);
+    B.pullDown(TestPin::PULL_MED);
     xDelay(5);
     A.prepareDualDmaSample(B,ADC_SMPR_28_5,ADC_PRE_PCLK2_DIV_6,32);
     int nbSamples;
@@ -100,23 +103,45 @@ bool dualDmaTest(const char *text, TestPin &A, TestPin & B, int line)
             return false;
     }    
    // We should have 32 alternating 0 && 4095 
+    // B A B A
     int hi=0,low=0;
-    for(int i=0;i<nbSamples>>1;i++)
+    for(int i=0;i<nbSamples;i++)
     {
-        low+=samples[i*2];
-        hi+=samples[i*2+1];
+        hi+=samples[i*2];
+        low+=samples[i*2+1];
     }
-    if(hi<4090) return false;
-    if(low>400) return false;
+    low/=nbSamples;
+    hi/=nbSamples;
+    if(hi<4000) return false;
+    if(low>20) return false;
             
     return true;
 }
-
+#define RUNDDMATEST(PIN,MPIN,LINE) \
+{ \
+    const char *failure; \
+    TesterGfx::print(2,LINE,"DMA " #PIN #MPIN ":"); \
+    if(dualDmaTest("",pin##PIN,pin##MPIN,0)) \
+        TesterGfx::print(100,LINE,"OK"); \
+    else \
+    { \
+        testFailed=true; \
+        TesterGfx::print(100,LINE,"KO"); \
+    } \
+}
 void pinTest()
 {
     bool testFailed=false;
     TesterGfx::clear();
-    dualDmaTest("Pin12",pin2,pin3,20)        ;
+    //dualDmaTest("Pin12",pin2,pin3,20)        ;
+    RUNDDMATEST(1,2,20);
+    RUNDDMATEST(1,3,50);
+    RUNDDMATEST(2,3,80);
+    if(1 || testFailed)
+        while(1)
+        {
+
+        }
     RUNTEST(1,1,20)
     RUNTEST(2,2,50)
     RUNTEST(3,3,80)

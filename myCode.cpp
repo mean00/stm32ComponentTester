@@ -52,7 +52,7 @@ void MainTask( void *a )
     }
 #endif
     
-  //  pinTest();
+   // pinTest();
     
     
     
@@ -98,7 +98,7 @@ void mySetup(void)
 void myLoop(void)
 {
     COMPONENT_TYPE type;
-#if 1    
+#if 0    
     Component *c=Component::identity(pin3,pin2,pin1,type);
 #else
     Component *c=new Coil(pin3,pin2,pin1);

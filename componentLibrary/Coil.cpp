@@ -58,6 +58,7 @@ bool Coil::draw(int yOffset)
 bool Coil::computeResistance()
 {
     int nbSamples;
+    int range=2;
     uint16_t *samples=NULL;
     float Ra,Rb;
    // first compute resistance
@@ -65,28 +66,30 @@ bool Coil::computeResistance()
     _pA.pullUp(TestPin::PULL_LOW);   
     //_pB.pullDown(TestPin::PULL_LOW);   
     _pB.setToGround();
-    if(!_pA.prepareDmaSample(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_6,512)) 
-        return false;        
-    // Go!    
+    xDelay(20); // let it stabilize
+     _pA.prepareDualDmaSample(_pB,coilScales[range].rate,coilScales[range].scale,32);
+
     if(!_pA.finishDmaSample(nbSamples,&samples)) 
     {
-        return false;
+            return false;
     }    
-    
-    float sum=0;
-    for(int i=nbSamples-10;i<nbSamples;i++)
-        sum+=samples[i];
-    sum/=10.*4095.;
-               
     Ra=_pA.getCurrentRes();
     Rb=_pB.getCurrentRes();
             
     _pA.pullDown(TestPin::PULL_LOW);   
     
-    // The last value are the resitance divider
+    // convert to delta
+    _pA.dualDelta(nbSamples,samples);
     
-    float r=sum*(Ra+Rb)-Rb;    
-    r=r/(1.-sum);
+    // The last value are the resistance divider
+    float sum=0;
+    for(int i=0;i<nbSamples;i++)
+        sum+=samples[i];
+    sum/=((float)nbSamples);
+    if(sum>4085.)
+        return false;
+    float r=sum*(Ra+Rb);  
+    r=r/(4095.-sum);
     resistance=r;
     return true;
 }
@@ -103,18 +106,20 @@ bool Coil::computeInductance()
    // first compute resistance
     zeroAllPins();
     _pB.setToGround();
-    if(!_pA.prepareDmaSample(coilScales[range].rate,coilScales[range].scale,512))
-        return false;        
-    // Go!
-    _pA.pullUp(TestPin::PULL_LOW);   
+    _pA.prepareDualDmaSample(_pB,coilScales[range].rate,coilScales[range].scale,32);
+
     if(!_pA.finishDmaSample(nbSamples,&samples)) 
     {
-        return false;
+            return false;
     }    
     Ra=_pA.getCurrentRes();
     Rb=_pB.getCurrentRes();
             
     _pA.pullDown(TestPin::PULL_LOW);   
+    
+    // convert to delta
+    _pA.dualDelta(nbSamples,samples);
+    
     
   // Rescale to get voltage across coil
     // taking internal resitance into account

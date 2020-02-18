@@ -94,8 +94,8 @@ bool    DSOADC::setADCPin(int pin)
 
 bool DSOADC::startDMASampling (int count)
 {
-  if(count>ADC_INTERNAL_BUFFER_SIZE/2)
-        count=ADC_INTERNAL_BUFFER_SIZE/2;  
+  if(count>ADC_INTERNAL_BUFFER_SIZE)
+        count=ADC_INTERNAL_BUFFER_SIZE;  
   requestedSamples=count;    
   enableDisableIrqSource(false,ADC_AWD);
   enableDisableIrq(true);
@@ -109,14 +109,15 @@ bool DSOADC::startDMASampling (int count)
  */
 bool DSOADC::startDualDMASampling (int otherPin, int count)
 {
-  if(count>ADC_INTERNAL_BUFFER_SIZE/4)
-        count=ADC_INTERNAL_BUFFER_SIZE/4;  
+  if(count>ADC_INTERNAL_BUFFER_SIZE/2)
+        count=ADC_INTERNAL_BUFFER_SIZE/2;  
   requestedSamples=count;    
   enableDisableIrqSource(false,ADC_AWD);
   enableDisableIrq(true);
   setupAdcDualDmaTransfer( otherPin, requestedSamples,(uint32_t *)adcInternalBuffer, DMA1_CH1_Event );
   return true;
 }
+
 
 /**
  * 
@@ -193,11 +194,13 @@ void DSOADC::setupADCs ()
   
   adc_Register->SQR3 = pinMapADCin;
   
-  uint32_t cr2=ADC_CR2_ADON+ADC_CR2_EXTSEL_SWSTART+/*ADC_CR2_EXTTRIG+*/ADC_CR2_CONT+ADC_CR2_DMA;  
+  uint32_t cr2=ADC_CR2_EXTSEL_SWSTART+/*ADC_CR2_EXTTRIG+*/ADC_CR2_CONT+ADC_CR2_DMA;  
   adc_Register->CR2=cr2;  
   
-  ADC2->regs->CR2=ADC_CR2_ADON+ADC_CR2_EXTSEL_SWSTART+ADC_CR2_EXTTRIG+ADC_CR2_CONT+ADC_CR2_DMA;
-  
+  ADC2->regs->CR2=ADC_CR2_EXTSEL_SWSTART+ADC_CR2_EXTTRIG+ADC_CR2_CONT+ADC_CR2_DMA;
+ 
+  adc_Register->CR2|=ADC_CR2_ADON;
+  ADC2->regs->CR2|=ADC_CR2_ADON;
 }
 /**
  * 

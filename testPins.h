@@ -63,6 +63,7 @@ public:
         int     getRes(TESTPIN_STATE state);
         int     pinNumber() {return _pinNumber;}
         int     pinADC() {return _pin;}
+        bool    dualDelta (int nbSamples,uint16_t *samples);
 
 protected:  
         void    configureOutput(int pinNo, int state);

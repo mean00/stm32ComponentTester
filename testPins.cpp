@@ -358,6 +358,7 @@ adc_reg_map    *TestPin::fastSetup()
     adc_set_exttrig(dev,1);
     adc_set_reg_seqlen(dev, 1);
     regs->SQR3 = channel;    
+    regs->CR2|=ADC_CR2_ADON;
     return regs;
 }
 /**
@@ -542,6 +543,33 @@ int TestPin::getRes(TESTPIN_STATE state)
 }
 
 
+/**
+ * 
+ * @param count
+ * @return 
+ */
+bool TestPin::dualDelta ( int nbSamples,uint16_t *samples)
+{
+    nbSamples>>=1;
+    volatile uint16_t *c=samples;
+    for(int i=0;i<nbSamples;i++)
+    {
+        int leftDiff,rightDiff;
+        int left=(c[0]+c[2]);
+        int right=c[1]*2;
+        if(left>=right) leftDiff=(left-right)/2;
+        else leftDiff=0;
+        
+        left=c[2]*2;
+        right=(c[1]+c[3]);
+        if(left>=right) rightDiff=(left-right)/2;
+        else rightDiff=0;
+        c[0]=leftDiff;
+        c[1]=rightDiff;
+        c+=2;
+    }
+  return true;
+}
 
 
 // EOF

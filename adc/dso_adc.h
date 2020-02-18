@@ -61,6 +61,7 @@ public:
             void stopTimeCapture();
     static  float adcToVolt(float adc);
             void captureComplete();
+    
 protected:
   
             int             _sampled;
