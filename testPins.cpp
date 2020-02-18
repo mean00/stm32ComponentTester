@@ -548,26 +548,28 @@ int TestPin::getRes(TESTPIN_STATE state)
  * @param count
  * @return 
  */
-bool TestPin::dualDelta ( int nbSamples,uint16_t *samples)
+bool TestPin::dualDelta ( int &nbSamples,uint16_t *samples)
 {
-    nbSamples>>=1;
-    volatile uint16_t *c=samples;
-    for(int i=0;i<nbSamples;i++)
+   
+    volatile uint16_t *c=samples;   
+    for(int i=0;i<nbSamples-1;i++)
     {
-        int leftDiff,rightDiff;
-        int left=(c[0]+c[2]);
-        int right=c[1]*2;
-        if(left>=right) leftDiff=(left-right)/2;
-        else leftDiff=0;
+        int left,right;
         
-        left=c[2]*2;
-        right=(c[1]+c[3]);
-        if(left>=right) rightDiff=(left-right)/2;
-        else rightDiff=0;
-        c[0]=leftDiff;
-        c[1]=rightDiff;
+        int base=2*i;
+        left=(int)samples[base]+(int)samples[base+2]-(int)samples[base+1]*2;
+        if(left<0) left=0;
+        else left=left/2;
+      
+        right=(int)2*samples[base+2]-(int)samples[base+3]-(int)samples[base+1];
+        if(right<0) right=0;
+        else right=right/2;
+      
+        c[0]=left;
+        c[1]=right;
         c+=2;
     }
+  nbSamples=(nbSamples-1)*2;
   return true;
 }
 

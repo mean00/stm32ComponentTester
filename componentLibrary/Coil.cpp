@@ -79,13 +79,13 @@ bool Coil::computeResistance()
     _pA.pullDown(TestPin::PULL_LOW);   
     
     // convert to delta
-    _pA.dualDelta(nbSamples,samples);
+    _pA.dualDelta(nbSamples,samples); // skip first samples
     
     // The last value are the resistance divider
     float sum=0;
-    for(int i=0;i<nbSamples;i++)
+    for(int i=2;i<nbSamples;i++)
         sum+=samples[i];
-    sum/=((float)nbSamples);
+    sum/=((float)(nbSamples-2)); // skip the 2 first
     if(sum>4085.)
         return false;
     float r=sum*(Ra+Rb);  
@@ -106,8 +106,8 @@ bool Coil::computeInductance()
    // first compute resistance
     zeroAllPins();
     _pB.setToGround();
-    _pA.prepareDualDmaSample(_pB,coilScales[range].rate,coilScales[range].scale,32);
-
+    _pA.prepareDualDmaSample(_pB,coilScales[range].rate,coilScales[range].scale,511);
+    _pA.pullUp(TestPin::PULL_LOW);   
     if(!_pA.finishDmaSample(nbSamples,&samples)) 
     {
             return false;
@@ -121,12 +121,12 @@ bool Coil::computeInductance()
     _pA.dualDelta(nbSamples,samples);
     
     
-  // Rescale to get voltage across coil
+    // Rescale to get voltage across coil
     // taking internal resitance into account
-    float beta=(resistance+Rb)/Ra;
-    float offset=4095.*beta;
-    float mul=1.+beta;
-    for(int i=0;i<nbSamples;i++)
+    float alpha=(resistance)/(Ra+Rb);
+    float offset=4095.*alpha;
+    float mul=1.+alpha;
+    for(int i=2;i<nbSamples;i++)
     {
         float z=samples[i];
         z=z*mul-offset;
@@ -149,7 +149,7 @@ bool Coil::computeInductance()
     // take a 2nd point at less than 10%
     for(int i=top+1;i<(nbSamples-1) && bottom==-1;i++)
     {
-        if(samples[i]<409 ) // must not be zero !
+        if(samples[i]<(zmax/3) ) // must not be zero !
         {
             zmin=samples[i];
             bottom=i;
@@ -159,7 +159,7 @@ bool Coil::computeInductance()
     
     
     float totalResitance=Ra+Rb+resistance;
-    float totalTime=(bottom-top)*coilScales[range].tickUs;
+    float totalTime=(bottom-top)*(coilScales[range].tickUs/2.);
     float den=-1.*log((float)zmin/(float)zmax);
     
     inductance=(totalResitance*totalTime)/den;
@@ -182,7 +182,6 @@ bool Coil::compute()
     
     if(!computeResistance())
         return false;
-    
     if(!computeInductance())
         return false;
     
