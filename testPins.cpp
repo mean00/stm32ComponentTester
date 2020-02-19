@@ -548,7 +548,7 @@ int TestPin::getRes(TESTPIN_STATE state)
  * @param count
  * @return 
  */
-bool TestPin::dualDelta ( int &nbSamples,uint16_t *samples)
+bool TestPin::dualInterleavedDelta ( int &nbSamples,uint16_t *samples)
 {
    
     volatile uint16_t *c=samples;   
@@ -570,6 +570,30 @@ bool TestPin::dualDelta ( int &nbSamples,uint16_t *samples)
         c+=2;
     }
   nbSamples=(nbSamples-1)*2;
+  return true;
+}
+
+
+/**
+ * 
+ * @param count
+ * @return 
+ */
+bool TestPin::dualSimulatenousDelta ( int &nbSamples,uint16_t *samples)
+{
+   
+    volatile uint16_t *c=samples;   
+    volatile uint16_t *o=samples;  
+    for(int i=0;i<nbSamples;i++)
+    {
+        int left;
+        left=(int)c[0]-(int)c[1];
+        if(left<0) left=0;
+      
+        *o=left;
+        o++;
+        c+=2;
+    }
   return true;
 }
 

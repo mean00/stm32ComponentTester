@@ -22,5 +22,5 @@ protected:
             
             bool doOneQuick(TestPin::PULL_STRENGTH strength, bool doubled, float percent,int &timeUs, int &resistance,int &value);
             bool computeResistance();
-            bool computeInductance();
+            bool computeInductance(int range,int &minIndex, int &maxIndex,float &ductance);
 };
