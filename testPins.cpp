@@ -322,8 +322,12 @@ static bool singleShot(adc_reg_map *regs,int &v)
 {
     int start=millis();
     uint32_t oldCr2=regs->CR2;
-    uint32_t cr2=ADC_CR2_ADON+ADC_CR2_EXTSEL_SWSTART; //+/*ADC_CR2_EXTTRIG+*/ADC_CR2_CONT+ADC_CR2_DMA;  
+    uint32_t cr2=ADC_CR2_EXTSEL_SWSTART; //+/*ADC_CR2_EXTTRIG+*/ADC_CR2_CONT+ADC_CR2_DMA;  
     regs->CR2=cr2;  
+    regs->CR2=cr2+ADC_CR2_ADON; // only toggle ADON !
+#if 0
+    regs->CR2=cr2+ADC_CR2_ADON; // only toggle ADON !
+#endif
     while(1)
     {
           uint32_t sr=regs->SR;
@@ -358,7 +362,10 @@ adc_reg_map    *TestPin::fastSetup()
     adc_set_exttrig(dev,1);
     adc_set_reg_seqlen(dev, 1);
     regs->SQR3 = channel;    
-    regs->CR2|=ADC_CR2_ADON;
+    uint32_t cr2=regs->CR2;
+    cr2|=ADC_CR2_ADON;
+    regs->CR2=cr2;
+    regs->CR2=cr2;
     return regs;
 }
 /**

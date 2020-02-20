@@ -198,8 +198,16 @@ void DSOADC::setupADCs ()
   adc_Register->CR2=cr2;  
   
   ADC2->regs->CR2=ADC_CR2_EXTSEL_SWSTART+ADC_CR2_EXTTRIG+ADC_CR2_CONT+ADC_CR2_DMA;
- 
+  for(int i=0;i<5000;i++)
+  {       
+      __asm__("nop");
+  }
+  
   adc_Register->CR2|=ADC_CR2_ADON;
+#if 0
+  adc_Register->CR2|=ADC_CR2_ADON;
+  ADC2->regs->CR2|=ADC_CR2_ADON;
+#endif
   ADC2->regs->CR2|=ADC_CR2_ADON;
 }
 /**

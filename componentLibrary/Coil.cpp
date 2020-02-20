@@ -144,7 +144,7 @@ bool Coil::computeInductance(int range,int &minIndex, int &maxIndex,float &ducta
             top=i;
         }
     }
-    if(zmax<200) return false; // something is wrong
+    if(zmax<20) return false; // something is wrong
     // take a 2nd point at less than 10%
     // not zero
     for(int i=top+1;i<(nbSamples-1) && bottom==-1;i++)
