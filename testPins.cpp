@@ -542,7 +542,6 @@ int TestPin::getRes(TESTPIN_STATE state)
     return 0; 
 }
 
-
 /**
  * 
  * @param count

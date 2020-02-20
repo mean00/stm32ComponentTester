@@ -41,7 +41,7 @@ SET(UTILS utils/fancyLock.cpp    utils/cycleClock.cpp)
 ADD_DEFINITIONS(-D__NOP="")
 generate_arduino_firmware(stm32ComponentTester 
                 SKETCH stm32ComponentTester.ino
-                SRCS myCode.cpp testPins.cpp  pinAutoTest.cpp ${UTILS}  ${GFX} componentSignature.cpp
+                SRCS myCode.cpp testPins.cpp  pinAutoTest.cpp ${UTILS}  ${GFX} componentSignature.cpp deltaADC.cpp
                 PORT ${ARDUINO_DEFAULT_PORT}
                 BOARD_CPU ${ARDUINO_CPU}
                 )

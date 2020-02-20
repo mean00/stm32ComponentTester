@@ -10,7 +10,7 @@
 #include "calibration.h"
 #include "cycleClock.h"
 #include "MapleFreeRTOS1000_pp.h"
-
+#include "deltaADC.h"
 
 
 typedef struct coilScale
@@ -66,20 +66,20 @@ bool Coil::computeResistance()
     _pA.pullUp(TestPin::PULL_LOW);   
     //_pB.pullDown(TestPin::PULL_LOW);   
     _pB.setToGround();
-    xDelay(20); // let it stabilize
-     _pA.prepareDualDmaSample(_pB,coilScales[range].rate,coilScales[range].scale,32);
+    Ra=_pA.getCurrentRes();
+    Rb=_pB.getCurrentRes();
 
-    if(!_pA.finishDmaSample(nbSamples,&samples)) 
+    xDelay(20); // let it stabilize
+    DeltaADC deltaAdc(_pA,_pB);
+    deltaAdc.setup(coilScales[range].rate,coilScales[range].scale,32);
+    
+    float period;
+    if(!deltaAdc.get(nbSamples,&samples,period))
     {
             return false;
     }    
-    Ra=_pA.getCurrentRes();
-    Rb=_pB.getCurrentRes();
             
     _pA.pullDown(TestPin::PULL_LOW);   
-    
-    // convert to delta
-    _pA.dualSimulatenousDelta(nbSamples,samples); // skip first samples
     
     // The last value are the resistance divider
     float sum=0;
@@ -106,29 +106,19 @@ bool Coil::computeInductance(int range,int &minIndex, int &maxIndex,float &ducta
    // first compute resistance
     zeroAllPins();
     _pB.setToGround();
-    _pA.prepareDualDmaSample(_pB,coilScales[range].rate,coilScales[range].scale,511);
+    
+    DeltaADC deltaAdc(_pA,_pB);
+    deltaAdc.setup(coilScales[range].rate,coilScales[range].scale,511);
     _pA.pullUp(TestPin::PULL_LOW);   
-    if(!_pA.finishDmaSample(nbSamples,&samples)) 
+    float period;
+    Ra=_pA.getCurrentRes();
+    Rb=_pB.getCurrentRes();    
+    if(!deltaAdc.get(nbSamples,&samples,period))
     {
             return false;
     }    
-    Ra=_pA.getCurrentRes();
-    Rb=_pB.getCurrentRes();
-            
     _pA.pullDown(TestPin::PULL_LOW);   
-    
-    // convert to delta
-    if(range==0)
-    {
-        _pA.dualInterleavedDelta(nbSamples,samples);
-        timeMul=2;
-    }
-    else
-    {
-        _pA.dualSimulatenousDelta(nbSamples,samples);
-        timeMul=1;
-    }
-    
+    _pB.pullDown(TestPin::PULL_LOW);  
     
     // Rescale to get voltage across coil
     // taking internal resitance into account
@@ -165,18 +155,16 @@ bool Coil::computeInductance(int range,int &minIndex, int &maxIndex,float &ducta
             bottom=i;
         }
     }
-    
+    if(zmin==0) return false;
     minIndex=bottom;
     maxIndex=top;
     
     float totalResitance=Ra+Rb+resistance;
-    float totalTime=(float)(bottom-top)*(coilScales[range].tickUs/timeMul);
-    float den=-1.*log((float)zmin/(float)zmax);
+    float totalTime=((float)(bottom-top))*(period);
+    float den=log((float)zmax/(float)zmin);
     
     ductance=(totalResitance*totalTime)/den;
-    ductance=ductance/1000000.; // us -> second    
     return true;
-
 }
 
 /**
