@@ -32,7 +32,22 @@ void Component::prettyPrint(float value, const char *unit,  char *output)
         }
         value*=mul;
     }
-    sprintf(output,"%3.2f%s%s",value,scale[dex],unit);
+    // dont use absurd number of digit
+    if(value>=100.) // no need for digit at all
+    {
+        sprintf(output,"%3d%s%s",(int)value,scale[dex],unit);
+    }else
+    {
+        if(value>=10.)
+        {
+            sprintf(output,"%2.1f%s%s",value,scale[dex],unit);
+        }else            
+        {
+            sprintf(output,"%1.2f%s%s",value,scale[dex],unit);
+        }
+    }
+    
+    
 }
 /**
  * 

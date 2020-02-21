@@ -61,6 +61,7 @@ public:
             void stopTimeCapture();
     static  float adcToVolt(float adc);
             void captureComplete();
+    static  void resetCR2(adc_reg_map *regs);
     
 protected:
   

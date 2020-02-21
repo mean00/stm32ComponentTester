@@ -2,6 +2,7 @@
 #pragma once
 #include "testPins.h"
 #include "testerGfx.h"
+#include "deltaADC.h"
 
 enum COMPONENT_TYPE
 {

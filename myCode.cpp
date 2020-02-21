@@ -13,7 +13,8 @@
 void myLoop(void);
 extern void pinTest();
 uint32_t  deviceId;
-DSOADC *adc=NULL;
+DSOADC *adc;
+
 //
 int result[20];
 int z;
@@ -52,7 +53,7 @@ void MainTask( void *a )
     }
 #endif
     
-   // pinTest();
+  //  pinTest();
     
     
     
@@ -81,9 +82,10 @@ void mySetup(void)
 
   delay(100);
 
-  
   adc=new DSOADC(PA0);
   adc->setupADCs();
+
+  TestPin::initADC(PA0);
 
   
   
@@ -98,7 +100,7 @@ void mySetup(void)
 void myLoop(void)
 {
     COMPONENT_TYPE type;
-#if 0    
+#if 1    
     Component *c=Component::identity(pin3,pin2,pin1,type);
 #else
     Component *c=new Coil(pin3,pin2,pin1);

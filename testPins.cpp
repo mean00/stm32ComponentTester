@@ -8,6 +8,8 @@
 #include "MapleFreeRTOS1000_pp.h"
 #include "calibration.h"
 extern DSOADC *adc;
+uint32_t lastCR2=0;
+#define WRITECR2(reg,x) {lastCR2=x;reg->CR2=x;}
 
 void xFail(const char *message);
 /**
@@ -323,11 +325,8 @@ static bool singleShot(adc_reg_map *regs,int &v)
     int start=millis();
     uint32_t oldCr2=regs->CR2;
     uint32_t cr2=ADC_CR2_EXTSEL_SWSTART; //+/*ADC_CR2_EXTTRIG+*/ADC_CR2_CONT+ADC_CR2_DMA;  
-    regs->CR2=cr2;  
-    regs->CR2=cr2+ADC_CR2_ADON; // only toggle ADON !
-#if 0
-    regs->CR2=cr2+ADC_CR2_ADON; // only toggle ADON !
-#endif
+    WRITECR2(regs,cr2);    
+
     while(1)
     {
           uint32_t sr=regs->SR;
@@ -336,7 +335,8 @@ static bool singleShot(adc_reg_map *regs,int &v)
               int now=millis();
               if((now-start)>10)
               {
-                  regs->CR2 &= ~ADC_CR2_SWSTART;
+                  uint32_t cr2=regs->CR2;
+                  WRITECR2(regs,cr2&~ADC_CR2_SWSTART);
                   return false;
               }
           }
@@ -345,6 +345,20 @@ static bool singleShot(adc_reg_map *regs,int &v)
     v=regs->DR & ADC_DR_DATA;
     return true;
 }
+
+/**
+ * 
+ * @param pin
+ * @return 
+ */
+void TestPin::initADC(int pin)
+{
+  adc=new DSOADC(PA0);
+  adc->setupADCs();
+  adc->resetCR2(ADC1->regs);
+  adc->resetCR2(ADC2->regs);
+}
+
 /**
  * 
  * @param threshold
@@ -357,46 +371,13 @@ adc_reg_map    *TestPin::fastSetup()
     adc->setTimeScale(ADC_SMPR_13_5, ADC_PRE_PCLK2_DIV_6); // Fastest to stay withing 14MH adc clock
     adc_dev *dev = PIN_MAP[_pin].adc_device;
     int channel=PIN_MAP[_pin].adc_channel;    
-    adc_reg_map *regs = dev->regs;   
-    adc_set_extsel(dev,ADC_SWSTART);
+    adc_reg_map *regs = dev->regs;       
     adc_set_exttrig(dev,1);
     adc_set_reg_seqlen(dev, 1);
+    adc_set_extsel(dev,ADC_SWSTART);
     regs->SQR3 = channel;    
-    uint32_t cr2=regs->CR2;
-    cr2|=ADC_CR2_ADON;
-    regs->CR2=cr2;
-    regs->CR2=cr2;
     return regs;
 }
-/**
- * 
- * @param value
- * @return 
- */
-bool    TestPin::sample(int &value)
-{
-     adc_reg_map *regs=fastSetup();
-    // go
-        int sampleStart=millis();
-        uint32_t oldCr2=regs->CR2;
-        uint32_t cr2=oldCr2 | ADC_CR2_SWSTART; 
-        regs->CR2=cr2;  
-        while(1)
-        {
-            uint32_t sr=regs->SR;
-            if(!(sr & ADC_SR_EOC))
-            {
-                int now=millis();
-                if((now-sampleStart)>10)
-                {
-                    regs->CR2 &= ~ADC_CR2_SWSTART;
-                    return false;
-                }
-            }
-            value=regs->DR & ADC_DR_DATA;
-            return true;
-        }     
-} 
 /**
  * 
  * @param threshold
@@ -417,7 +398,7 @@ bool    TestPin::fastSampleUp(int threshold1,int threshold2,int &value1,int &val
     {
         uint32_t oldCr2=regs->CR2;
         uint32_t cr2=oldCr2 | ADC_CR2_SWSTART; 
-        regs->CR2=cr2;  
+        WRITECR2(regs,cr2);
         uint32_t sampleStart=millis();
         while(1)
         {
@@ -427,7 +408,8 @@ bool    TestPin::fastSampleUp(int threshold1,int threshold2,int &value1,int &val
                 int now=millis();
                 if((now-sampleStart)>10)
                 {
-                    regs->CR2 &= ~ADC_CR2_SWSTART;
+                    uint32_t cr2=regs->CR2;
+                    WRITECR2(regs,cr2 & ~ADC_CR2_SWSTART);
                     return false;
                 }
             }
@@ -477,7 +459,7 @@ bool    TestPin::fastSampleDown(int threshold,int &value, int &timeUs)
     {
         uint32_t oldCr2=regs->CR2;
         uint32_t cr2=oldCr2 | ADC_CR2_SWSTART; 
-        regs->CR2=cr2;  
+        WRITECR2(regs,cr2);
         uint32_t sampleStart=millis();
         while(1)
         {
@@ -487,7 +469,8 @@ bool    TestPin::fastSampleDown(int threshold,int &value, int &timeUs)
                 int now=millis();
                 if((now-sampleStart)>10)
                 {
-                    regs->CR2 &= ~ADC_CR2_SWSTART;
+                    uint32_t cr2=regs->CR2;
+                    WRITECR2(regs,cr2 & ~ADC_CR2_SWSTART);
                     return false;
                 }
             }

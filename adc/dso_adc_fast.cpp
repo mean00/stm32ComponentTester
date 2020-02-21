@@ -60,8 +60,12 @@ DSOADC::DSOADC(int pin)
   enableDisableIrq(false);
   enableDisableIrqSource(false,ADC_AWD);
   enableDisableIrqSource(false,ADC_EOC);  
+  resetCR2(ADC1->regs);
+  resetCR2(ADC2->regs);
+
   readVCCmv();
 }
+  
 /**
  * 
  * @param adc
@@ -198,17 +202,7 @@ void DSOADC::setupADCs ()
   adc_Register->CR2=cr2;  
   
   ADC2->regs->CR2=ADC_CR2_EXTSEL_SWSTART+ADC_CR2_EXTTRIG+ADC_CR2_CONT+ADC_CR2_DMA;
-  for(int i=0;i<5000;i++)
-  {       
-      __asm__("nop");
-  }
-  
-  adc_Register->CR2|=ADC_CR2_ADON;
-#if 0
-  adc_Register->CR2|=ADC_CR2_ADON;
-  ADC2->regs->CR2|=ADC_CR2_ADON;
-#endif
-  ADC2->regs->CR2|=ADC_CR2_ADON;
+
 }
 /**
  * 
@@ -435,3 +429,20 @@ void DSOADC::captureComplete()
 {
     dmaSemaphore->giveFromInterrupt();
 }
+
+
+/**
+ * 
+ * @param reg
+ */
+void DSOADC::resetCR2(adc_reg_map *regs)
+{
+    uint32_t cr2=regs->CR2;
+    cr2&=~ADC_CR2_ADON;
+    regs->CR2=cr2;
+    delayMicroseconds(50);
+    regs->CR2=cr2|ADC_CR2_ADON;
+    delayMicroseconds(50);
+}
+
+

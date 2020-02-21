@@ -76,17 +76,16 @@ bool Capacitor::doOne(float target,int dex, float &cap)
     // max duration ~ 512 us
     uint16_t *samples;
     int nbSamples;
+     DeltaADC delta(_pA,_pB);
+    float period;
     
-    if(!_pA.prepareDmaSample(capScales[dex].rate,capScales[dex].scale,512)) 
-        return false;        
-    // Go!
+    if(!delta.setup(capScales[dex].rate,capScales[dex].scale,512)) return false;
+    
     _pA.pullUp(strength);   
-    if(!_pA.finishDmaSample(nbSamples,&samples)) 
-    {
-        return false;
-    }
     resistance=_pA.getCurrentRes()+_pB.getCurrentRes();
+    bool r=delta.get(nbSamples,&samples,period);
     _pA.pullDown(TestPin::PULL_LOW);   
+    if(!r) return false;    
     
     
     int limitA,limitB;
@@ -95,11 +94,7 @@ bool Capacitor::doOne(float target,int dex, float &cap)
     limitA=10;
     limitB=4095.*target;
 
-    if(doubled)
-    {
-        limitA=4095/2+10;
-        limitB=4095.*(1.+target)/2.+1;
-    }
+   
   
     
     // We need 2 points...
@@ -129,18 +124,12 @@ bool Capacitor::doOne(float target,int dex, float &cap)
     
     // Compute
     float timeElapsed=(pointB-pointA);
-    timeElapsed*=capScales[dex].tickUs;
-    timeElapsed/=1000000.; // In seconds
+    timeElapsed*=period;
 
     float valueA=samples[pointA];
     float valueB=samples[pointB];
 
-    
-    if(doubled)
-    {
-        valueA=2*valueA-4095;
-        valueB=2*valueB-4095;
-    }
+ 
     
     if(fabs(valueA-4095.)<2) return false;
     if(fabs(valueB-4095.)<2) return false;
@@ -177,25 +166,21 @@ bool Capacitor::getRange(int dex, int &range)
     uint16_t *samples;
     int nbSamples;
     
-    if(!_pA.prepareDmaSample(capScales[dex].rate,capScales[dex].scale,512)) 
-        return false;        
-    // Go!
+    DeltaADC delta(_pA,_pB);
+    float period;
+    
+    if(!delta.setup(capScales[dex].rate,capScales[dex].scale,512)) return false;
+    
     _pA.pullUp(strength);   
-    if(!_pA.finishDmaSample(nbSamples,&samples)) 
-    {
-        return false;
-    }
     resistance=_pA.getCurrentRes()+_pB.getCurrentRes();
+    bool r=delta.get(nbSamples,&samples,period);
     _pA.pullDown(TestPin::PULL_LOW);   
+    if(!r) return false;
     
-    
-    int limitB;   
-    limitB=2784;
-    if(doubled)
-    {        
-        limitB=4095*4/5+1; // Make it better
-    }
+    //    
+    int limitB=2784;   
     int pointB=-1;
+
    
     for(int i=1;i<nbSamples;i++)
     {
@@ -207,6 +192,7 @@ bool Capacitor::getRange(int dex, int &range)
     }
     if(pointB==-1) pointB=nbSamples-1;
     range=pointB;
+    range=(100*range)/nbSamples; // rescale to 0..100
     return true;
 }
 
@@ -273,7 +259,7 @@ bool Capacitor::compute()
     // check for big cap
     if(getRange(LAST_SCALE,range))
     {
-        if(range>505) // out of scale, it is high cap..
+        if(range>95) // out of scale, it is high cap..
         {
             return computeHiCap();
         }
@@ -281,7 +267,7 @@ bool Capacitor::compute()
     // Check for small cap
      if(getRange(0,range))
     {
-        if(range<120) // Low value, it is low cap..
+        if(range<24) // Low value, it is low cap..
         {
             return computeLowCap();
         }
@@ -294,7 +280,7 @@ bool Capacitor::compute()
     {
       //  if(capScales[i].doubled) continue;
         if(!getRange(i,range)) continue;
-        if(range<=480)
+        if(range<=93)
         {
             gotit=i;
             i=n+1;

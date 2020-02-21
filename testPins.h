@@ -44,6 +44,7 @@ public:
                 TestPin(int pinNo, int pinAdc,int pinVolt, int pinDriveHighRes, int pinDriveMed,int pinDriveLow, int hiRes, int medRes,int lowRes);
         void    setMode(TESTPIN_STATE mode);
         void    init();
+static  void    initADC(int pin);
         void    pullUp(PULL_STRENGTH strength);
         void    pullDown(PULL_STRENGTH strength);
         void    setToVcc();
@@ -67,7 +68,8 @@ public:
         bool    dualSimulatenousDelta (int &nbSamples,uint16_t *samples);
 
 protected:  
-        void    configureOutput(int pinNo, int state);
+ 
+        void configureOutput(int pinNo, int state);
         adc_reg_map    *fastSetup()  ;
         int _pinNumber,_pin,_pinDriveHighRes, _pinDriveLowRes,_pinDriveMedRes;
         int _pinVolt; // GND or VCC
