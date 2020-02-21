@@ -49,6 +49,9 @@ DSOADC::DSOADC(int pin)
 {
   instance=this;
   _pin=pin;
+  resetCR2(ADC1->regs);
+  resetCR2(ADC2->regs);
+
   adc_calibrate(ADC1);
   adc_calibrate(ADC2);
  
@@ -60,8 +63,6 @@ DSOADC::DSOADC(int pin)
   enableDisableIrq(false);
   enableDisableIrqSource(false,ADC_AWD);
   enableDisableIrqSource(false,ADC_EOC);  
-  resetCR2(ADC1->regs);
-  resetCR2(ADC2->regs);
 
   readVCCmv();
 }
@@ -202,6 +203,8 @@ void DSOADC::setupADCs ()
   adc_Register->CR2=cr2;  
   
   ADC2->regs->CR2=ADC_CR2_EXTSEL_SWSTART+ADC_CR2_EXTTRIG+ADC_CR2_CONT+ADC_CR2_DMA;
+  resetCR2(ADC1->regs);
+  resetCR2(ADC2->regs);
 
 }
 /**

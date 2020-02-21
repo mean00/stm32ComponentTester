@@ -13,7 +13,7 @@
 void myLoop(void);
 extern void pinTest();
 uint32_t  deviceId;
-DSOADC *adc;
+
 
 //
 int result[20];
@@ -30,6 +30,10 @@ void MainTask( void *a )
 {
   
     TesterGfx::init();
+ 
+    TestPin::initADC(PA0);
+    
+    
     pin1.init();
     pin2.init();
     pin3.init();
@@ -82,10 +86,6 @@ void mySetup(void)
 
   delay(100);
 
-  adc=new DSOADC(PA0);
-  adc->setupADCs();
-
-  TestPin::initADC(PA0);
 
   
   

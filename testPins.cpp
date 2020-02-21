@@ -7,7 +7,7 @@
 #include "dso_adc.h"
 #include "MapleFreeRTOS1000_pp.h"
 #include "calibration.h"
-extern DSOADC *adc;
+ DSOADC *adc;
 uint32_t lastCR2=0;
 #define WRITECR2(reg,x) {lastCR2=x;reg->CR2=x;}
 
@@ -355,8 +355,6 @@ void TestPin::initADC(int pin)
 {
   adc=new DSOADC(PA0);
   adc->setupADCs();
-  adc->resetCR2(ADC1->regs);
-  adc->resetCR2(ADC2->regs);
 }
 
 /**
