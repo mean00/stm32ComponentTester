@@ -217,14 +217,10 @@ void DSOADC::setupADCs ()
   int channel = PIN_MAP[_pin].adc_channel;
   setChannel(channel);
   
-   readVCCmv();
-
+  readVCCmv();
    
-   ADC1->regs->CR2 |=ADC_CR2_DMA +ADC_CR2_EXTSEL_SWSTART +ADC_CR2_CONT  ;     
-   ADC2->regs->CR2 |=ADC_CR2_DMA +ADC_CR2_EXTSEL_SWSTART +ADC_CR2_CONT ;     
-
-   
-
+  ADC1->regs->CR2 |=ADC_CR2_DMA +ADC_CR2_EXTSEL_SWSTART +ADC_CR2_CONT  ;     
+  ADC2->regs->CR2 |=ADC_CR2_DMA +ADC_CR2_EXTSEL_SWSTART +ADC_CR2_CONT ;     
 }
 /**
  * 

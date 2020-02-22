@@ -81,7 +81,7 @@ void mySetup(void)
   SPI.setDataMode(SPI_MODE0); //Set the  SPI data mode 0
   SPI.setClockDivider (SPI_CLOCK_DIV4); // Given for 10 Mhz...    
   
-  Serial.begin(38400);
+  Serial.end(); // dont let usb bother us
   interrupts();
 
   delay(100);
