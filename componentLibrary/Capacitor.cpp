@@ -238,7 +238,7 @@ bool Capacitor::computeLowCap()
     capacitance=Cest;
     if(capacitance<300./pPICO)
     {
-        capacitance=Cest-INTERNAL_CAPACITANCE_IN_PF/pPICO;
+        capacitance=Cest-_pA._calibration.capOffsetInPf/pPICO;
     }
     if(capacitance<MINIMUM_DETECTED_CAP/pPICO) capacitance=0.;
     return true;
@@ -332,10 +332,10 @@ bool Capacitor::computeHiCap()
     // in case they are reversed polarised
     for(int i=0;i<overSampling;i++)
     {
-#if 0
+#if 1 // full charge
         if(!Capacitor::doOneQuick(TestPin::PULL_LOW, false, 0.7,timeUs,resistance,value))
             return false;
-#else        
+#else         // or only up to 1v ?
         if(!Capacitor::doOneQuick(TestPin::PULL_LOW, false, 0.28,timeUs,resistance,value))
             return false;
 #endif

@@ -83,15 +83,9 @@ void mySetup(void)
   
   Serial.end(); // dont let usb bother us
   interrupts();
-
-  delay(100);
-
-
-  
   
   xTaskCreate( MainTask, "MainTask", 750,NULL, 10, NULL );   
-  vTaskStartScheduler();      
-  
+  vTaskStartScheduler();        
 }
 
 /**
@@ -117,5 +111,11 @@ void myLoop(void)
         TesterGfx::clear();
         c->draw(0);
     }
-    xDelay(2000);
+    for(int i=0;i<5;i++)
+    {
+        digitalWrite(LED,HIGH);
+        xDelay(200);
+        digitalWrite(LED,LOW);
+        xDelay(200);
+    }
 }

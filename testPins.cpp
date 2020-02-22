@@ -7,6 +7,7 @@
 #include "dso_adc.h"
 #include "MapleFreeRTOS1000_pp.h"
 #include "calibration.h"
+
  DSOADC *adc;
 uint32_t lastCR2=0;
 #define WRITECR2(reg,x) {lastCR2=x;reg->CR2=x;}
@@ -121,6 +122,7 @@ void TestPin::init()
 {
     disconnect();
     allPins.registerMe(this);
+    NVM::loadTestPin(this->_pinNumber,_calibration);
 }
 /**
  * 
@@ -314,37 +316,6 @@ bool    TestPin::slowDmaSample(int &xadc, int &nbSamples)
     xadc=r;
     return true;
 }
-/**
- * 
- * @param regs
- * @param v
- * @return 
- */
-static bool singleShot(adc_reg_map *regs,int &v)
-{
-    int start=millis();
-    uint32_t oldCr2=regs->CR2;
-    uint32_t cr2=ADC_CR2_EXTSEL_SWSTART; //+/*ADC_CR2_EXTTRIG+*/ADC_CR2_CONT+ADC_CR2_DMA;  
-    WRITECR2(regs,cr2);    
-
-    while(1)
-    {
-          uint32_t sr=regs->SR;
-          if(!(sr & ADC_SR_EOC))
-          {
-              int now=millis();
-              if((now-start)>10)
-              {
-                  uint32_t cr2=regs->CR2;
-                  WRITECR2(regs,cr2&~ADC_CR2_SWSTART);
-                  return false;
-              }
-          }
-          break;
-    }
-    v=regs->DR & ADC_DR_DATA;
-    return true;
-}
 
 /**
  * 
@@ -366,14 +337,14 @@ void TestPin::initADC(int pin)
  */
 adc_reg_map    *TestPin::fastSetup()  
 {
-    adc->setTimeScale(ADC_SMPR_13_5, ADC_PRE_PCLK2_DIV_6); // Fastest to stay withing 14MH adc clock
+    adc->setTimeScale(ADC_SMPR_13_5, ADC_PRE_PCLK2_DIV_6); // about 2 us sampling fq
     adc_dev *dev = PIN_MAP[_pin].adc_device;
     int channel=PIN_MAP[_pin].adc_channel;    
     adc_reg_map *regs = dev->regs;       
     adc_set_exttrig(dev,1);
     adc_set_reg_seqlen(dev, 1);
-    adc_set_extsel(dev,ADC_SWSTART);
     regs->SQR3 = channel;    
+    uint32_t val=regs->DR ; // clear pending value
     return regs;
 }
 /**
@@ -394,9 +365,6 @@ bool    TestPin::fastSampleUp(int threshold1,int threshold2,int &value1,int &val
     int value;
     while(1)
     {
-        uint32_t oldCr2=regs->CR2;
-        uint32_t cr2=oldCr2 | ADC_CR2_SWSTART; 
-        WRITECR2(regs,cr2);
         uint32_t sampleStart=millis();
         while(1)
         {
@@ -406,8 +374,6 @@ bool    TestPin::fastSampleUp(int threshold1,int threshold2,int &value1,int &val
                 int now=millis();
                 if((now-sampleStart)>10)
                 {
-                    uint32_t cr2=regs->CR2;
-                    WRITECR2(regs,cr2 & ~ADC_CR2_SWSTART);
                     return false;
                 }
             }
@@ -455,9 +421,6 @@ bool    TestPin::fastSampleDown(int threshold,int &value, int &timeUs)
     bool first=true;
     while(1)
     {
-        uint32_t oldCr2=regs->CR2;
-        uint32_t cr2=oldCr2 | ADC_CR2_SWSTART; 
-        WRITECR2(regs,cr2);
         uint32_t sampleStart=millis();
         while(1)
         {
@@ -467,8 +430,6 @@ bool    TestPin::fastSampleDown(int threshold,int &value, int &timeUs)
                 int now=millis();
                 if((now-sampleStart)>10)
                 {
-                    uint32_t cr2=regs->CR2;
-                    WRITECR2(regs,cr2 & ~ADC_CR2_SWSTART);
                     return false;
                 }
             }
@@ -517,14 +478,14 @@ int TestPin::getRes(TESTPIN_STATE state)
                     xFail("Invalid");
         case VCC:
         case GND:
-                    return WIRE_RESISTANCE_AND_INTERNAL;
+                    return _calibration.resDown;
                     break;
-        case PULLUP_HI:         return _hiRes+WIRE_RESISTANCE_AND_INTERNAL;break;
-        case PULLUP_LOW:        return _lowRes+WIRE_RESISTANCE_AND_INTERNAL;break;
-        case PULLUP_MED:        return _medRes+WIRE_RESISTANCE_AND_INTERNAL;break;
-        case PULLDOWN_HI:       return _hiRes+WIRE_RESISTANCE_AND_INTERNAL;break;
-        case PULLDOWN_LOW:      return _lowRes+WIRE_RESISTANCE_AND_INTERNAL;break;
-        case PULLDOWN_MED:       return _medRes+WIRE_RESISTANCE_AND_INTERNAL;break;        
+        case PULLUP_HI:         return _hiRes+ _calibration.resUp;;break;
+        case PULLUP_LOW:        return _lowRes+_calibration.resUp;break;
+        case PULLUP_MED:        return _medRes+_calibration.resUp;break;
+        case PULLDOWN_HI:       return _hiRes+ _calibration.resDown;;break;
+        case PULLDOWN_LOW:      return _lowRes+ _calibration.resDown;;break;
+        case PULLDOWN_MED:       return _medRes+ _calibration.resDown;;break;        
     }
     xFail("Invalid");
     return 0; 

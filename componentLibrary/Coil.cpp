@@ -207,7 +207,7 @@ bool Coil::compute()
         inductance+=ductance;
     }
     inductance/=overSampling;
-    inductance-=(float)(INTERNAL_INDUCTANCE_IN_UF)/1000000.;
+    inductance-=(float)(_pA._calibration.inductanceInUF)/1000000.;
     if(inductance<0.) inductance=0.;
     return true;
 }

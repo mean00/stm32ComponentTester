@@ -4,6 +4,7 @@
  */
 #pragma once
 #include "Arduino.h"
+#include "nvm.h"
 
 // mostly internal pin resistance when pulled to VCC or GND
 
@@ -75,8 +76,10 @@ protected:
         int _pinVolt; // GND or VCC
         int _lowRes,_hiRes,_medRes;
         TESTPIN_STATE _state;
+public:        
+        TestPinCalibration _calibration;
 };
 
 void zeroAllPins();
-
+#define pPICO (1000.*1000.*1000.*1000.)
 // EOF
