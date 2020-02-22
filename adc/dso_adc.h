@@ -40,6 +40,7 @@ public:
     static  void adc_dma_enable(const adc_dev * dev) ;    
 
             void setupADCs ();
+            void setChannel(int channel);
 protected:            
             
     static  void DMA1_CH1_Event();

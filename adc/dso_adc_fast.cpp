@@ -49,11 +49,7 @@ DSOADC::DSOADC(int pin)
 {
   instance=this;
   _pin=pin;
-  resetCR2(ADC1->regs);
-  resetCR2(ADC2->regs);
 
-  adc_calibrate(ADC1);
-  adc_calibrate(ADC2);
  
   // Set up our sensor pin(s)  
   dmaSemaphore=new FancySemaphore;  
@@ -63,8 +59,6 @@ DSOADC::DSOADC(int pin)
   enableDisableIrq(false);
   enableDisableIrqSource(false,ADC_AWD);
   enableDisableIrqSource(false,ADC_EOC);  
-
-  readVCCmv();
 }
   
 /**
@@ -85,7 +79,7 @@ bool    DSOADC::setADCPin(int pin)
 {
     _pin=pin;
      adc_Register=  PIN_MAP[_pin].adc_device->regs;
-     setupADCs();
+     setChannel(PIN_MAP[_pin].adc_channel);
      return true;
 }
 
@@ -161,8 +155,7 @@ uint32_t DSOADC::getVCCmv()
 #define NB_SAMPLE 16
 float DSOADC::readVCCmv()
 {
-   float fvcc=0;
-   adc_Register = ADC1->regs;
+   float fvcc=0;   
    adc_Register->CR2 |= ADC_CR2_TSVREFE;    // enable VREFINT and temp sensor
    adc_Register->SMPR1 =  ADC_SMPR1_SMP17;  // sample ra
    for(int i=0;i<NB_SAMPLE;i++)
@@ -171,40 +164,66 @@ float DSOADC::readVCCmv()
        fvcc+=  adc_read(ADC1, 17); 
    }
     fvcc=(1200. * 4096.*NB_SAMPLE) /fvcc;   
-    //fvcc=3380;
+    adc_Register->CR2 &= ~ADC_CR2_TSVREFE;    // disable VREFINT and temp sensor
     vcc=fvcc;
     return fvcc;
 }
 
+/**
+ * 
+ * @param dev
+ */
+static void initSeqs(adc_dev *dev)
+{
+    adc_disable(dev);    
+    delayMicroseconds(50);
+    adc_init(dev);
+    delayMicroseconds(50);
+    adc_set_extsel(dev, ADC_SWSTART);
+    delayMicroseconds(50);
+    adc_set_exttrig(dev, 1);
+    delayMicroseconds(50);
+    adc_enable(dev);
+    delayMicroseconds(50);
+    adc_calibrate(dev);
+    delayMicroseconds(50);
+}
+/**
+ * 
+ * @param channel
+ */
 
-
+void DSOADC::setChannel(int channel)
+{    
+    adc_Register->SQR3 = _pin;
+}
 /**
  * 
  */
 void DSOADC::setupADCs ()
 {
- // 1 - Read VCC
    adc_Register = ADC1->regs;
-   adc_Register->CR2 |= ADC_CR2_TSVREFE;    // enable VREFINT and temp sensor
-   adc_Register->SMPR1 =  ADC_SMPR1_SMP17;  // sample ra
 
- // 2 - Setup ADC
-    
-  int pinMapADCin = PIN_MAP[_pin].adc_channel;
+  // Restart from the beginning
+  initSeqs(ADC1);
+  initSeqs(ADC2);
+
   adc_set_sample_rate(ADC1, ADC_SMPR_1_5); //=0,58uS/sample.  ADC_SMPR_13_5 = 1.08uS - use this one if Rin>10Kohm,
   adc_set_sample_rate(ADC2, ADC_SMPR_1_5);    // if not may get some sporadic noise. see datasheet.
-  adc_set_prescaler(ADC_PRE_PCLK2_DIV_2);
+  adc_set_prescaler(ADC_PRE_PCLK2_DIV_6);
    
   adc_set_reg_seqlen(ADC1, 1);
   
-  adc_Register->SQR3 = pinMapADCin;
+  int channel = PIN_MAP[_pin].adc_channel;
+  setChannel(channel);
   
-  uint32_t cr2=ADC_CR2_EXTSEL_SWSTART+/*ADC_CR2_EXTTRIG+*/ADC_CR2_CONT+ADC_CR2_DMA;  
-  adc_Register->CR2=cr2;  
-  
-  ADC2->regs->CR2=ADC_CR2_EXTSEL_SWSTART+ADC_CR2_EXTTRIG+ADC_CR2_CONT+ADC_CR2_DMA;
-  resetCR2(ADC1->regs);
-  resetCR2(ADC2->regs);
+   readVCCmv();
+
+   
+   ADC1->regs->CR2 |=ADC_CR2_DMA +ADC_CR2_EXTSEL_SWSTART +ADC_CR2_CONT  ;     
+   ADC2->regs->CR2 |=ADC_CR2_DMA +ADC_CR2_EXTSEL_SWSTART +ADC_CR2_CONT ;     
+
+   
 
 }
 /**
