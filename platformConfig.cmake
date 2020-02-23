@@ -1,5 +1,6 @@
 SET(ARDUINO_USE_NEWLIB 1)
 SET(PLATFORM_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Arduino_STM32/STM32F1/")
+SET(ARDUINO_UPLOAD_METHOD BMP) # Use blackmagic link, no bootloader
 
 # Warning the paths are mingw i.e. c:\dev becomes /c/dev
 IF(WIN32)
