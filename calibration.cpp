@@ -8,7 +8,7 @@
 #include "testerGfx.h"
 extern TestPin pin1,pin2,pin3;
 extern void pinTest();
-
+#define Y_OFFSET 20
 void calibration()
 {
     
@@ -23,12 +23,13 @@ void calibration()
     
     TesterGfx::clear();
     char st[30];
+    TesterGfx::print(10,Y_OFFSET,"Internal Res :");
     sprintf(st,"1: D:%d U:%d",resdown1,resup1);
-    TesterGfx::print(10,20,st);
+    TesterGfx::print(10,20+Y_OFFSET,st);
     sprintf(st,"2: D:%d U:%d",resdown2,resup2);
-    TesterGfx::print(10,50,st);
+    TesterGfx::print(10,50+Y_OFFSET,st);
     sprintf(st,"3: D:%d U:%d",resdown3,resup3);
-    TesterGfx::print(10,80,st);
+    TesterGfx::print(10,80+Y_OFFSET,st);
     
     while(1)
     {
