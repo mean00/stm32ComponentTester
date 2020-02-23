@@ -11,7 +11,7 @@
 #include "componentSignature.h"
 #define LED PC13
 void myLoop(void);
-extern void pinTest();
+extern void calibration();
 uint32_t  deviceId;
 
 
@@ -38,6 +38,9 @@ void MainTask( void *a )
     pin2.init();
     pin3.init();
     rotary.start();
+    
+ 
+    
 #if 0    
     int  rot=0;
     int  c=0;
@@ -57,9 +60,9 @@ void MainTask( void *a )
     }
 #endif
     
-  //  pinTest();
+  // 
     
-    
+    calibration();
     
     while(1)
     {

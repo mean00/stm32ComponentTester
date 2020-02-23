@@ -68,6 +68,9 @@ static  void    initADC(int pin);
         bool    dualInterleavedDelta (int &nbSamples,uint16_t *samples);
         bool    dualSimulatenousDelta (int &nbSamples,uint16_t *samples);
 
+        // For calibration
+        bool   evalInternalResistance ( int &resDown,int &resUp);
+        
 protected:  
  
         void configureOutput(int pinNo, int state);

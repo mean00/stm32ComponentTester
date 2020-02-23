@@ -11,7 +11,7 @@ extern TestPin   pin3;
 extern uint32_t  deviceId;
 #define LED PC13
 
-
+#define Y_OFFSET 20
 
 static bool singlePinTest(TestPin &A, TestPin &MeasurePin, const char **failure)
 {
@@ -131,30 +131,27 @@ bool dualDmaTest(const char *text, TestPin &A, TestPin & B, int line)
 }
 void pinTest()
 {
+
     bool testFailed=false;
     TesterGfx::clear();
-    //dualDmaTest("Pin12",pin2,pin3,20)        ;
-    RUNDDMATEST(1,2,20);
-    RUNDDMATEST(1,3,50);
-    RUNDDMATEST(2,3,80);
-    if(1 || testFailed)
-        while(1)
-        {
-
-        }
-    RUNTEST(1,1,20)
-    RUNTEST(2,2,50)
-    RUNTEST(3,3,80)
+    
+    TesterGfx::print(1, Y_OFFSET ,"Pin Test");
+    RUNTEST(1,1,20+Y_OFFSET)
+    RUNTEST(2,2,50+Y_OFFSET)
+    RUNTEST(3,3,80+Y_OFFSET)
     if(testFailed)
     {
         while(1) {};
     }
-    while(1)
-    {
-        digitalWrite(LED,LOW);
-        xDelay(300);
-        digitalWrite(LED,HIGH);
-        xDelay(600);
-    }
+    TesterGfx::clear();
+    TesterGfx::print(1,Y_OFFSET,"DMA Test");
+    RUNDDMATEST(1,2,20+Y_OFFSET);
+    RUNDDMATEST(1,3,50+Y_OFFSET);
+    RUNDDMATEST(2,3,80+Y_OFFSET);
+    if( testFailed)        
+        while(1)
+        {
+
+        }
 }
 

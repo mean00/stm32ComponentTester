@@ -344,6 +344,7 @@ adc_reg_map    *TestPin::fastSetup()
     adc_set_exttrig(dev,1);
     adc_set_reg_seqlen(dev, 1);
     regs->SQR3 = channel;    
+    regs->CR2 &= ~ADC_CR2_DMA;    
     uint32_t val=regs->DR ; // clear pending value
     return regs;
 }
@@ -519,6 +520,53 @@ bool TestPin::dualInterleavedDelta ( int &nbSamples,uint16_t *samples)
     }
   nbSamples=(nbSamples-1)*2;
   return true;
+}
+
+
+/**
+ * 
+ * @param count
+ * @return 
+ */
+bool TestPin::evalInternalResistance ( int &resDown,int &resUp)
+{
+    int valUp,valDown;
+    
+    setMode(PULLUP_LOW);
+    digitalWrite(_pinVolt,0);
+    pinMode(_pinVolt,OUTPUT);
+
+    xDelay(50);
+    int sum,nb;
+    xAssert(slowDmaSample(sum,nb));
+    sum=(sum+nb/2)/nb;
+    valDown=sum;    
+    
+    disconnect();
+    setMode(PULLDOWN_LOW);
+    digitalWrite(_pinVolt,1);
+    pinMode(_pinVolt,OUTPUT);
+    
+     xDelay(50);
+    xAssert(slowDmaSample(sum,nb));
+    sum=(sum+nb/2)/nb;
+    valUp=4095-sum;    
+    
+    disconnect();
+    
+    int totalRes=_lowRes;
+    resDown=(totalRes*valDown)/4095;
+    resUp=(totalRes*valUp)/4095;
+    
+    for(int i=0;i<5;i++) // converge to real value
+    {
+        totalRes=_lowRes+valUp+resDown;
+        resDown=(totalRes*valDown)/4095;
+        resUp  =(totalRes*valUp)/4095;
+    }
+    
+    
+    return true;
 }
 
 
