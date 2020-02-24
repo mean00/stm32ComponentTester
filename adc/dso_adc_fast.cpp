@@ -78,9 +78,9 @@ float DSOADC::adcToVolt(float adc)
 bool    DSOADC::setADCPin(int pin)
 {
     _pin=pin;
-     adc_Register=  PIN_MAP[_pin].adc_device->regs;
-     setChannel(PIN_MAP[_pin].adc_channel);
-     return true;
+    adc_Register=  PIN_MAP[_pin].adc_device->regs;
+    setChannel(PIN_MAP[_pin].adc_channel);
+    return true;
 }
 
 // Grab the samples from the ADC
@@ -94,7 +94,7 @@ bool    DSOADC::setADCPin(int pin)
 bool DSOADC::startDMASampling (int count)
 {
   if(count>ADC_INTERNAL_BUFFER_SIZE)
-        count=ADC_INTERNAL_BUFFER_SIZE;  
+        count=ADC_INTERNAL_BUFFER_SIZE;
   requestedSamples=count;    
   enableDisableIrqSource(false,ADC_AWD);
   enableDisableIrq(true);
@@ -201,9 +201,7 @@ void DSOADC::setChannel(int channel)
  * 
  */
 void DSOADC::setupADCs ()
-{
-   adc_Register = ADC1->regs;
-
+{   
   // Restart from the beginning
   initSeqs(ADC1);
   initSeqs(ADC2);
@@ -219,8 +217,8 @@ void DSOADC::setupADCs ()
   
   readVCCmv();
    
-  ADC1->regs->CR2 |=ADC_CR2_DMA +ADC_CR2_EXTSEL_SWSTART +ADC_CR2_CONT  ;     
-  ADC2->regs->CR2 |=ADC_CR2_DMA +ADC_CR2_EXTSEL_SWSTART +ADC_CR2_CONT ;     
+  ADC1->regs->CR2 |=ADC_CR2_CONT + ADC_CR2_EXTSEL_SWSTART ;     
+  ADC2->regs->CR2 |=ADC_CR2_CONT + ADC_CR2_EXTSEL_SWSTART ;     
 }
 /**
  * 
@@ -464,4 +462,10 @@ void DSOADC::resetCR2(adc_reg_map *regs)
     delayMicroseconds(50);
 }
 
+extern uint32_t registersX[10];
 
+void readAllRegisters()
+{
+    registersX[0]=ADC1->regs->CR2;
+    registersX[1]=ADC1->regs->SQR3;
+}
