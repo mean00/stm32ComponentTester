@@ -11,7 +11,6 @@
  DSOADC *adc;
 uint32_t lastCR2=0;
 #define WRITECR2(reg,x) {lastCR2=x;reg->CR2=x;}
-
 void xFail(const char *message);
 /**
  * 
@@ -107,19 +106,20 @@ void zeroAllPins()
      _hiRes=hiRes;
      _medRes=medRes;
      
-#if 1
-     pinMode(pinAdc,INPUT_PULLDOWN);     
-     pinMode(pinVolt,INPUT_PULLDOWN);
-     pinMode(pinDriveHighRes,INPUT_PULLDOWN);
-     pinMode(pinDriveLow,INPUT_PULLDOWN);
-     pinMode(pinDriveMed,INPUT_PULLDOWN);
-#endif   
 }
 /**
  * 
  */
 void TestPin::init()
 {
+      
+
+     pinMode(_pin,INPUT_ANALOG);     
+     pinMode(_pinVolt,INPUT_PULLDOWN);
+     pinMode(_pinDriveHighRes,INPUT_PULLDOWN);
+     pinMode(_pinDriveLowRes,INPUT_PULLDOWN);
+     pinMode(_pinDriveMedRes,INPUT_PULLDOWN);
+    
     disconnect();
     allPins.registerMe(this);
     NVM::loadTestPin(this->_pinNumber,_calibration);
@@ -438,7 +438,6 @@ bool    TestPin::fastSampleDown(int threshold,int &value, int &timeUs)
             break;
         }
         value=regs->DR & ADC_DR_DATA;
-      
         if(value<threshold)
         {
             timeUs=sampleTime-start; 
