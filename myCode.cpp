@@ -61,8 +61,8 @@ void MainTask( void *a )
 #endif
     
   // 
-    
-    calibration();
+    if(!NVM::hasCalibration())
+        calibration();
     
     while(1)
     {

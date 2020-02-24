@@ -13,6 +13,16 @@ bool NVM::loaded=false;
  * @param calibration
  * @return 
  */
+
+bool    NVM::hasCalibration()
+{    
+    EEPROMClass eep;
+    eep.init();
+    if(eep.read(0)==HASH)
+        return true;
+    return false;
+}
+
 bool    NVM::loadTestPin(int pin, TestPinCalibration &calibration)
 {    
     EEPROMClass eep;

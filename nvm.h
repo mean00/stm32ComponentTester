@@ -16,6 +16,7 @@ public:
         static bool    saveTestPin(int pin, const TestPinCalibration &calibration);
         static bool    reset();
         static bool    doneWriting();
+        static bool    hasCalibration();
 protected:
         static bool    loaded;
         
