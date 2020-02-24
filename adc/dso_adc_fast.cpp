@@ -217,8 +217,8 @@ void DSOADC::setupADCs ()
   
   readVCCmv();
    
-  ADC1->regs->CR2 |=ADC_CR2_CONT + ADC_CR2_EXTSEL_SWSTART ;     
-  ADC2->regs->CR2 |=ADC_CR2_CONT + ADC_CR2_EXTSEL_SWSTART ;     
+  ADC1->regs->CR2 |=ADC_CR2_CONT + ADC_CR2_EXTSEL_SWSTART + ADC_CR2_SWSTART;     
+  ADC2->regs->CR2 |=ADC_CR2_CONT + ADC_CR2_EXTSEL_SWSTART + ADC_CR2_SWSTART;     
 }
 /**
  * 

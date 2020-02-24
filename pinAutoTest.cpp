@@ -136,9 +136,9 @@ void pinTest()
     TesterGfx::clear();
     
     TesterGfx::print(1, Y_OFFSET ,"Pin Test");
-    RUNTEST(1,1,20+Y_OFFSET)
     RUNTEST(2,2,50+Y_OFFSET)
-    RUNTEST(3,3,80+Y_OFFSET)
+    RUNTEST(3,3,80+Y_OFFSET)    
+    RUNTEST(1,1,20+Y_OFFSET)
     if(testFailed)
     {
         while(1) {};
