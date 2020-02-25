@@ -57,7 +57,7 @@ void calibration()
     ALLCAP(3,pin3,pin2,pin1);
     
     
-    
+    // and save
     NVM::reset();
     NVM::saveTestPin(1,calibration1);
     NVM::saveTestPin(2,calibration2);

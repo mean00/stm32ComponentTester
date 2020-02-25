@@ -364,6 +364,7 @@ bool    TestPin::fastSampleUp(int threshold1,int threshold2,int &value1,int &val
     uint32_t sampleTime;
     bool first=true;
     int value;
+    value=regs->DR ; // clear pending value
     while(1)
     {
         uint32_t sampleStart=millis();
@@ -420,6 +421,7 @@ bool    TestPin::fastSampleDown(int threshold,int &value, int &timeUs)
     uint32_t start=micros();
     uint32_t sampleTime;
     bool first=true;
+    value=regs->DR ; // clear pending value
     while(1)
     {
         uint32_t sampleStart=millis();
