@@ -26,4 +26,6 @@ protected:
             bool getRange(int dex, int &range);
             bool getEsr(float &esr);
             bool minMax(bool high,int &minmax);
+public:
+            bool calibrationValue(float &c);
 };

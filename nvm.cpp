@@ -18,8 +18,10 @@ bool    NVM::hasCalibration()
 {    
     EEPROMClass eep;
     eep.init();
+#if 1
     if(eep.read(0)==HASH)
         return true;
+#endif    
     return false;
 }
 

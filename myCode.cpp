@@ -98,7 +98,7 @@ void myLoop(void)
 {
     COMPONENT_TYPE type;
 #if 1    
-    Component *c=Component::identity(pin3,pin2,pin1,type);
+    Component *c=Component::identity(pin1,pin2,pin3,type);
 #else
     Component *c=new Coil(pin3,pin2,pin1);
     //Component *c=new Capacitor(pin3,pin2,pin1);

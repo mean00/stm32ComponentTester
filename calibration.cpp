@@ -28,6 +28,18 @@ void calibration()
     ALLRES(2);
     ALLRES(3);
     
+    float val;
+#define ALLCAP(pin,a,b,c) {   \
+                                Capacitor cap(a,b,c); \
+                                cap.calibrationValue(val);\
+                                calibration##pin.capOffsetInPf=(int)(val*pPICO+0.49);\
+                                }
+    
+    
+    ALLCAP(1,pin1,pin2,pin3);
+    ALLCAP(2,pin2,pin1,pin3);
+    ALLCAP(3,pin3,pin2,pin1);
+    
     NVM::reset();
     NVM::saveTestPin(1,calibration1);
     NVM::saveTestPin(2,calibration2);

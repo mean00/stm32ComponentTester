@@ -224,25 +224,33 @@ bool Capacitor::computeMediumCap(int dex,int overSampling,float &Cest)
  */
 bool Capacitor::computeLowCap()
 {    
-    float cap;
+    calibrationValue(capacitance);
+    if(capacitance<300./pPICO)
+    {
+        capacitance=capacitance-_pA._calibration.capOffsetInPf/pPICO;
+    }
+    if(capacitance<MINIMUM_DETECTED_CAP/pPICO) capacitance=0.;
+    return true;
+}
+/**
+ * 
+ * @return 
+ */
+bool Capacitor::calibrationValue(float &c)
+{        
     float Cest=0;
     int overSampling=4;
     for(int i=0;i<overSampling;i++)
     {
+        float cap;
          if(!doOne(0.9,0,cap))
              return false;        
          Cest+=cap;
     }
     Cest/=overSampling;
-    capacitance=Cest;
-    if(capacitance<300./pPICO)
-    {
-        capacitance=Cest-_pA._calibration.capOffsetInPf/pPICO;
-    }
-    if(capacitance<MINIMUM_DETECTED_CAP/pPICO) capacitance=0.;
+    c=Cest;
     return true;
 }
-
 /**
  * 
  * @return 
@@ -405,6 +413,8 @@ bool Capacitor::doOneQuick(TestPin::PULL_STRENGTH strength, bool doubled, float 
     
     return true;
 }
+
+
 
 
 // EOF

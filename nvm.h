@@ -5,6 +5,13 @@ public:
         uint16_t  resUp;
         uint16_t  capOffsetInPf;
         uint16_t  inductanceInUF;
+        TestPinCalibration()
+        {
+          resDown=0;
+          resUp=0;
+          capOffsetInPf=0;
+          inductanceInUF=0;
+        }
 };
 
 class NVM

@@ -86,7 +86,7 @@ bool Coil::computeResistance()
     for(int i=2;i<nbSamples;i++)
         sum+=samples[i];
     sum/=((float)(nbSamples-2)); // skip the 2 first
-    if(sum>4085.)
+    if(sum>4090.)
         return false;
     float r=sum*(Ra+Rb);  
     r=r/(4095.-sum);
