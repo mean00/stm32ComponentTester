@@ -1,5 +1,6 @@
 #ifdef TINY_7735
 #include "tinyAdafruit_ST7735.h"
+#include "tinyAdafruit_ST7735_priv.h"
 #else
 #include "Adafruit_ST7735.h"
 #endif

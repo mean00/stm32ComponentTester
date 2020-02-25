@@ -1,26 +1,18 @@
+// Smaller version of Adafruit ST7735
+// slimmed down to our needs
 
 #include "tinyAdafruit_ST7735.h"
-inline void Adafruit_ST7735::spiwrite(uint8_t c) {
+#include "tinyAdafruit_ST7735_priv.h"
 
-  //Serial.println(c, HEX);
+/**
+ * 
+ * @param c
+ */
+inline void Adafruit_ST7735::spiwrite(uint8_t c) 
+{
 
   if (hwSPI) {
-#if defined (SPI_HAS_TRANSACTION)
-      SPI.transfer(c);
-#elif defined (__AVR__)
-      SPCRbackup = SPCR;
-      SPCR = mySPCR;
-      SPI.transfer(c);
-      SPCR = SPCRbackup;
-//      SPDR = c;
-//      while(!(SPSR & _BV(SPIF)));
-#elif defined (__STM32F1__)
       SPI.write(c);
-#elif defined (__arm__)
-      SPI.setClockDivider(21); //4MHz
-      SPI.setDataMode(SPI_MODE0);
-      SPI.transfer(c);
-#endif
   } else {
     // Fast SPI bitbang swiped from LPD8806 library
     for(uint8_t bit = 0x80; bit; bit >>= 1) {
@@ -31,11 +23,15 @@ inline void Adafruit_ST7735::spiwrite(uint8_t c) {
     }
   }
 }
-
+/**
+ * 
+ * @param x
+ */
 void Adafruit_ST7735::setRotation(uint8_t x) 
 {
   rotation = (x & 3);
-  switch (rotation) {
+  switch (rotation) 
+  {
   case 0:
   case 2:
     _width = WIDTH;
@@ -56,7 +52,8 @@ void Adafruit_ST7735::setRotation(uint8_t x)
     @param  f  The GFXfont object, if NULL use built in 6x8 font
 */
 /**************************************************************************/
-void Adafruit_ST7735::setFont(const GFXfont *f) {
+void Adafruit_ST7735::setFont(const GFXfont *f) 
+{
   if (f) {          // Font struct pointer passed in?
     if (!gfxFont) { // And no current font struct?
       // Switching from classic to new font behavior.
@@ -72,7 +69,8 @@ void Adafruit_ST7735::setFont(const GFXfont *f) {
 }
 
 // Initialization for ST7735R screens (green or red tabs)
-void Adafruit_ST7735::initR(uint8_t options) {
+void Adafruit_ST7735::initR(uint8_t options) 
+{
   commonInit(Rcmd1);
   if(options == INITR_GREENTAB) {
     commandList(Rcmd2green);
@@ -99,13 +97,20 @@ void Adafruit_ST7735::initR(uint8_t options) {
 }
 
 
-
+/**
+ * 
+ * @param x0
+ * @param y0
+ * @param x1
+ * @param y1
+ */
 
 void Adafruit_ST7735::setAddrWindow(uint8_t x0, uint8_t y0, uint8_t x1,
- uint8_t y1) {
+ uint8_t y1) 
+{
 
   if (hwSPI) {
-#if defined (__STM32F1__)
+
     writecommand(ST7735_CASET);
     *rsport |=  rspinmask;
     *csport &= ~cspinmask;
@@ -122,7 +127,6 @@ void Adafruit_ST7735::setAddrWindow(uint8_t x0, uint8_t y0, uint8_t x1,
     SPI.setDataSize(0);
   
     writecommand(ST7735_RAMWR);
- #endif 
   } else {    
     writecommand(ST7735_CASET); // Column addr set
     writedata(0x00);
@@ -140,11 +144,12 @@ void Adafruit_ST7735::setAddrWindow(uint8_t x0, uint8_t y0, uint8_t x1,
   } // end else
 }
 
-
-void Adafruit_ST7735::pushColor(uint16_t color) {
-#if defined (SPI_HAS_TRANSACTION)
-    SPI.beginTransaction(mySPISettings);
-#endif
+/**
+ * 
+ * @param color
+ */
+void Adafruit_ST7735::pushColor(uint16_t color) 
+{
   *rsport |=  rspinmask;
   *csport &= ~cspinmask;
 
@@ -152,45 +157,17 @@ void Adafruit_ST7735::pushColor(uint16_t color) {
   spiwrite(color);
 
   *csport |= cspinmask;
-#if defined (SPI_HAS_TRANSACTION)
-    SPI.endTransaction();
-#endif
 }
 
 
 
-
-// Constructor when using software SPI.  All output pins are configurable.
-Adafruit_ST7735::Adafruit_ST7735(int8_t cs, int8_t rs, int8_t sid, int8_t sclk, int8_t rst) 
-  
-{
-  WIDTH=ST7735_TFTWIDTH;
-  HEIGHT=ST7735_TFTHEIGHT_18;
-
-  _cs   = cs;
-  _rs   = rs;
-  _sid  = sid;
-  _sclk = sclk;
-  _rst  = rst;
-  hwSPI = false;
-  _width = WIDTH;
-  _height = HEIGHT;
-  rotation = 0;
-  cursor_y = cursor_x = 0;
-  textsize_x = textsize_y = 1;
-  textcolor = textbgcolor = 0xFFFF;
-  wrap = true;
-  _cp437 = false;
-  gfxFont = NULL;
-  
-}
 
 
 // Constructor when using hardware SPI.  Faster, but must use SPI pins
 // specific to each board type (e.g. 11,13 for Uno, 51,52 for Mega, etc.)
 Adafruit_ST7735::Adafruit_ST7735(int8_t cs, int8_t rs, int8_t rst) 
 {
-      WIDTH=ST7735_TFTWIDTH;
+  WIDTH=ST7735_TFTWIDTH;
   HEIGHT=ST7735_TFTHEIGHT_18;
 
   _cs   = cs;
@@ -205,15 +182,15 @@ Adafruit_ST7735::Adafruit_ST7735(int8_t cs, int8_t rs, int8_t rst)
   textsize_x = textsize_y = 1;
   textcolor = textbgcolor = 0xFFFF;
   wrap = true;
-  _cp437 = false;
   gfxFont = NULL;
 }
 
-
-void Adafruit_ST7735::writecommand(uint8_t c) {
-#if defined (SPI_HAS_TRANSACTION)
-  SPI.beginTransaction(mySPISettings);
-#endif
+/**
+ * 
+ * @param c
+ */
+void Adafruit_ST7735::writecommand(uint8_t c) 
+{
   *rsport &= ~rspinmask;
   *csport &= ~cspinmask;
 
@@ -221,16 +198,14 @@ void Adafruit_ST7735::writecommand(uint8_t c) {
   spiwrite(c);
 
   *csport |= cspinmask;
-#if defined (SPI_HAS_TRANSACTION)
-    SPI.endTransaction();
-#endif
 }
 
-
-void Adafruit_ST7735::writedata(uint8_t c) {
-#if defined (SPI_HAS_TRANSACTION)
-    SPI.beginTransaction(mySPISettings);
-#endif
+/**
+ * 
+ * @param c
+ */
+void Adafruit_ST7735::writedata(uint8_t c) 
+{
   *rsport |=  rspinmask;
   *csport &= ~cspinmask;
     
@@ -238,15 +213,13 @@ void Adafruit_ST7735::writedata(uint8_t c) {
   spiwrite(c);
 
   *csport |= cspinmask;
-#if defined (SPI_HAS_TRANSACTION)
-    SPI.endTransaction();
-#endif
 }
 
 
 
 // Initialization code common to both 'B' and 'R' type displays
-void Adafruit_ST7735::commonInit(const uint8_t *cmdList) {
+void Adafruit_ST7735::commonInit(const uint8_t *cmdList) 
+{
   colstart  = rowstart = 0; // May be overridden in init func
 
   pinMode(_rs, OUTPUT);
@@ -257,27 +230,10 @@ void Adafruit_ST7735::commonInit(const uint8_t *cmdList) {
   rspinmask = digitalPinToBitMask(_rs);
 
   if(hwSPI) { // Using hardware SPI
-#if defined (SPI_HAS_TRANSACTION)
-    SPI.begin();
-    mySPISettings = SPISettings(8000000, MSBFIRST, SPI_MODE0);
-#elif defined (__AVR__)
-    SPCRbackup = SPCR;
-    SPI.begin();
-    SPI.setClockDivider(SPI_CLOCK_DIV4);
-    SPI.setDataMode(SPI_MODE0);
-    mySPCR = SPCR; // save our preferred state
-    //Serial.print("mySPCR = 0x"); Serial.println(SPCR, HEX);
-    SPCR = SPCRbackup;  // then restore
-#elif defined (__SAM3X8E__)
-    SPI.begin();
-    SPI.setClockDivider(21); //4MHz
-    SPI.setDataMode(SPI_MODE0);
-#elif defined (__STM32F1__)
     SPI.begin();
     SPI.setClockDivider(SPI_CLOCK_DIV2);
     SPI.setDataMode(SPI_MODE0);
     SPI.setBitOrder(MSBFIRST);
-#endif
   } else {
     pinMode(_sclk, OUTPUT);
     pinMode(_sid , OUTPUT);
@@ -306,7 +262,8 @@ void Adafruit_ST7735::commonInit(const uint8_t *cmdList) {
 
 // Companion code to the above tables.  Reads and issues
 // a series of LCD commands stored in PROGMEM byte array.
-void Adafruit_ST7735::commandList(const uint8_t *addr) {
+void Adafruit_ST7735::commandList(const uint8_t *addr) 
+{
 
   uint8_t  numCommands, numArgs;
   uint16_t ms;
@@ -328,3 +285,4 @@ void Adafruit_ST7735::commandList(const uint8_t *addr) {
     }
   }
 }
+// EOF
