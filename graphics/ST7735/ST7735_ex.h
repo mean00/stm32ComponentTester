@@ -1,5 +1,8 @@
-
+#ifdef TINY_7735
+#include "tinyAdafruit_ST7735.h"
+#else
 #include "Adafruit_ST7735.h"
+#endif
 #include "MapleFreeRTOS1000_pp.h"
 /**
  * Extension to ST7735 to allow block-blit and custom TrueType font
