@@ -273,4 +273,5 @@ void Adafruit_ST7735::commandList(const uint8_t *addr)
     }
   }
 }
+
 // EOF

@@ -370,12 +370,15 @@ void Adafruit_ST7735Ex::myDrawChar(int16_t x, int16_t y, unsigned char c,  uint1
  */
 size_t Adafruit_ST7735Ex::write(uint8_t c) 
 {
-#if 0 
+#if 0
   if (!gfxFont)
     { return Adafruit_ST7735::write(c);}// 'Classic' built-in font
   if((textsize_x!=1 ) || (textsize_y!=1))  
     { return Adafruit_ST7735::write(c);}
 #endif
+    xAssert(gfxFont);
+    xAssert(textsize_x==1 && textsize_y==1);
+  
     if (c == '\n') 
     {
       cursor_x = 0;

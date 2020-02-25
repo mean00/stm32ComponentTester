@@ -1,3 +1,17 @@
+#pragma once
+
+
+#define ST7735_TFTWIDTH  128
+// for 1.44" display
+#define ST7735_TFTHEIGHT_144 128
+// for 1.8" display
+#define ST7735_TFTHEIGHT_18  160
+
+#define INITR_18GREENTAB    INITR_GREENTAB
+#define INITR_18REDTAB      INITR_REDTAB
+#define INITR_18BLACKTAB    INITR_BLACKTAB
+#define INITR_144GREENTAB   0x1
+
 
 #define INITR_GREENTAB 0x0
 #define INITR_REDTAB   0x1
@@ -61,7 +75,7 @@
 #define ST7735_MAGENTA 0xF81F
 #define ST7735_YELLOW  0xFFE0
 #define ST7735_WHITE   0xFFFF
-#define ST7735_BUFFER_SIZE  256
+
 
 
 

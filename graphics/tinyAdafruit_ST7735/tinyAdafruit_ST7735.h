@@ -5,17 +5,7 @@
 
 
 
-#define ST7735_TFTWIDTH  128
-// for 1.44" display
-#define ST7735_TFTHEIGHT_144 128
-// for 1.8" display
-#define ST7735_TFTHEIGHT_18  160
-
-#define INITR_18GREENTAB    INITR_GREENTAB
-#define INITR_18REDTAB      INITR_REDTAB
-#define INITR_18BLACKTAB    INITR_BLACKTAB
-#define INITR_144GREENTAB   0x1
-
+#define ST7735_BUFFER_SIZE  256
 /**
  * 
  * @param CS
@@ -29,17 +19,13 @@ class Adafruit_ST7735 : public Print
   
  public:
 
-                Adafruit_ST7735(int8_t CS, int8_t RS, int8_t RST = -1);
+               Adafruit_ST7735(int8_t CS, int8_t RS, int8_t RST = -1);
         void   initR(); // for ST7735R
         void   setAddrWindow(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1);
         void   pushColor(uint16_t color);
         void   fillScreen(uint16_t color);
-        void   drawPixel(int16_t x, int16_t y, uint16_t color);
-        void   drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
-        void   drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
         void   fillRect(int16_t x, int16_t y, int16_t w, int16_t h,   uint16_t color);
         void   setRotation(uint8_t r);
-        void   invertDisplay(boolean i);
         uint16_t Color565(uint8_t r, uint8_t g, uint8_t b);
 
         void setCursor(int16_t x, int16_t y) 
@@ -47,7 +33,6 @@ class Adafruit_ST7735 : public Print
             cursor_x = x;
             cursor_y = y;
         }
-        void setTextSize(uint8_t s), setTextSize(uint8_t sx, uint8_t sy);
         void setFont(const GFXfont *f = NULL);
         void setTextColor(uint16_t c, uint16_t bg) 
         {
@@ -61,7 +46,9 @@ class Adafruit_ST7735 : public Print
     void     writedata(uint8_t d);
     void     commandList(const uint8_t *addr);
     void     commonInit(const uint8_t *cmdList);
-
+    
+protected:    
+    
   boolean  hwSPI;
   uint8_t  tabcolor;
 
@@ -70,7 +57,7 @@ class Adafruit_ST7735 : public Print
   uint32_t _cs, _rs, _rst, _sid, _sclk,
            datapinmask, clkpinmask, cspinmask, rspinmask,
            colstart, rowstart; // some displays need this changed
-  uint16_t lineBuffer[ST7735_TFTHEIGHT_18]; // DMA buffer. 16bit color data per pixel
+  uint16_t lineBuffer[ST7735_BUFFER_SIZE]; // 
   
   int WIDTH,        HEIGHT;            ///< This is the 'raw' display width - never changes  ///< This is the 'raw' display height - never changes
   int _width,      _height;         
