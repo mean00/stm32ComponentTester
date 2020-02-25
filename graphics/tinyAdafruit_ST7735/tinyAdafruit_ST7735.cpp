@@ -164,6 +164,9 @@ void Adafruit_ST7735::pushColor(uint16_t color) {
 Adafruit_ST7735::Adafruit_ST7735(int8_t cs, int8_t rs, int8_t sid, int8_t sclk, int8_t rst) 
   
 {
+  WIDTH=ST7735_TFTWIDTH;
+  HEIGHT=ST7735_TFTHEIGHT_18;
+
   _cs   = cs;
   _rs   = rs;
   _sid  = sid;
@@ -187,6 +190,9 @@ Adafruit_ST7735::Adafruit_ST7735(int8_t cs, int8_t rs, int8_t sid, int8_t sclk, 
 // specific to each board type (e.g. 11,13 for Uno, 51,52 for Mega, etc.)
 Adafruit_ST7735::Adafruit_ST7735(int8_t cs, int8_t rs, int8_t rst) 
 {
+      WIDTH=ST7735_TFTWIDTH;
+  HEIGHT=ST7735_TFTHEIGHT_18;
+
   _cs   = cs;
   _rs   = rs;
   _rst  = rst;
