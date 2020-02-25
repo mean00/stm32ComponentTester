@@ -3,12 +3,7 @@
 #include "Print.h"
 #include "../Adafruit-GFX/gfxfont.h"
 
-#define INITR_GREENTAB 0x0
-#define INITR_REDTAB   0x1
-#define INITR_BLACKTAB   0x2
-#define INITR_GREENTAB 0x0
-#define INITR_REDTAB   0x1
-#define INITR_BLACKTAB   0x2
+
 
 #define ST7735_TFTWIDTH  128
 // for 1.44" display
@@ -35,7 +30,7 @@ class Adafruit_ST7735 : public Print
  public:
 
                 Adafruit_ST7735(int8_t CS, int8_t RS, int8_t RST = -1);
-        void   initR(uint8_t options = INITR_GREENTAB); // for ST7735R
+        void   initR(); // for ST7735R
         void   setAddrWindow(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1);
         void   pushColor(uint16_t color);
         void   fillScreen(uint16_t color);

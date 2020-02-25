@@ -1,4 +1,11 @@
 
+#define INITR_GREENTAB 0x0
+#define INITR_REDTAB   0x1
+#define INITR_BLACKTAB   0x2
+#define INITR_GREENTAB 0x0
+#define INITR_REDTAB   0x1
+#define INITR_BLACKTAB   0x2
+
 #define ST7735_NOP     0x00
 #define ST7735_SWRESET 0x01
 #define ST7735_RDDID   0x04

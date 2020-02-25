@@ -69,31 +69,19 @@ void Adafruit_ST7735::setFont(const GFXfont *f)
 }
 
 // Initialization for ST7735R screens (green or red tabs)
-void Adafruit_ST7735::initR(uint8_t options) 
+void Adafruit_ST7735::initR() 
 {
   commonInit(Rcmd1);
-  if(options == INITR_GREENTAB) {
+  
     commandList(Rcmd2green);
     colstart = 2;
     rowstart = 1;
-  } else if(options == INITR_144GREENTAB) {
-    _height = ST7735_TFTHEIGHT_144;
-    commandList(Rcmd2green144);
-    colstart = 2;
-    rowstart = 3;
-  } else {
-    // colstart, rowstart left at default '0' values
-    commandList(Rcmd2red);
-  }
+
   commandList(Rcmd3);
 
   // if black, change MADCTL color filter
-  if (options == INITR_BLACKTAB) {
-    writecommand(ST7735_MADCTL);
-    writedata(0xC0);
-  }
 
-  tabcolor = options;
+  tabcolor = INITR_GREENTAB;
 }
 
 
