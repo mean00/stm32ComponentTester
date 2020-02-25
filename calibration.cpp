@@ -1,4 +1,6 @@
 /*
+ * Do pinTest and basic auto calibration
+ * 
 */
 
 
@@ -9,10 +11,21 @@
 extern TestPin pin1,pin2,pin3;
 extern void pinTest();
 #define Y_OFFSET 20
+/**
+ * 
+ */
 void calibration()
 {    
+    
+    //--------------------------------------
+    // Check pins are correctly connected
+    //--------------------------------------
      pinTest();
     
+     //---------------------------------------     
+     // Eval internal up & down resistances
+     // Around 20 Ohms
+     //---------------------------------------
     int resup3,resdown3;
     int resup1,resdown1;
     int resup2,resdown2;
@@ -35,10 +48,15 @@ void calibration()
                                 calibration##pin.capOffsetInPf=(int)(val*pPICO+0.49);\
                                 }
     
-    
+    //--------------------------------------
+    // Eval internal cap in // with the test pins
+    // They are in the 20 pf range
+    //--------------------------------------
     ALLCAP(1,pin1,pin2,pin3);
     ALLCAP(2,pin2,pin1,pin3);
     ALLCAP(3,pin3,pin2,pin1);
+    
+    
     
     NVM::reset();
     NVM::saveTestPin(1,calibration1);
