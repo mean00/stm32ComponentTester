@@ -163,7 +163,7 @@ Adafruit_ST7735::Adafruit_ST7735(int8_t cs, int8_t rs, int8_t rst)
   _rst  = rst;
   hwSPI = true;
   _sid  = _sclk = 0;
-   _width = WIDTH;
+  _width = WIDTH;
   _height = HEIGHT;
   rotation = 0;
   cursor_y = cursor_x = 0;
@@ -181,10 +181,7 @@ void Adafruit_ST7735::writecommand(uint8_t c)
 {
   *rsport &= ~rspinmask;
   *csport &= ~cspinmask;
-
-  //Serial.print("C ");
   spiwrite(c);
-
   *csport |= cspinmask;
 }
 
@@ -196,10 +193,7 @@ void Adafruit_ST7735::writedata(uint8_t c)
 {
   *rsport |=  rspinmask;
   *csport &= ~cspinmask;
-    
-  //Serial.print("D ");
   spiwrite(c);
-
   *csport |= cspinmask;
 }
 
