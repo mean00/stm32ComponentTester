@@ -6,6 +6,11 @@
 
 #define HASH 0x4567
 
+#define INIT_EEPROM(x) { \
+                        uint32_t topAddress=(uint32)(0x8000000 + 64 * 1024); \
+                        x.init(	topAddress- 2 * EEPROM_PAGE_SIZE,	topAddress-  EEPROM_PAGE_SIZE,EEPROM_PAGE_SIZE)        ; \
+                      }
+
 bool NVM::loaded=false;
 /**
  * 
@@ -15,9 +20,10 @@ bool NVM::loaded=false;
  */
 
 bool    NVM::hasCalibration()
-{    
+{        
     EEPROMClass eep;
-    eep.init();
+    INIT_EEPROM(eep);
+    
 #if 1
     if(eep.read(0)==HASH)
         return true;
@@ -28,7 +34,7 @@ bool    NVM::hasCalibration()
 bool    NVM::loadTestPin(int pin, TestPinCalibration &calibration)
 {    
     EEPROMClass eep;
-    eep.init();
+    INIT_EEPROM(eep);
     int calibrationHash=eep.read(0);
     if(calibrationHash != HASH)
     {
@@ -53,7 +59,7 @@ bool    NVM::loadTestPin(int pin, TestPinCalibration &calibration)
 bool    NVM::saveTestPin(int pin, const TestPinCalibration &calibration)
 {
       EEPROMClass eep;
-      eep.init();
+      INIT_EEPROM(eep);
       eep.write(10*pin+1+0, calibration.resUp);
       eep.write(10*pin+1+1, calibration.resDown);;
       eep.write(10*pin+1+2,calibration.capOffsetInPf);;
@@ -64,14 +70,14 @@ bool    NVM::saveTestPin(int pin, const TestPinCalibration &calibration)
 bool    NVM::reset()
 {
     EEPROMClass eep;
-    eep.init();
+    INIT_EEPROM(eep);
     eep.format();
     return true;    
 }
 bool    NVM::doneWriting()
 {
       EEPROMClass eep;
-      eep.init();
+      INIT_EEPROM(eep);
       eep.write(0,HASH);
       return true;
 }

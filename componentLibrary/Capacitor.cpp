@@ -90,7 +90,7 @@ bool Capacitor::doOne(float target,int dex, float &cap)
     int limitA,limitB;
 
     
-    limitA=10;
+    limitA=4095.*0.1;
     limitB=4095.*target;
 
    
@@ -99,9 +99,9 @@ bool Capacitor::doOne(float target,int dex, float &cap)
     // We need 2 points...
     // Lookup up 5% and 1-1/e
     int pointA=-1,pointB=-1;
-    for(int i=1;i<nbSamples;i++)
+    for(int i=1;i<nbSamples-2;i++)
     {
-        if(samples[i]>limitA) // 5%
+        if(samples[i]>limitA && samples[i]<=samples[i+1] && samples[i+1]<=samples[i+2]) // make sure it is not a glitch
         {
             pointA=i;
             i=4095;
