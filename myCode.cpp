@@ -9,6 +9,7 @@
 #include "testerGfx.h"
 #include "wav_irotary.h"
 #include "componentSignature.h"
+#include "cpuID.h"
 #define LED PC13
 void myLoop(void);
 extern void calibration();
@@ -31,6 +32,8 @@ void MainTask( void *a )
   
     TesterGfx::init();
  
+     //cpuID::identify();
+    
     TestPin::initADC(PA0);
     
     

@@ -2,14 +2,24 @@
 #include "EEPROM.h"
 #include "nvm.h"
 #include "nvm_default.h"
+#include "cpuID.h"
+
+#define HASH 0x4568
 
 
-#define HASH 0x4567
-
-#define INIT_EEPROM(x) { \
-                        uint32_t topAddress=(uint32)(0x8000000 + 64 * 1024); \
-                        x.init(	topAddress- 2 * EEPROM_PAGE_SIZE,	topAddress-  EEPROM_PAGE_SIZE,EEPROM_PAGE_SIZE)        ; \
-                      }
+/**
+ * 
+ */
+class NVMeeprom  : public EEPROMClass
+{
+    public:
+        NVMeeprom()
+        {
+            uint32_t flahSize=cpuID::getFlashSize();
+            uint32_t topAddress=(uint32)(0x8000000 + flahSize * 1024); ;
+            EEPROMClass::init(topAddress-2*EEPROM_PAGE_SIZE,topAddress-EEPROM_PAGE_SIZE,EEPROM_PAGE_SIZE);
+        }
+};
 
 bool NVM::loaded=false;
 /**
@@ -21,8 +31,7 @@ bool NVM::loaded=false;
 
 bool    NVM::hasCalibration()
 {        
-    EEPROMClass eep;
-    INIT_EEPROM(eep);
+   NVMeeprom eep;
     
 #if 1
     if(eep.read(0)==HASH)
@@ -33,8 +42,7 @@ bool    NVM::hasCalibration()
 
 bool    NVM::loadTestPin(int pin, TestPinCalibration &calibration)
 {    
-    EEPROMClass eep;
-    INIT_EEPROM(eep);
+    NVMeeprom eep;
     int calibrationHash=eep.read(0);
     if(calibrationHash != HASH)
     {
@@ -46,7 +54,7 @@ bool    NVM::loadTestPin(int pin, TestPinCalibration &calibration)
     }
     calibration.resUp=          eep.read(10*pin+1+0);
     calibration.resDown=        eep.read(10*pin+1+1);;
-    calibration.capOffsetInPf=  eep.read(10*pin+1+2);;
+    calibration.capOffsetInPf=  eep.read(10*pin+1+2)+1;; // there is a ~ 3/4 pf Error
     calibration.inductanceInUF= eep.read(10*pin+1+3);;
     return true;
 }
@@ -58,8 +66,7 @@ bool    NVM::loadTestPin(int pin, TestPinCalibration &calibration)
  */
 bool    NVM::saveTestPin(int pin, const TestPinCalibration &calibration)
 {
-      EEPROMClass eep;
-      INIT_EEPROM(eep);
+      NVMeeprom eep;
       eep.write(10*pin+1+0, calibration.resUp);
       eep.write(10*pin+1+1, calibration.resDown);;
       eep.write(10*pin+1+2,calibration.capOffsetInPf);;
@@ -69,15 +76,13 @@ bool    NVM::saveTestPin(int pin, const TestPinCalibration &calibration)
 
 bool    NVM::reset()
 {
-    EEPROMClass eep;
-    INIT_EEPROM(eep);
+    NVMeeprom eep;
     eep.format();
     return true;    
 }
 bool    NVM::doneWriting()
 {
-      EEPROMClass eep;
-      INIT_EEPROM(eep);
+      NVMeeprom eep;
       eep.write(0,HASH);
       return true;
 }
