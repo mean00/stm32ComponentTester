@@ -15,7 +15,7 @@ void myLoop(void);
 extern void calibration();
 uint32_t  deviceId;
 
-
+uint32_t  memDensity=0;
 //
 int result[20];
 int z;
@@ -32,7 +32,7 @@ void MainTask( void *a )
   
     TesterGfx::init();
  
-     //cpuID::identify();
+     cpuID::identify();
     
     TestPin::initADC(PA0);
     
@@ -100,10 +100,10 @@ void mySetup(void)
 void myLoop(void)
 {
     COMPONENT_TYPE type;
-#if 1    
+#if 0    
     Component *c=Component::identity(pin1,pin2,pin3,type);
 #else
-    Component *c=new Coil(pin3,pin2,pin1);
+    Component *c=new Coil(pin1,pin2,pin3);
     //Component *c=new Capacitor(pin3,pin2,pin1);
 #endif
     if(!c)
