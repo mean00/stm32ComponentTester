@@ -1,10 +1,8 @@
 #include "ST7735_ex.h"
 #include "testerGfx.h"
 #include "assets.h"
-#include "Fonts/waree9.h"
 #include "Fonts/FreeSansBold9pt7b.h"
-#include "Fonts/FreeSansBold6pt7b.h"
-#include "Fonts/Targ56.h"
+#include "Fonts/FreeSans7pt7b.h"
 #include "cpuID.h"
 #include "testerVersion.h"
 static Adafruit_ST7735Ex *instance=NULL;
@@ -18,8 +16,8 @@ void TesterGfx::init()
     instance=new Adafruit_ST7735Ex(PA4,PA3,PB0);    
     instance->init();    
     instance->setRotation(2);
-    instance->setFontFamily(&FreeSansBold6pt7b, &FreeSansBold9pt7b, &FreeSansBold9pt7b);  
-    instance->setFont(&FreeSansBold6pt7b /*&Waree9pt7b*/);
+    instance->setFontFamily(&FreeSans7pt7b, &FreeSansBold9pt7b, &FreeSansBold9pt7b);  
+    instance->setFont(&FreeSansBold9pt7b /*&Waree9pt7b*/);
     instance->fillScreen(0x0);  
     
     instance->setFontSize(Adafruit_ST7735Ex::MediumFont);
@@ -96,10 +94,12 @@ void TesterGfx::drawCapacitor(int offset, const char *value,int pinA, int pinB)
  */
 void TesterGfx::drawPMosFet(const char *line1, const char *line2, int pinGate, int pinUp, int pinDown)
 {
+      instance->setFontSize(Adafruit_ST7735Ex::SmallFont);
       instance->setCursor(5,BASELINE_PRELAST);
       instance->print(line1);
       instance->setCursor(5,BASELINE_LAST);
       instance->print(line2);
+      instance->setFontSize(Adafruit_ST7735Ex::MediumFont);
       
 }
 
