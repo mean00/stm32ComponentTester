@@ -3,10 +3,11 @@
 #include "Component.h"
 /**
  */
-class PMosFet : public Component
+class NMosFet : public Component
 {
 public:                 
-                    PMosFet( TestPin &A, TestPin &B,TestPin &C) :  Component(A,B,C)
+                    // Order is Gate, Drain Source
+                    NMosFet( TestPin &A, TestPin &B,TestPin &C) :  Component(A,B,C)
                     {
                       _capacitance=0;
                       _rdsOn=0;

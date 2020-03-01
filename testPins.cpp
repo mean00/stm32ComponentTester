@@ -57,7 +57,13 @@ public:
         for(int i=0;i<n;i++)
         {
             _pins[i]->pullDown(TestPin::PULL_LOW);
+        }    
+        xDelay(10);
+        for(int i=0;i<n;i++)
+        {
+            _pins[i]->pullDown(TestPin::PULL_LOW);
         }
+
         int v,tus;
         for(int i=0;i<n;i++)
         {
@@ -113,7 +119,8 @@ void zeroAllPins()
 void TestPin::init()
 {
       
-
+     pinMode(_pin,OUTPUT);     
+     digitalWrite(_pin,0);
      pinMode(_pin,INPUT_ANALOG);     
      pinMode(_pinVolt,INPUT_PULLDOWN);
      pinMode(_pinDriveHighRes,INPUT_PULLDOWN);

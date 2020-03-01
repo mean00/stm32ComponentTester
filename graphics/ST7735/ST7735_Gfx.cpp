@@ -110,6 +110,24 @@ void TesterGfx::drawPMosFet(const char *line1, const char *line2, int pinGate, i
  * @param pinA
  * @param pinB
  */
+void TesterGfx::drawNMosFet(const char *line1, const char *line2, int pinGate, int pinUp, int pinDown)
+{
+      instance->setFontSize(Adafruit_ST7735Ex::SmallFont);
+      instance->setCursor(5,BASELINE_PRELAST);
+      instance->print(line1);
+      instance->setCursor(5,BASELINE_LAST);
+      instance->print(line2);
+      instance->setFontSize(Adafruit_ST7735Ex::MediumFont);
+      
+}
+
+/**
+ * 
+ * @param offset
+ * @param value
+ * @param pinA
+ * @param pinB
+ */
 void TesterGfx::drawCoil(int offset, const char *value,int pinA, int pinB)
 {
 

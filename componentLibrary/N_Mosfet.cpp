@@ -1,11 +1,11 @@
 /*
- * PMosFet tester
+ * NMosFet tester
 */
 
 #include <SPI.h>
 #include "fancyLock.h"
 #include "testPins.h"
-#include "P_Mosfet.h"
+#include "N_Mosfet.h"
 #include "math.h"
 #include "cycleClock.h"
 #include "MapleFreeRTOS1000_pp.h"
@@ -21,7 +21,7 @@
  * @param yOffset
  * @return 
  */
-bool PMosFet::draw(int yOffset)
+bool NMosFet::draw(int yOffset)
 {
     
     char st[32];
@@ -38,21 +38,23 @@ bool PMosFet::draw(int yOffset)
     Component::prettyPrint(_vGsOn, "V Cg=",st);
     Component::prettyPrint(_capacitance, "F ",st2);
     strcat(st,st2);
-    TesterGfx::drawPMosFet(st3,st,pinGate.pinNumber(),_pB.pinNumber(),_pC.pinNumber());
+    TesterGfx::drawNMosFet(st3,st,pinGate.pinNumber(),pinDrain.pinNumber(),pinSource.pinNumber());
     return true;
 }
 /**
  * 
+ * Diode is in reverse : Anode is source, cathode is drain
+ * 
  * @return 
  */
-bool PMosFet::computeDiode()
+bool NMosFet::computeDiode()
 {
-     AutoDisconnect ad;
+    AutoDisconnect ad;
      // Pull the gate to VCC so that it is blocked
     pinGate.pullUp(TestPin::PULL_LOW);
     xDelay(100); // should be enough     
-    _pC.pullUp(TestPin::PULL_LOW);
-    _pB.pullDown(TestPin::PULL_LOW);   
+    pinSource.pullUp(TestPin::PULL_LOW);
+    pinDrain.pullDown(TestPin::PULL_LOW);   
     
     xDelay(5);
     
@@ -62,8 +64,8 @@ bool PMosFet::computeDiode()
     
     //for(int i=0;i<5;i++)
     {
-      _pC.slowDmaSample(adcA,nbA);
-      _pB.slowDmaSample(adcB,nbB);
+      pinSource.slowDmaSample(adcA,nbA);
+      pinDrain.slowDmaSample(adcB,nbB);
     }
     float vf=(float)(adcA-adcB);
     vf/=(float)nbA;
@@ -74,13 +76,13 @@ bool PMosFet::computeDiode()
  * 
  * @return 
  */
-bool PMosFet::computeRdsOn()
+bool NMosFet::computeRdsOn()
 {
-     AutoDisconnect ad;
+    AutoDisconnect ad;
      // Pull the gate to Ground so it is passing
-    pinGate.pullDown(TestPin::PULL_LOW);    
-    _pC.setToGround();
-    _pB.pullUp(TestPin::PULL_LOW);   
+    pinGate.pullUp(TestPin::PULL_LOW);    // make it passing current 
+    pinSource.setToGround();
+    pinDrain.pullUp(TestPin::PULL_LOW);   
     
     xDelay(100);
     
@@ -90,13 +92,13 @@ bool PMosFet::computeRdsOn()
     
     //for(int i=0;i<5;i++)
     {
-      _pB.slowDmaSample(adcA,nbA);
-      _pC.slowDmaSample(adcB,nbB);
+      pinDrain.slowDmaSample(adcA,nbA);
+      pinSource.slowDmaSample(adcB,nbB);
     }
     float vf=(float)(adcA-adcB);
     vf/=(float)nbA;
     
-    float R=_pB.getCurrentRes()+_pC.getCurrentRes();    
+    float R=pinDrain.getCurrentRes()+pinSource.getCurrentRes();    
     this->_rdsOn= TestPin::resistanceDivider(vf,R);
     return true;
 }
@@ -104,27 +106,28 @@ bool PMosFet::computeRdsOn()
  * 
  * @return 
  */
-bool PMosFet::computeVgOn()
+bool NMosFet::computeVgOn()
 {
-     AutoDisconnect ad;
+    AutoDisconnect ad;
      // Pull the gate to Ground so it is passing
     pinGate.pullDown(TestPin::PULL_LOW);    
-    _pB.pullUp(TestPin::PULL_LOW);   
-    _pC.setToGround();
+    
+    pinDrain.pullUp(TestPin::PULL_LOW);   
+    pinSource.setToGround();
         
     xDelay(100);
     int nbSamples;
     uint16_t *samples;
             
-     pinGate.prepareDualDmaSample(_pB,ADC_SMPR_13_5,ADC_PRE_PCLK2_DIV_6,512);    
+    pinGate.prepareDualDmaSample(pinDrain,ADC_SMPR_13_5,ADC_PRE_PCLK2_DIV_6,512);    
     // now charge the gate 
-     pinGate.pullUp(TestPin::PULL_HI);
-   if(!pinGate.finishDmaSample(nbSamples,&samples)) 
+    pinGate.pullUp(TestPin::PULL_HI);
+    if(!pinGate.finishDmaSample(nbSamples,&samples)) 
     {
             return false;
     }    
     pinGate.disconnect();
-    _pB.disconnect();
+    pinDrain.disconnect();
      
     int count;
     for(int i=0;i<nbSamples;i++)
@@ -141,17 +144,19 @@ bool PMosFet::computeVgOn()
  * 
  * @return 
  */
-bool PMosFet::compute()
+bool NMosFet::compute()
 {
     AutoDisconnect ad;
-    
+#if 0    
     // First compute G-S capacitance, pin1/pin3
-    Capacitor cap(pinGate,_pC,_pB);
+    Capacitor cap(pinGate,pinSource,pinDrain);
     if(!cap.calibrationValue(_capacitance))
     {
         _capacitance=0;
         return false;
     }
+#endif    
+    zeroAllPins();
     // Compute reverse diode
     if(!computeDiode())
         return false;
