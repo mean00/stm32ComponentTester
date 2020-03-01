@@ -3,6 +3,8 @@
 #include "assets.h"
 #include "Fonts/waree9.h"
 #include "Fonts/FreeSansBold9pt7b.h"
+#include "Fonts/FreeSansBold6pt7b.h"
+#include "Fonts/Targ56.h"
 #include "cpuID.h"
 #include "testerVersion.h"
 static Adafruit_ST7735Ex *instance=NULL;
@@ -16,8 +18,8 @@ void TesterGfx::init()
     instance=new Adafruit_ST7735Ex(PA4,PA3,PB0);    
     instance->init();    
     instance->setRotation(2);
-    instance->setFontFamily(&Waree9pt7b, &Waree9pt7b, &FreeSansBold9pt7b);  
-    instance->setFont(&FreeSansBold9pt7b /*&Waree9pt7b*/);
+    instance->setFontFamily(&FreeSansBold6pt7b, &FreeSansBold9pt7b, &FreeSansBold9pt7b);  
+    instance->setFont(&FreeSansBold6pt7b /*&Waree9pt7b*/);
     instance->fillScreen(0x0);  
     
     instance->setFontSize(Adafruit_ST7735Ex::MediumFont);
@@ -25,11 +27,16 @@ void TesterGfx::init()
     instance->setCursor(4,30);
     instance->print("Component");
     instance->setCursor(4,50);
-    instance->print("   Tester");
-    instance->setCursor(0,80);
-    instance->print(cpuID::getIdAsString());
-    instance->setCursor(0,96);
+    instance->print("    Tester");
+    
+    instance->setCursor(36,70);        
     instance->print( TESTER_VERSION );
+    
+    
+    instance->setFontSize(Adafruit_ST7735Ex::SmallFont);
+    instance->setCursor(0,96);
+    instance->print(cpuID::getIdAsString());
+    instance->setFontSize(Adafruit_ST7735Ex::MediumFont);
     
 }
 /**

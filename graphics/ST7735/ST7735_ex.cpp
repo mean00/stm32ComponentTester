@@ -177,6 +177,7 @@ void  Adafruit_ST7735Ex::setFontSize(FontSize size)
         case MediumFont :   currentFont=fontInfo+1;break;
         case BigFont :   currentFont=fontInfo+2;break;
     }    
+    gfxFont=currentFont->font;
 }
 /**
  * \fn checkFont

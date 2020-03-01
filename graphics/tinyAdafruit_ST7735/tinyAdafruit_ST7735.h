@@ -66,5 +66,5 @@ protected:
   int textsize_x,  textsize_y;  ///< Desired magnification in X-axis of text to print()   ///< Desired magnification in Y-axis of text to print()
   int rotation;       ///< Display rotation (0 thru 3)
   boolean wrap;             ///< If set, 'wrap' text at right edge of display  ///< If set, use correct CP437 charset (default is off)
-  GFXfont           *gfxFont;   ///< Pointer to special font  
+  const GFXfont           *gfxFont;   ///< Pointer to special font  
 };

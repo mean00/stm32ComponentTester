@@ -89,10 +89,8 @@ bool PMosFet::computeRdsOn()
     float vf=(float)(adcA-adcB);
     vf/=(float)nbA;
     
-    float R=_pB.getCurrentRes()+_pC.getCurrentRes();
-    
-    float rds=vf*R/(4095.-vf);
-    this->_rdsOn=rds;
+    float R=_pB.getCurrentRes()+_pC.getCurrentRes();    
+    this->_rdsOn= TestPin::resistanceDivider(vf,R);
     return true;
 }
 

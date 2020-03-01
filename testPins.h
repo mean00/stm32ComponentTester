@@ -81,6 +81,9 @@ protected:
         TESTPIN_STATE _state;
 public:        
         TestPinCalibration _calibration;
+        
+        static float resistanceDivider(float value, float otherResistance);
+        
 };
 
 void zeroAllPins();

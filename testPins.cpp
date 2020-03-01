@@ -594,5 +594,19 @@ bool TestPin::dualSimulatenousDelta ( int &nbSamples,uint16_t *samples)
   return true;
 }
 
+/**
+ * 
+ * @param value
+ * @param otherResistance
+ * @return 
+ */
+float TestPin::resistanceDivider(float value, float otherResistance)
+{
+    if(value>=4095) return 10000000;
+    float r=value*otherResistance/(4095.-value);
+    return r;
+    
+}
+
 
 // EOF
