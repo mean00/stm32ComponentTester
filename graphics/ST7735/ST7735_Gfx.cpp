@@ -3,6 +3,8 @@
 #include "assets.h"
 #include "Fonts/waree9.h"
 #include "Fonts/FreeSansBold9pt7b.h"
+#include "cpuID.h"
+#include "testerVersion.h"
 static Adafruit_ST7735Ex *instance=NULL;
 #define BASELINE_LAST    126
 #define BASELINE_PRELAST (126-18)
@@ -24,6 +26,11 @@ void TesterGfx::init()
     instance->print("Component");
     instance->setCursor(4,50);
     instance->print("   Tester");
+    instance->setCursor(0,80);
+    instance->print(cpuID::getIdAsString());
+    instance->setCursor(0,96);
+    instance->print( TESTER_VERSION );
+    
 }
 /**
  * 

@@ -18,6 +18,6 @@ public:
         static int          getFlashSize();
         static int          getRamSize();
         static MCU_IDENTIFICATION getId();
-        const char           *getIdAsString();
+        static const char   *getIdAsString();
         
 };

@@ -43,6 +43,41 @@ void Adafruit_ST7735::setRotation(uint8_t x)
     _height = WIDTH;
     break;
   }
+  writecommand(ST7735_MADCTL);
+ 
+  switch (rotation) {
+   case 0:
+     if (tabcolor == INITR_BLACKTAB) {
+       writedata(MADCTL_MX | MADCTL_MY | MADCTL_RGB);
+     } else {
+       writedata(MADCTL_MX | MADCTL_MY | MADCTL_BGR);
+     }
+
+     break;
+   case 1:
+     if (tabcolor == INITR_BLACKTAB) {
+       writedata(MADCTL_MY | MADCTL_MV | MADCTL_RGB);
+     } else {
+       writedata(MADCTL_MY | MADCTL_MV | MADCTL_BGR);
+     }
+
+     break;
+  case 2:
+     if (tabcolor == INITR_BLACKTAB) {
+       writedata(MADCTL_RGB);
+     } else {
+       writedata(MADCTL_BGR);
+     }
+
+    break;
+   case 3:
+     if (tabcolor == INITR_BLACKTAB) {
+       writedata(MADCTL_MX | MADCTL_MV | MADCTL_RGB);
+     } else {
+       writedata(MADCTL_MX | MADCTL_MV | MADCTL_BGR);
+     }
+     break;
+  }
 }
 
 
