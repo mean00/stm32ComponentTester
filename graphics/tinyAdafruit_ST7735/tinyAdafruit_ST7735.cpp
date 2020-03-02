@@ -303,4 +303,26 @@ void Adafruit_ST7735::commandList(const uint8_t *addr)
   }
 }
 
+// fill a rectangle
+void Adafruit_ST7735::fillRect(int16_t x, int16_t y, int16_t w, int16_t h,  uint16_t color) 
+{
+
+
+    if((x >= _width) || (y >= _height)) return;
+    if((x + w - 1) >= _width)  w = _width  - x;
+    if((y + h - 1) >= _height) h = _height - y;
+
+    setAddrWindow(x, y, x+w-1, y+h-1);
+
+    *rsport |=  rspinmask;
+    *csport &= ~cspinmask;
+
+    SPI.setDataSize (SPI_CR1_DFF); // Set spi 16bit mode
+    lineBuffer[0] = color;
+
+    SPI.dmaSend(lineBuffer, (w*h), 0);
+    SPI.setDataSize (0);
+    *csport |= cspinmask;
+}
+
 // EOF

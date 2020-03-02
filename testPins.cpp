@@ -6,7 +6,7 @@
 #include "testPins.h"
 #include "dso_adc.h"
 #include "MapleFreeRTOS1000_pp.h"
-
+#include "testerGfx.h"
 
  DSOADC *adc;
 uint32_t lastCR2=0;
@@ -84,6 +84,7 @@ AllPins allPins;
  */
 void zeroAllPins()
 {
+    TesterGfx::printStatus("Zeroing");
     allPins.zero();
 }
 /**

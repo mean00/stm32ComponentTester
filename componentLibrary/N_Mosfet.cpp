@@ -48,28 +48,37 @@ bool NMosFet::draw(int yOffset)
  * @return 
  */
 bool NMosFet::computeDiode()
-{
-    AutoDisconnect ad;
-     // Pull the gate to VCC so that it is blocked
-    pinGate.pullUp(TestPin::PULL_LOW);
-    xDelay(100); // should be enough     
-    pinSource.pullUp(TestPin::PULL_LOW);
-    pinDrain.pullDown(TestPin::PULL_LOW);   
+{   
+    // Pulldown everything
+    pinGate.pullDown(TestPin::PULL_LOW);   
+    pinSource.pullDown(TestPin::PULL_LOW); // put it in reverse...
+    pinDrain.pullDown(TestPin::PULL_LOW); // put it in reverse...
+    xDelay(100);
+     // Pull the gate to VCC so that it is blocked    
+    pinSource.pullUp(TestPin::PULL_LOW); // put it in reverse...
+    pinDrain.setToGround();
     
-    xDelay(5);
+    xDelay(10);
     
-
-    int adcA,nbA;
-    int adcB,nbB;
-    
-    //for(int i=0;i<5;i++)
+    DeltaADC delta(pinSource,pinDrain);
+    delta.setup(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_6,64);
+    int nbSamples;
+    uint16_t *samples;
+    float period;
+    if(!delta.get(nbSamples, &samples,period))
     {
-      pinSource.slowDmaSample(adcA,nbA);
-      pinDrain.slowDmaSample(adcB,nbB);
+        return false;
     }
-    float vf=(float)(adcA-adcB);
-    vf/=(float)nbA;
-    this->_diodeVoltage=adcToVolt(vf);
+
+    float sum=0;
+    for(int i=8;i<nbSamples;i++)
+    {
+        sum+=samples[i];
+    }
+    sum=sum/(float)(nbSamples-8);
+    this->_diodeVoltage=adcToVolt(sum);
+    pinSource.pullDown(TestPin::PULL_LOW);
+    xDelay(50);
     return true;
 }
 /**
@@ -78,28 +87,33 @@ bool NMosFet::computeDiode()
  */
 bool NMosFet::computeRdsOn()
 {
-    AutoDisconnect ad;
+    
      // Pull the gate to Ground so it is passing
     pinGate.pullUp(TestPin::PULL_LOW);    // make it passing current 
-    pinSource.setToGround();
     pinDrain.pullUp(TestPin::PULL_LOW);   
+    pinSource.setToGround();    
     
     xDelay(100);
-    
-
-    int adcA,nbA;
-    int adcB,nbB;
-    
-    //for(int i=0;i<5;i++)
-    {
-      pinDrain.slowDmaSample(adcA,nbA);
-      pinSource.slowDmaSample(adcB,nbB);
-    }
-    float vf=(float)(adcA-adcB);
-    vf/=(float)nbA;
-    
     float R=pinDrain.getCurrentRes()+pinSource.getCurrentRes();    
-    this->_rdsOn= TestPin::resistanceDivider(vf,R);
+    DeltaADC delta(pinDrain,pinSource);
+    delta.setup(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_6,64);
+    int nbSamples;
+    uint16_t *samples;
+    float period;
+    if(!delta.get(nbSamples, &samples,period))
+    {
+        return false;
+    }
+
+    float sum=0;
+    for(int i=8;i<nbSamples;i++)
+    {
+        sum+=samples[i];
+    }
+    sum=sum/(float)(nbSamples-8);
+    
+    
+    this->_rdsOn= TestPin::resistanceDivider(sum,R);
     return true;
 }
 /**
@@ -146,8 +160,9 @@ bool NMosFet::computeVgOn()
  */
 bool NMosFet::compute()
 {
-    AutoDisconnect ad;
-#if 0    
+    
+#if 1    
+   TesterGfx::printStatus("Mos Cap"); 
     // First compute G-S capacitance, pin1/pin3
     Capacitor cap(pinGate,pinSource,pinDrain);
     if(!cap.calibrationValue(_capacitance))
@@ -156,15 +171,23 @@ bool NMosFet::compute()
         return false;
     }
 #endif    
+    
     zeroAllPins();
+    TesterGfx::printStatus("Mos Diode"); 
     // Compute reverse diode
     if(!computeDiode())
         return false;
-    // and RDS on
+#if 1    
+    // and RDS on    
+    zeroAllPins();
+    TesterGfx::printStatus("Mos Rds"); 
     if(!computeRdsOn())
         return false;
+    zeroAllPins();
+    TesterGfx::printStatus("Mos VgOn"); 
     if(!computeVgOn())
         return false;
+#endif
     return true;
 }
 // EOF

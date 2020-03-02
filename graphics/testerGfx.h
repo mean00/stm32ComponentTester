@@ -13,5 +13,6 @@ public:
   static void drawCoil(int offset, const char *value,int pinA, int pinB);
   static void drawPMosFet(const char *line1,const char *line2,  int pinGate, int pinUp, int pinDown);
   static void drawNMosFet(const char *line1,const char *line2,  int pinGate, int pinUp, int pinDown);
+  static void printStatus(const char *status);
 
 };

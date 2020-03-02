@@ -12,7 +12,7 @@ public:
                       _capacitance=0;
                       _rdsOn=0;
                       _diodeVoltage=0;
-                      _vGsOn;
+                      _vGsOn=0;
                     }
             virtual bool compute()            ;
             virtual bool draw(int yOffset);
