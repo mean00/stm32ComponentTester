@@ -176,7 +176,7 @@ void TesterGfx::drawDiode(int offset, const char *value,int pinA, int pinB)
  */
 void TesterGfx::printStatus(const char *status)
 {
-    instance->setCursor(5,BASELINE_LAST);
-    instance->fillRect(0,BASELINE_LAST-16,128,16,0);
+    instance->setCursor(5,16);
+    instance->fillRect(0,16-16,128,16,0);
     instance->print(status);
 }

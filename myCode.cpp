@@ -38,6 +38,7 @@ void MainTask( void *a )
     pin1.init();
     pin2.init();
     pin3.init();
+    xDelay(100);
     rotary.start();
     
  

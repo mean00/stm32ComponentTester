@@ -13,6 +13,11 @@ Adafruit Libraries released under their specific licenses Copyright (c) 2013 Ada
  
  * Vref is using PWM mode for Timer4/Channel 3
  * 
+ * Correct init order is 
+ *     ADC
+ *     DMA
+ *     SWSTART
+ * 
  */
 #include "dso_adc.h"
 #include "fancyLock.h"
@@ -195,7 +200,7 @@ static void initSeqs(adc_dev *dev)
 
 void DSOADC::setChannel(int channel)
 {    
-    adc_Register->SQR3 = _pin;
+    adc_Register->SQR3 = channel;
 }
 /**
  * 
@@ -217,8 +222,8 @@ void DSOADC::setupADCs ()
   
   readVCCmv();
    
-  ADC1->regs->CR2 |=ADC_CR2_CONT + ADC_CR2_EXTSEL_SWSTART + ADC_CR2_SWSTART;     
-  ADC2->regs->CR2 |=ADC_CR2_CONT + ADC_CR2_EXTSEL_SWSTART + ADC_CR2_SWSTART;     
+  ADC1->regs->CR2 |=ADC_CR2_CONT | ADC_CR2_EXTSEL_SWSTART;     
+  ADC2->regs->CR2 |=ADC_CR2_CONT | ADC_CR2_EXTSEL_SWSTART;     
 }
 /**
  * 
@@ -241,6 +246,7 @@ bool    DSOADC::prepareDMASampling (adc_smp_rate rate,adc_prescaler scale)
     ADC1->regs->CR2 |= ADC_CR2_DMA;    
     ADC2->regs->CR2 |= ADC_CR2_DMA;    
     setTimeScale(rate,scale);
+    ADC1->regs->CR2 |= ADC_CR2_SWSTART;    
     return true;
 }/**
   * 
@@ -251,10 +257,11 @@ bool    DSOADC::prepareDualDMASampling (int otherPin, adc_smp_rate rate,adc_pres
 {  
     ADC1->regs->CR1|=ADC_CR1_FASTINT; // fast interleaved mode
     ADC2->regs->SQR3 = PIN_MAP[otherPin].adc_channel ;      
-    ADC2->regs->CR2 |= ADC_CR2_CONT+ADC_CR2_DMA;
-    ADC1->regs->CR2 |= ADC_CR2_CONT+ADC_CR2_DMA;
+    ADC2->regs->CR2 |= ADC_CR2_CONT |ADC_CR2_DMA;
+    ADC1->regs->CR2 |= ADC_CR2_CONT |ADC_CR2_DMA;
     adc_set_sample_rate(ADC2, rate); 
     setTimeScale(rate,scale);
+    ADC1->regs->CR2 |= ADC_CR2_SWSTART;    
     return true;
 }
 /**
@@ -448,19 +455,6 @@ void DSOADC::captureComplete()
 }
 
 
-/**
- * 
- * @param reg
- */
-void DSOADC::resetCR2(adc_reg_map *regs)
-{
-    uint32_t cr2=regs->CR2;
-    cr2&=~ADC_CR2_ADON;
-    regs->CR2=cr2;
-    delayMicroseconds(50);
-    regs->CR2=cr2|ADC_CR2_ADON;
-    delayMicroseconds(50);
-}
 
 extern uint32_t registersX[10];
 

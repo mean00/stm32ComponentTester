@@ -422,38 +422,8 @@ bool    TestPin::fastSampleUp(int threshold1,int threshold2,int &value1,int &val
 
 bool    TestPin::fastSampleDown(int threshold,int &value, int &timeUs)  
 {
-     
-    adc_reg_map *regs=fastSetup();
-    // go
-    int c;
-    uint32_t start=micros();
-    uint32_t sampleTime;
-    bool first=true;
-    value=regs->DR ; // clear pending value
-    while(1)
-    {
-        uint32_t sampleStart=millis();
-        while(1)
-        {
-            uint32_t sr=regs->SR;
-            if(!(sr & ADC_SR_EOC))
-            {
-                int now=millis();
-                if((now-sampleStart)>10)
-                {
-                    return false;
-                }
-            }
-            sampleTime=micros();
-            break;
-        }
-        value=regs->DR & ADC_DR_DATA;
-        if(value<threshold)
-        {
-            timeUs=sampleTime-start; 
-            return true;
-        }
-    }    
+    
+    return adc->fastSampleDown( threshold,value, timeUs)   ; 
 }
 
 /**

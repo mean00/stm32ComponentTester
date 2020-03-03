@@ -149,7 +149,7 @@ bool NMosFet::computeVgOn()
         if(samples[i]>55)
             count=i;
     }
-    if(count<568) return false;
+   // if(count<568) return false;
     return true;
 }
 

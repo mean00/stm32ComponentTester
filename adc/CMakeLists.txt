@@ -1,5 +1,5 @@
 
-SET(SRCS dso_adc_fast.cpp  )
+SET(SRCS dso_adc_fast.cpp  dso_adc_updown.cpp)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 generate_arduino_library(${libPrefix}adc 
                             SRCS ${SRCS}

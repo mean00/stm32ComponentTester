@@ -62,8 +62,7 @@ public:
             void stopTimeCapture();
     static  float adcToVolt(float adc);
             void captureComplete();
-    static  void resetCR2(adc_reg_map *regs);
-    
+            bool fastSampleDown(int threshold,int &value, int &timeUs)  ;
 protected:
   
             int             _sampled;
