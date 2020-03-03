@@ -63,6 +63,7 @@ public:
     static  float adcToVolt(float adc);
             void captureComplete();
             bool fastSampleDown(int threshold,int &value, int &timeUs)  ;
+            bool fastSampleUp(int threshold1,int threshold2,int &value1,int &value2, int &timeUs1,int &timeUs2)  ;
 protected:
   
             int             _sampled;

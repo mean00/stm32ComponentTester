@@ -340,77 +340,12 @@ void TestPin::initADC(int pin)
  * 
  * @param threshold
  * @param value
- * @param timeUs
- * @return 
- */
-adc_reg_map    *TestPin::fastSetup()  
-{
-    adc->setTimeScale(ADC_SMPR_13_5, ADC_PRE_PCLK2_DIV_6); // about 2 us sampling fq
-    adc_dev *dev = PIN_MAP[_pin].adc_device;
-    int channel=PIN_MAP[_pin].adc_channel;    
-    adc_reg_map *regs = dev->regs;       
-    adc_set_exttrig(dev,1);
-    adc_set_reg_seqlen(dev, 1);
-    regs->SQR3 = channel;    
-    regs->CR2 &= ~ADC_CR2_DMA;    
-    uint32_t val=regs->DR ; // clear pending value
-    return regs;
-}
-/**
- * 
- * @param threshold
- * @param value
  * @return 
  */
 bool    TestPin::fastSampleUp(int threshold1,int threshold2,int &value1,int &value2, int &timeUs1,int &timeUs2)
 {
-    
-    adc_reg_map *regs=fastSetup();
-    // go
-    int c;
-    uint32_t start=micros();
-    uint32_t sampleTime;
-    bool first=true;
-    int value;
-    value=regs->DR ; // clear pending value
-    while(1)
-    {
-        uint32_t sampleStart=millis();
-        while(1)
-        {
-            uint32_t sr=regs->SR;
-            if(!(sr & ADC_SR_EOC))
-            {
-                int now=millis();
-                if((now-sampleStart)>10)
-                {
-                    return false;
-                }
-            }
-            sampleTime=micros();
-            break;
-        }
-        value=regs->DR & ADC_DR_DATA;
-        if(first)
-        {
-            if(value>threshold1)
-            {
-                timeUs1=sampleTime-start; 
-                value1=value;
-                first=false;
-            }
-        }
-        else
-        {
-             if(value>threshold2)
-            {
-                timeUs2=sampleTime-start; 
-                value2=value;
-                return true;
-            }
-        }
-     
-    }
+    return adc->fastSampleUp(threshold1,threshold2,value1,value1,timeUs1,timeUs2);
+
 }
 /**
  * 
