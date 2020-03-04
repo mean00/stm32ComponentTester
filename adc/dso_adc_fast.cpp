@@ -104,6 +104,7 @@ bool DSOADC::startDMASampling (int count)
   enableDisableIrqSource(false,ADC_AWD);
   enableDisableIrq(true);
   setupAdcDmaTransfer( requestedSamples,adcInternalBuffer, DMA1_CH1_Event );
+  ADC1->regs->CR2 |= ADC_CR2_SWSTART;   
   return true;
 }
 /**
@@ -119,6 +120,7 @@ bool DSOADC::startDualDMASampling (int otherPin, int count)
   enableDisableIrqSource(false,ADC_AWD);
   enableDisableIrq(true);
   setupAdcDualDmaTransfer( otherPin, requestedSamples,(uint32_t *)adcInternalBuffer, DMA1_CH1_Event );
+  ADC1->regs->CR2 |= ADC_CR2_SWSTART;   
   return true;
 }
 
@@ -135,6 +137,7 @@ void SPURIOUS_INTERRUPT()
 void DSOADC::stopDmaCapture(void)
 {
     // disable interrupts
+    ADC1->regs->CR2 &= ~(ADC_CR2_SWSTART|ADC_CR2_CONT);   
     enableDisableIrq(false);
     enableDisableIrqSource(false,ADC_AWD);
     // Stop dma
@@ -222,8 +225,8 @@ void DSOADC::setupADCs ()
   
   readVCCmv();
    
-  ADC1->regs->CR2 |=ADC_CR2_CONT | ADC_CR2_EXTSEL_SWSTART;     
-  ADC2->regs->CR2 |=ADC_CR2_CONT | ADC_CR2_EXTSEL_SWSTART;     
+  ADC1->regs->CR2 |= ADC_CR2_EXTSEL_SWSTART;     
+  ADC2->regs->CR2 |= ADC_CR2_EXTSEL_SWSTART;         
 }
 /**
  * 
@@ -243,10 +246,10 @@ void DSOADC::setupADCs ()
   */
 bool    DSOADC::prepareDMASampling (adc_smp_rate rate,adc_prescaler scale)
 {    
-    ADC1->regs->CR2 |= ADC_CR2_DMA;    
-    ADC2->regs->CR2 |= ADC_CR2_DMA;    
-    setTimeScale(rate,scale);
-    ADC1->regs->CR2 |= ADC_CR2_SWSTART;    
+    ADC1->regs->CR2 |= ADC_CR2_DMA | ADC_CR2_CONT;    
+    ADC2->regs->CR2 |= ADC_CR2_DMA | ADC_CR2_CONT;    
+    setTimeScale(rate,scale);    
+     
     return true;
 }/**
   * 
@@ -261,7 +264,7 @@ bool    DSOADC::prepareDualDMASampling (int otherPin, adc_smp_rate rate,adc_pres
     ADC1->regs->CR2 |= ADC_CR2_CONT |ADC_CR2_DMA;
     adc_set_sample_rate(ADC2, rate); 
     setTimeScale(rate,scale);
-    ADC1->regs->CR2 |= ADC_CR2_SWSTART;    
+    
     return true;
 }
 /**
@@ -458,8 +461,9 @@ void DSOADC::captureComplete()
 
 extern uint32_t registersX[10];
 
-void readAllRegisters()
+int  readAllRegisters()
 {
     registersX[0]=ADC1->regs->CR2;
     registersX[1]=ADC1->regs->SQR3;
+    return 3;
 }

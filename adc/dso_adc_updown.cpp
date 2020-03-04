@@ -23,6 +23,8 @@ Adafruit Libraries released under their specific licenses Copyright (c) 2013 Ada
 #include "fancyLock.h"
 #include "dma.h"
 #include "adc.h"
+extern int  readAllRegisters();
+extern uint32_t cr2;
 /**
  */
 bool    DSOADC::fastSampleDown(int threshold,int &value, int &timeUs)  
@@ -31,7 +33,7 @@ bool    DSOADC::fastSampleDown(int threshold,int &value, int &timeUs)
     adc_dev *dev = PIN_MAP[_pin].adc_device;
     adc_reg_map *regs = dev->regs;           
     setChannel(PIN_MAP[_pin].adc_channel);    
-    regs->CR2 &= ~ADC_CR2_DMA;    
+    regs->CR2 &= ~(ADC_CR2_DMA|ADC_CR2_CONT);    
     uint32_t val=regs->DR ; // clear pending value
     
     // go
@@ -40,9 +42,12 @@ bool    DSOADC::fastSampleDown(int threshold,int &value, int &timeUs)
     uint32_t sampleTime;
     bool first=true;
     value=regs->DR ; // clear pending value
-    regs->CR2|=ADC_CR2_SWSTART;
+    
+    
     while(1)
     {
+        regs->CR2|=ADC_CR2_SWSTART;
+        cr2=regs->CR2;
         uint32_t sampleStart=millis();
         while(1)
         {
@@ -81,7 +86,7 @@ bool    DSOADC::fastSampleUp(int threshold1,int threshold2,int &value1,int &valu
     adc_dev *dev = PIN_MAP[_pin].adc_device;
     adc_reg_map *regs = dev->regs;           
     setChannel(PIN_MAP[_pin].adc_channel);    
-    regs->CR2 &= ~ADC_CR2_DMA;    
+    regs->CR2 &= ~(ADC_CR2_DMA|ADC_CR2_CONT);    
     uint32_t val=regs->DR ; // clear pending value
       // go
     int c;
@@ -89,9 +94,10 @@ bool    DSOADC::fastSampleUp(int threshold1,int threshold2,int &value1,int &valu
     uint32_t sampleTime;
     bool first=true;
     uint32_t value=regs->DR ; // clear pending value
-    regs->CR2|=ADC_CR2_SWSTART;
+    
     while(1)
     {
+        regs->CR2|=ADC_CR2_SWSTART;
         uint32_t sampleStart=millis();
         while(1)
         {

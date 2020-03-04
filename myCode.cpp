@@ -16,9 +16,11 @@ extern void calibration();
 uint32_t  deviceId;
 
 uint32_t  memDensity=0;
+uint32_t cr2;
 //
 int result[20];
 int z;
+extern void  pinTest();
 //
 uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
 //
@@ -62,6 +64,11 @@ void MainTask( void *a )
     }
 #endif
     
+    pinTest();
+    while(1)
+    {
+        
+    };
   // 
     if(!NVM::hasCalibration())
         calibration();
@@ -99,7 +106,7 @@ void mySetup(void)
 void myLoop(void)
 {
     COMPONENT_TYPE type;
-#if 0   
+#if 1   
     Component *c=Component::identity(pin1,pin2,pin3,type);
 #else
     TesterGfx::printStatus("Probing");

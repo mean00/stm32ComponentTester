@@ -5,9 +5,11 @@
 #include "Fonts/FreeSans7pt7b.h"
 #include "cpuID.h"
 #include "testerVersion.h"
+#include "Component.h"
 static Adafruit_ST7735Ex *instance=NULL;
 #define BASELINE_LAST    126
 #define BASELINE_PRELAST (126-18)
+#define BASELINE_PRELAST2 (126-18*2)
 
 /**
  */
@@ -110,14 +112,25 @@ void TesterGfx::drawPMosFet(const char *line1, const char *line2, int pinGate, i
  * @param pinA
  * @param pinB
  */
-void TesterGfx::drawNMosFet(const char *line1, const char *line2, int pinGate, int pinUp, int pinDown)
+void TesterGfx::drawNMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int pinGate, int pinUp, int pinDown)
 {
+    char st[64];
+    
       instance->setFontSize(Adafruit_ST7735Ex::SmallFont);
+      
+      instance->setCursor(5,BASELINE_PRELAST2);
+      Component::prettyPrint(RdsOn, "Rds=",st);      
+      instance->print(st);
+      
       instance->setCursor(5,BASELINE_PRELAST);
-      instance->print(line1);
-      instance->setCursor(5,BASELINE_LAST);
-      instance->print(line2);
-      instance->setFontSize(Adafruit_ST7735Ex::MediumFont);
+      Component::prettyPrint(Vdiode, "Diode=",st);      
+      instance->print(st);
+      
+        instance->setCursor(5,BASELINE_LAST);
+      Component::prettyPrint(Cg, "Cg=",st);      
+      instance->print(st);
+      
+      
       
 }
 

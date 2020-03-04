@@ -22,23 +22,8 @@
  * @return 
  */
 bool NMosFet::draw(int yOffset)
-{
-    
-    char st[32];
-    char st2[32];
-    char st3[32]="Rds=";
-    
-   // RDS / VF
-    Component::prettyPrint(_rdsOn, "O Vf=",st3+4);
-    Component::prettyPrint(_diodeVoltage, "V ",st2);
-    strcat(st3,st2);
-    
-    
-  //  VGS/ ON  
-    Component::prettyPrint(_vGsOn, "V Cg=",st);
-    Component::prettyPrint(_capacitance, "F ",st2);
-    strcat(st,st2);
-    TesterGfx::drawNMosFet(st3,st,pinGate.pinNumber(),pinDrain.pinNumber(),pinSource.pinNumber());
+{    
+     TesterGfx::drawNMosFet(_rdsOn,_capacitance,_vGsOn, _diodeVoltage,pinGate.pinNumber(),pinDrain.pinNumber(),pinSource.pinNumber());
     return true;
 }
 /**
@@ -61,7 +46,7 @@ bool NMosFet::computeDiode()
     xDelay(10);
     
     DeltaADC delta(pinSource,pinDrain);
-    delta.setup(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_6,64);
+    delta.setup(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_6,512);
     int nbSamples;
     uint16_t *samples;
     float period;
@@ -71,11 +56,11 @@ bool NMosFet::computeDiode()
     }
 
     float sum=0;
-    for(int i=8;i<nbSamples;i++)
+    for(int i=nbSamples/2;i<nbSamples;i++)
     {
         sum+=samples[i];
     }
-    sum=sum/(float)(nbSamples-8);
+    sum=sum/(float)(nbSamples/2);
     this->_diodeVoltage=adcToVolt(sum);
     pinSource.pullDown(TestPin::PULL_LOW);
     xDelay(50);

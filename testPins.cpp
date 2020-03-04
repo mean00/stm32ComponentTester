@@ -274,7 +274,6 @@ AutoDisconnect::~AutoDisconnect()
  */
 bool    TestPin::prepareDmaSample(adc_smp_rate rate,  adc_prescaler scale,int nbSamples)
 {
-    uint16_t *samples;
     adc->setADCPin(_pin);    
     adc->prepareDMASampling(rate,scale);     
     adc->startDMASampling(nbSamples);
@@ -298,7 +297,6 @@ bool    TestPin::finishDmaSample(int &nbSamples, uint16_t **xsamples)
  */
 bool    TestPin::prepareDualDmaSample(TestPin &otherPin,adc_smp_rate rate,  adc_prescaler scale,int nbSamples)
 {
-    uint16_t *samples;
     adc->setADCPin(_pin); 
     adc->prepareDualDMASampling(otherPin._pin,rate,scale);     
     adc->startDualDMASampling(otherPin._pin,nbSamples);
