@@ -97,15 +97,27 @@ void TesterGfx::drawCapacitor(int offset, const char *value,int pinA, int pinB)
  * @param pinA
  * @param pinB
  */
-void TesterGfx::drawPMosFet(const char *line1, const char *line2, int pinGate, int pinUp, int pinDown)
+void TesterGfx::drawPMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int pinGate, int pinUp, int pinDown)
 {
+    char st[64];
+    
       instance->setFontSize(Adafruit_ST7735Ex::SmallFont);
-      instance->setCursor(5,BASELINE_PRELAST);
-      instance->print(line1);
-      instance->setCursor(5,BASELINE_LAST);
-      instance->print(line2);
-      instance->setFontSize(Adafruit_ST7735Ex::MediumFont);
       
+      instance->setCursor(5,BASELINE_PRELAST2);
+      Component::prettyPrintPrefix("RdsOn:",RdsOn, "Ohm",st);      
+      instance->print(st);
+      
+      instance->setCursor(5,BASELINE_PRELAST);
+      Component::prettyPrintPrefix("Diode:",Vdiode, "V",st);      
+      instance->print(st);
+      
+      instance->setCursor(5,BASELINE_LAST);
+      Component::prettyPrintPrefix("Cg:",Cg, "F",st);      
+      instance->print(st);
+      
+      instance->setCursor(5,BASELINE_PRELAST3);
+      Component::prettyPrintPrefix("Vt:",VfOn, "V",st);      
+      instance->print(st);           
 }
 
 /**
