@@ -6,12 +6,13 @@
 class PMosFet : public Component
 {
 public:                 
+                    // Order is Gate, Drain Source
                     PMosFet( TestPin &A, TestPin &B,TestPin &C) :  Component(A,B,C)
                     {
                       _capacitance=0;
                       _rdsOn=0;
                       _diodeVoltage=0;
-                      _vGsOn;
+                      _vGsOn=0;
                     }
             virtual bool compute()            ;
             virtual bool draw(int yOffset);

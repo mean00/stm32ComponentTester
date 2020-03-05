@@ -13,8 +13,8 @@
 //
 
 #define pinGate   _pA
-#define pinDrain  _pB
-#define pinSource _pC
+#define pinDown   _pB  // DOWN
+#define pinUp     _pC  //  UP
 
 /**
  * 
@@ -22,52 +22,48 @@
  * @return 
  */
 bool PMosFet::draw(int yOffset)
-{
-    
-    char st[32];
-    char st2[32];
-    char st3[32]="Rds=";
-    
-   // RDS / VF
-    Component::prettyPrint(_rdsOn, "O Vf=",st3+4);
-    Component::prettyPrint(_diodeVoltage, "V ",st2);
-    strcat(st3,st2);
-    
-    
-  //  VGS/ ON  
-    Component::prettyPrint(_vGsOn, "V Cg=",st);
-    Component::prettyPrint(_capacitance, "F ",st2);
-    strcat(st,st2);
-    TesterGfx::drawPMosFet(st3,st,pinGate.pinNumber(),_pB.pinNumber(),_pC.pinNumber());
+{    
+     TesterGfx::drawPMosFet(_rdsOn,_capacitance,_vGsOn, _diodeVoltage,pinGate.pinNumber(),pinUp.pinNumber(),pinDown.pinNumber());
     return true;
 }
 /**
  * 
+ * Diode is in reverse : Anode is source, cathode is drain
+ * 
  * @return 
  */
 bool PMosFet::computeDiode()
-{
-     AutoDisconnect ad;
-     // Pull the gate to VCC so that it is blocked
-    pinGate.pullUp(TestPin::PULL_LOW);
-    xDelay(100); // should be enough     
-    _pC.pullUp(TestPin::PULL_LOW);
-    _pB.pullDown(TestPin::PULL_LOW);   
+{   
+    // Pulldown everything
+    pinGate.pullDown(TestPin::PULL_LOW);   
+    pinDown.pullDown(TestPin::PULL_LOW); // put it in reverse...
+    pinUp.pullDown(TestPin::PULL_LOW); // put it in reverse...
+    xDelay(100);
+     // Pull the gate to VCC so that it is blocked    
+    pinDown.pullUp(TestPin::PULL_LOW); // put it in reverse...
+    pinUp.setToGround();
     
-    xDelay(5);
+    xDelay(10);
     
-
-    int adcA,nbA;
-    int adcB,nbB;
-    
-    //for(int i=0;i<5;i++)
+    DeltaADC delta(pinDown,pinUp);
+    delta.setup(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_6,512);
+    int nbSamples;
+    uint16_t *samples;
+    float period;
+    if(!delta.get(nbSamples, &samples,period))
     {
-      _pC.slowDmaSample(adcA,nbA);
-      _pB.slowDmaSample(adcB,nbB);
+        return false;
     }
-    float vf=(float)(adcA-adcB);
-    vf/=(float)nbA;
-    this->_diodeVoltage=adcToVolt(vf);
+
+    float sum=0;
+    for(int i=nbSamples/2;i<nbSamples;i++)
+    {
+        sum+=samples[i];
+    }
+    sum=sum/(float)(nbSamples/2);
+    this->_diodeVoltage=adcToVolt(sum);
+    pinDown.pullDown(TestPin::PULL_LOW);
+    xDelay(50);
     return true;
 }
 /**
@@ -76,28 +72,35 @@ bool PMosFet::computeDiode()
  */
 bool PMosFet::computeRdsOn()
 {
-     AutoDisconnect ad;
+    
      // Pull the gate to Ground so it is passing
-    pinGate.pullDown(TestPin::PULL_LOW);    
-    _pC.setToGround();
-    _pB.pullUp(TestPin::PULL_LOW);   
+    pinGate.pullDown(TestPin::PULL_LOW);    // make it passing current 
+    pinUp.setToVcc();   
+    pinDown.pullDown(TestPin::PULL_LOW);    
     
     xDelay(100);
-    
-
-    int adcA,nbA;
-    int adcB,nbB;
-    
-    //for(int i=0;i<5;i++)
+    float R=pinUp.getCurrentRes()+pinDown.getCurrentRes();    
+    DeltaADC delta(pinUp,pinDown);
+    delta.setup(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_6,64);
+    int nbSamples;
+    uint16_t *samples;
+    float period;
+    if(!delta.get(nbSamples, &samples,period))
     {
-      _pB.slowDmaSample(adcA,nbA);
-      _pC.slowDmaSample(adcB,nbB);
+        return false;
     }
-    float vf=(float)(adcA-adcB);
-    vf/=(float)nbA;
+    pinGate.pullDown(TestPin::PULL_LOW);
+    pinUp.pullDown(TestPin::PULL_LOW);
+    pinDown.pullDown(TestPin::PULL_LOW);
+
+    float sum=0;
+    for(int i=nbSamples/2;i<nbSamples;i++)
+    {
+        sum+=samples[i];
+    }
+    sum=sum/(float)(nbSamples/2);
     
-    float R=_pB.getCurrentRes()+_pC.getCurrentRes();    
-    this->_rdsOn= TestPin::resistanceDivider(vf,R);
+    this->_rdsOn= TestPin::resistanceDivider(sum,R);
     return true;
 }
 /**
@@ -106,34 +109,48 @@ bool PMosFet::computeRdsOn()
  */
 bool PMosFet::computeVgOn()
 {
-     AutoDisconnect ad;
-     // Pull the gate to Ground so it is passing
-    pinGate.pullDown(TestPin::PULL_LOW);    
-    _pB.pullUp(TestPin::PULL_LOW);   
-    _pC.setToGround();
+    AutoDisconnect ad;
+     // Pull the gate to Ground so it is not passing
+    pinGate.pullUp(TestPin::PULL_LOW);    
+    
+    pinUp.pullUp(TestPin::PULL_LOW);   
+    pinDown.setToGround();
         
     xDelay(100);
     int nbSamples;
     uint16_t *samples;
             
-     pinGate.prepareDualDmaSample(_pB,ADC_SMPR_13_5,ADC_PRE_PCLK2_DIV_6,512);    
+    //pinGate.prepareDualDmaSample(pinUp,ADC_SMPR_13_5,ADC_PRE_PCLK2_DIV_6,512);    
+    pinGate.prepareDualDmaSample(pinUp,ADC_SMPR_13_5,ADC_PRE_PCLK2_DIV_6,512);    
     // now charge the gate 
-     pinGate.pullUp(TestPin::PULL_HI);
-   if(!pinGate.finishDmaSample(nbSamples,&samples)) 
+    pinGate.pullDown(TestPin::PULL_HI);
+    if(!pinGate.finishDmaSample(nbSamples,&samples)) 
     {
             return false;
     }    
     pinGate.disconnect();
-    _pB.disconnect();
+    pinUp.disconnect();
      
-    int count;
-    for(int i=0;i<nbSamples;i++)
+    // search for blocked
+    int blocked=-1;
+    for(int i=0;i<50;i++)
+        if(samples[i*2+1]>3900)
+        {
+            blocked=i;
+            i=100;
+        }
+    if(blocked==-1)
+        return false;
+    
+    for(int i=blocked;i<nbSamples;i++)
     {
-        if(samples[i]>55)
-            count=i;
+        if(samples[2*i+1]<3200) // It's passing !
+        {
+            this->_vGsOn=adcToVolt(samples[2*i]);
+            return true;            
+        }
     }
-    if(count<568) return false;
-    return true;
+    return false;
 }
 
 
@@ -143,21 +160,29 @@ bool PMosFet::computeVgOn()
  */
 bool PMosFet::compute()
 {
-    AutoDisconnect ad;
-    
+    zeroAllPins();
+    TesterGfx::printStatus("Mos Diode"); 
+    // Compute reverse diode
+    if(!computeDiode())
+        return false;
+
+   TesterGfx::printStatus("Mos Cap"); 
     // First compute G-S capacitance, pin1/pin3
-    Capacitor cap(pinGate,_pC,_pB);
+    Capacitor cap(pinGate,pinDown,pinUp);
     if(!cap.calibrationValue(_capacitance))
     {
         _capacitance=0;
         return false;
     }
-    // Compute reverse diode
-    if(!computeDiode())
-        return false;
-    // and RDS on
+
+    // and RDS on    
+    zeroAllPins();
+    TesterGfx::printStatus("Mos Rds"); 
     if(!computeRdsOn())
         return false;
+    zeroAllPins();
+
+    TesterGfx::printStatus("Mos VgOn"); 
     if(!computeVgOn())
         return false;
     return true;
