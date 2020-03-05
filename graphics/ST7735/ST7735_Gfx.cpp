@@ -7,9 +7,12 @@
 #include "testerVersion.h"
 #include "Component.h"
 static Adafruit_ST7735Ex *instance=NULL;
-#define BASELINE_LAST    126
-#define BASELINE_PRELAST (126-18)
-#define BASELINE_PRELAST2 (126-18*2)
+
+#define INTERLINE 18
+#define BASELINE_LAST    122
+#define BASELINE_PRELAST (126-INTERLINE)
+#define BASELINE_PRELAST2 (126-INTERLINE*2)
+#define BASELINE_PRELAST3 (126-INTERLINE*3)
 
 /**
  */
@@ -119,19 +122,20 @@ void TesterGfx::drawNMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int
       instance->setFontSize(Adafruit_ST7735Ex::SmallFont);
       
       instance->setCursor(5,BASELINE_PRELAST2);
-      Component::prettyPrint(RdsOn, "Rds=",st);      
+      Component::prettyPrintPrefix("RdsOn:",RdsOn, "Ohm",st);      
       instance->print(st);
       
       instance->setCursor(5,BASELINE_PRELAST);
-      Component::prettyPrint(Vdiode, "Diode=",st);      
+      Component::prettyPrintPrefix("Diode:",Vdiode, "V",st);      
       instance->print(st);
       
-        instance->setCursor(5,BASELINE_LAST);
-      Component::prettyPrint(Cg, "Cg=",st);      
+      instance->setCursor(5,BASELINE_LAST);
+      Component::prettyPrintPrefix("Cg:",Cg, "F",st);      
       instance->print(st);
       
-      
-      
+      instance->setCursor(5,BASELINE_PRELAST3);
+      Component::prettyPrintPrefix("Vt:",VfOn, "V",st);      
+      instance->print(st);           
 }
 
 /**

@@ -3,6 +3,16 @@
 #include "Component.h"
 #include "math.h"
 #include "dso_adc.h"
+
+void Component::prettyPrintPrefix(const char *prefix,float value, const char *unit,  char *output)
+{
+    int n=strlen(prefix);
+    strcpy(output,prefix);
+    prettyPrint(value,unit,output+n);
+    
+}
+
+
 void Component::prettyPrint(float value, const char *unit,  char *output)
 {
     const char *big[]={"","k","M","G","P"};

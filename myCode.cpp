@@ -64,11 +64,13 @@ void MainTask( void *a )
     }
 #endif
     
+#if 0    
     pinTest();
     while(1)
     {
         
     };
+#endif
   // 
     if(!NVM::hasCalibration())
         calibration();
@@ -106,7 +108,7 @@ void mySetup(void)
 void myLoop(void)
 {
     COMPONENT_TYPE type;
-#if 1   
+#if 0   
     Component *c=Component::identity(pin1,pin2,pin3,type);
 #else
     TesterGfx::printStatus("Probing");

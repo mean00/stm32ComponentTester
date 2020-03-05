@@ -24,6 +24,7 @@ public:
 public:
                     DSOADC(int pin);
             bool    setADCPin(int pin);
+            void    clearSamples();
             bool    setTimeScale(adc_smp_rate one, adc_prescaler two);
             bool    prepareDMASampling (adc_smp_rate rate,adc_prescaler scale);                        
             bool    prepareDualDMASampling (int otherPin, adc_smp_rate rate,adc_prescaler scale);
@@ -64,9 +65,7 @@ public:
             void captureComplete();
             bool fastSampleDown(int threshold,int &value, int &timeUs)  ;
             bool fastSampleUp(int threshold1,int threshold2,int &value1,int &value2, int &timeUs1,int &timeUs2)  ;
-protected:
-  
-            int             _sampled;
+protected:              
             int             _pin;
 static      uint16_t        adcInternalBuffer[ADC_INTERNAL_BUFFER_SIZE];            
 };

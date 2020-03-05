@@ -128,14 +128,26 @@ bool NMosFet::computeVgOn()
     pinGate.disconnect();
     pinDrain.disconnect();
      
-    int count;
-    for(int i=0;i<nbSamples;i++)
+    // search for blocked
+    int blocked=-1;
+    for(int i=0;i<50;i++)
+        if(samples[i*2+1]>3900)
+        {
+            blocked=i;
+            i=100;
+        }
+    if(blocked==-1)
+        return false;
+    
+    for(int i=blocked;i<nbSamples;i++)
     {
-        if(samples[i]>55)
-            count=i;
+        if(samples[2*i+1]<2000) // It's passing !
+        {
+            this->_vGsOn=adcToVolt(samples[2*i]);
+            return true;            
+        }
     }
-   // if(count<568) return false;
-    return true;
+    return false;
 }
 
 
@@ -145,8 +157,12 @@ bool NMosFet::computeVgOn()
  */
 bool NMosFet::compute()
 {
-    
-#if 1    
+    zeroAllPins();
+    TesterGfx::printStatus("Mos Diode"); 
+    // Compute reverse diode
+    if(!computeDiode())
+        return false;
+
    TesterGfx::printStatus("Mos Cap"); 
     // First compute G-S capacitance, pin1/pin3
     Capacitor cap(pinGate,pinSource,pinDrain);
@@ -155,24 +171,19 @@ bool NMosFet::compute()
         _capacitance=0;
         return false;
     }
-#endif    
-    
-    zeroAllPins();
-    TesterGfx::printStatus("Mos Diode"); 
-    // Compute reverse diode
-    if(!computeDiode())
-        return false;
-#if 1    
+
     // and RDS on    
     zeroAllPins();
     TesterGfx::printStatus("Mos Rds"); 
     if(!computeRdsOn())
         return false;
     zeroAllPins();
+
+
     TesterGfx::printStatus("Mos VgOn"); 
     if(!computeVgOn())
         return false;
-#endif
+
     return true;
 }
 // EOF

@@ -30,7 +30,7 @@ Adafruit Libraries released under their specific licenses Copyright (c) 2013 Ada
 #endif ADC_CR1_FASTINT
 
 adc_reg_map *adc_Register;
-
+extern uint32_t cr2;
 
 
 uint16_t DSOADC::adcInternalBuffer[ADC_INTERNAL_BUFFER_SIZE] __attribute__ ((aligned (8)));;;
@@ -77,7 +77,10 @@ float DSOADC::adcToVolt(float adc)
     adc/=4095000.;
     return adc;
 }
-
+void DSOADC::clearSamples()
+{
+    memset(adcInternalBuffer,0,sizeof(adcInternalBuffer));
+}
 /**
  */
 bool    DSOADC::setADCPin(int pin)
@@ -104,7 +107,9 @@ bool DSOADC::startDMASampling (int count)
   enableDisableIrqSource(false,ADC_AWD);
   enableDisableIrq(true);
   setupAdcDmaTransfer( requestedSamples,adcInternalBuffer, DMA1_CH1_Event );
-  ADC1->regs->CR2 |= ADC_CR2_SWSTART;   
+  cr2=ADC1->regs->CR2;
+  cr2|= ADC_CR2_SWSTART;   
+  ADC1->regs->CR2=cr2;
   return true;
 }
 /**
@@ -224,9 +229,21 @@ void DSOADC::setupADCs ()
   setChannel(channel);
   
   readVCCmv();
-   
-  ADC1->regs->CR2 |= ADC_CR2_EXTSEL_SWSTART;     
-  ADC2->regs->CR2 |= ADC_CR2_EXTSEL_SWSTART;         
+  
+
+  cr2=0;
+  ADC1->regs->CR2=cr2;
+  ADC2->regs->CR2=cr2;
+  
+  cr2=ADC_CR2_EXTSEL_SWSTART|ADC_CR2_EXTTRIG; 
+  ADC1->regs->CR2=cr2;
+  ADC2->regs->CR2=cr2;
+  
+  cr2 |=ADC_CR2_ADON;
+  ADC1->regs->CR2=cr2;
+  ADC2->regs->CR2=cr2; // Power on
+  
+  
 }
 /**
  * 
@@ -246,10 +263,10 @@ void DSOADC::setupADCs ()
   */
 bool    DSOADC::prepareDMASampling (adc_smp_rate rate,adc_prescaler scale)
 {    
-    ADC1->regs->CR2 |= ADC_CR2_DMA | ADC_CR2_CONT;    
-    ADC2->regs->CR2 |= ADC_CR2_DMA | ADC_CR2_CONT;    
-    setTimeScale(rate,scale);    
-     
+    cr2= ADC1->regs->CR2;
+    cr2|=ADC_CR2_DMA | ADC_CR2_CONT;    
+    ADC1->regs->CR2 = cr2;    
+    setTimeScale(rate,scale);         
     return true;
 }/**
   * 

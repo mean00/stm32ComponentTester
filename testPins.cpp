@@ -313,6 +313,7 @@ bool    TestPin::slowDmaSample(int &xadc, int &nbSamples)
     xadc=0;
     adc->setADCPin(_pin);    
     xDelay(10); // wait a bit
+    adc->clearSamples();
     xAssert(prepareDmaSample(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_8,32));
     xAssert(true==adc->getSamples(&samples,nbSamples));
     int r=0;
@@ -513,7 +514,7 @@ bool TestPin::dualSimulatenousDelta ( int &nbSamples,uint16_t *samples)
  */
 float TestPin::resistanceDivider(float value, float otherResistance)
 {
-    if(value>=4095) return 10000000;
+    if(value>=4095.) return 10000000.;
     float r=value*otherResistance/(4095.-value);
     return r;
     

@@ -17,8 +17,9 @@ static bool singlePinTest(TestPin &A, TestPin &MeasurePin, const char **failure)
 {
     AutoDisconnect ad;
     {
+        pinMode(MeasurePin.pinADC(),INPUT_ANALOG);
         A.setToGround();
-        xDelay(5);
+        xDelay(10);
         int sum,nb;
         if(!MeasurePin.slowDmaSample(sum, nb))
             return false;
