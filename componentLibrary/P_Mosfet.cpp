@@ -75,13 +75,14 @@ bool PMosFet::computeRdsOn()
     
      // Pull the gate to Ground so it is passing
     pinGate.pullDown(TestPin::PULL_LOW);    // make it passing current 
+    
     pinUp.setToVcc();   
     pinDown.pullDown(TestPin::PULL_LOW);    
     
     xDelay(100);
     float R=pinUp.getCurrentRes()+pinDown.getCurrentRes();    
     DeltaADC delta(pinUp,pinDown);
-    delta.setup(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_6,64);
+    delta.setup(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_6,128);
     int nbSamples;
     uint16_t *samples;
     float period;
@@ -98,7 +99,7 @@ bool PMosFet::computeRdsOn()
     {
         sum+=samples[i];
     }
-    sum=sum/(float)(nbSamples/2);
+    sum=sum/(float)(nbSamples/2.);
     
     this->_rdsOn= TestPin::resistanceDivider(sum,R);
     return true;
@@ -113,15 +114,14 @@ bool PMosFet::computeVgOn()
      // Pull the gate to Ground so it is not passing
     pinGate.pullUp(TestPin::PULL_LOW);    
     
-    pinUp.pullUp(TestPin::PULL_LOW);   
-    pinDown.setToGround();
+    pinUp.setToVcc();
+    pinDown.pullDown(TestPin::PULL_LOW);
         
     xDelay(100);
     int nbSamples;
     uint16_t *samples;
-            
-    //pinGate.prepareDualDmaSample(pinUp,ADC_SMPR_13_5,ADC_PRE_PCLK2_DIV_6,512);    
-    pinGate.prepareDualDmaSample(pinUp,ADC_SMPR_13_5,ADC_PRE_PCLK2_DIV_6,512);    
+    
+    pinGate.prepareDualDmaSample(pinDown,ADC_SMPR_13_5,ADC_PRE_PCLK2_DIV_6,512);    
     // now charge the gate 
     pinGate.pullDown(TestPin::PULL_HI);
     if(!pinGate.finishDmaSample(nbSamples,&samples)) 
@@ -134,7 +134,7 @@ bool PMosFet::computeVgOn()
     // search for blocked
     int blocked=-1;
     for(int i=0;i<50;i++)
-        if(samples[i*2+1]>3900)
+        if(samples[i*2+1]<100)
         {
             blocked=i;
             i=100;
@@ -144,9 +144,9 @@ bool PMosFet::computeVgOn()
     
     for(int i=blocked;i<nbSamples;i++)
     {
-        if(samples[2*i+1]<3200) // It's passing !
+        if(samples[2*i+1]>1000) // It's passing !
         {
-            this->_vGsOn=adcToVolt(samples[2*i]);
+            this->_vGsOn=adcToVolt(4095-samples[2*i]);
             return true;            
         }
     }
