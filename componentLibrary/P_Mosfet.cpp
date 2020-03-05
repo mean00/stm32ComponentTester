@@ -35,36 +35,8 @@ bool PMosFet::draw(int yOffset)
 bool PMosFet::computeDiode()
 {   
     // Pulldown everything
-    pinGate.pullDown(TestPin::PULL_LOW);   
-    pinDown.pullDown(TestPin::PULL_LOW); // put it in reverse...
-    pinUp.pullDown(TestPin::PULL_LOW); // put it in reverse...
-    xDelay(100);
-     // Pull the gate to VCC so that it is blocked    
-    pinDown.pullUp(TestPin::PULL_LOW); // put it in reverse...
-    pinUp.setToGround();
-    
-    xDelay(10);
-    
-    DeltaADC delta(pinDown,pinUp);
-    delta.setup(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_6,512);
-    int nbSamples;
-    uint16_t *samples;
-    float period;
-    if(!delta.get(nbSamples, &samples,period))
-    {
-        return false;
-    }
-
-    float sum=0;
-    for(int i=nbSamples/2;i<nbSamples;i++)
-    {
-        sum+=samples[i];
-    }
-    sum=sum/(float)(nbSamples/2);
-    this->_diodeVoltage=adcToVolt(sum);
-    pinDown.pullDown(TestPin::PULL_LOW);
-    xDelay(50);
-    return true;
+    pinGate.pullDown(TestPin::PULL_LOW);           
+    return Mosfet::computeDiode(pinDown,pinUp,_diodeVoltage)   ;
 }
 /**
  * 
@@ -179,12 +151,16 @@ bool PMosFet::compute()
     zeroAllPins();
     TesterGfx::printStatus("Mos Rds"); 
     if(!computeRdsOn())
-        return false;
+    {
+     //   return false;
+    }
     zeroAllPins();
 
     TesterGfx::printStatus("Mos VgOn"); 
     if(!computeVgOn())
-        return false;
+    {
+     //   return false;
+    }
     return true;
 }
 // EOF

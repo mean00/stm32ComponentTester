@@ -35,36 +35,9 @@ bool NMosFet::draw(int yOffset)
 bool NMosFet::computeDiode()
 {   
     // Pulldown everything
-    pinGate.pullDown(TestPin::PULL_LOW);   
-    pinSource.pullDown(TestPin::PULL_LOW); // put it in reverse...
-    pinDrain.pullDown(TestPin::PULL_LOW); // put it in reverse...
-    xDelay(100);
-     // Pull the gate to VCC so that it is blocked    
-    pinSource.pullUp(TestPin::PULL_LOW); // put it in reverse...
-    pinDrain.setToGround();
-    
-    xDelay(10);
-    
-    DeltaADC delta(pinSource,pinDrain);
-    delta.setup(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_6,512);
-    int nbSamples;
-    uint16_t *samples;
-    float period;
-    if(!delta.get(nbSamples, &samples,period))
-    {
-        return false;
-    }
+    pinGate.pullDown(TestPin::PULL_LOW);       
+    return Mosfet::computeDiode(pinSource,pinDrain,_diodeVoltage);
 
-    float sum=0;
-    for(int i=nbSamples/2;i<nbSamples;i++)
-    {
-        sum+=samples[i];
-    }
-    sum=sum/(float)(nbSamples/2);
-    this->_diodeVoltage=adcToVolt(sum);
-    pinSource.pullDown(TestPin::PULL_LOW);
-    xDelay(50);
-    return true;
 }
 /**
  * 

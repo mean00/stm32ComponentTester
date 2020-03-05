@@ -1,13 +1,14 @@
 #pragma once
 #include "testPins.h"
 #include "Component.h"
+#include "Mosfet.h"
 /**
  */
-class PMosFet : public Component
+class PMosFet : public  Mosfet
 {
 public:                 
                     // Order is Gate, Drain Source
-                    PMosFet( TestPin &A, TestPin &B,TestPin &C) :  Component(A,B,C)
+                    PMosFet( TestPin &A, TestPin &B,TestPin &C) :  Mosfet(A,B,C)
                     {
                       _capacitance=0;
                       _rdsOn=0;
