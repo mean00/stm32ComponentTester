@@ -53,6 +53,24 @@ bool NMosFet::computeRdsOn()
     pinGate.pullDown(TestPin::PULL_LOW);
     return r;    
 }
+
+/**
+ * 
+ * @return 
+ */
+bool NMosFet::computeCg()
+{
+    return Mosfet::computeCg(pinGate, pinSource,_capacitance);
+}
+/**
+ * 
+ * @return 
+ */
+bool NMosFet::compute()
+{
+    return Mosfet::compute();
+}
+
 /**
  * 
  * @return 
@@ -100,21 +118,5 @@ bool NMosFet::computeVgOn()
         }
     }
     return false;
-}
-/**
- * 
- * @return 
- */
-bool NMosFet::computeCg()
-{
-    return Mosfet::computeCg(pinGate, pinSource,_capacitance);
-}
-/**
- * 
- * @return 
- */
-bool NMosFet::compute()
-{
-    return Mosfet::compute();
 }
 // EOF
