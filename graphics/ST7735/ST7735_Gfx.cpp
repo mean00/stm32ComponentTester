@@ -8,11 +8,11 @@
 #include "Component.h"
 static Adafruit_ST7735Ex *instance=NULL;
 
-#define INTERLINE 18
-#define BASELINE_LAST    122
-#define BASELINE_PRELAST (126-INTERLINE)
-#define BASELINE_PRELAST2 (126-INTERLINE*2)
-#define BASELINE_PRELAST3 (126-INTERLINE*3)
+#define INTERLINE 15
+#define BASELINE_LAST    126
+#define BASELINE_PRELAST (BASELINE_LAST-INTERLINE)
+#define BASELINE_PRELAST2 (BASELINE_LAST-INTERLINE*2)
+#define BASELINE_PRELAST3 (BASELINE_LAST-INTERLINE*3)
 
 /**
  */
@@ -101,6 +101,8 @@ void TesterGfx::drawPMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int
 {
     char st[64];
     
+      instance->drawRLEBitmap(Pmosfet_width,Pmosfet_height,0,0,COMPONENT_COLOR,0,Pmosfet);
+    
       instance->setFontSize(Adafruit_ST7735Ex::SmallFont);
       
       instance->setCursor(5,BASELINE_PRELAST2);
@@ -131,6 +133,7 @@ void TesterGfx::drawNMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int
 {
     char st[64];
     
+      instance->drawRLEBitmap(Nmosfet2_width,Nmosfet2_height,0,0,COMPONENT_COLOR,0,Nmosfet2);
       instance->setFontSize(Adafruit_ST7735Ex::SmallFont);
       
       instance->setCursor(5,BASELINE_PRELAST2);

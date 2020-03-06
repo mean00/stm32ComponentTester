@@ -94,7 +94,10 @@ bool    DSOADC::fastSampleUp(int threshold1,int threshold2,int &value1,int &valu
     uint32_t sampleTime;
     bool first=true;
     uint32_t value=regs->DR ; // clear pending value
-    
+    value1=0;
+    value2=0;
+    timeUs1=0;
+    timeUs2=0;
     while(1)
     {
         regs->CR2|=ADC_CR2_SWSTART;

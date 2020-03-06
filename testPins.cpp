@@ -343,7 +343,7 @@ void TestPin::initADC(int pin)
  */
 bool    TestPin::fastSampleUp(int threshold1,int threshold2,int &value1,int &value2, int &timeUs1,int &timeUs2)
 {
-    return adc->fastSampleUp(threshold1,threshold2,value1,value1,timeUs1,timeUs2);
+    return adc->fastSampleUp(threshold1,threshold2,value1,value2,timeUs1,timeUs2);
 
 }
 /**

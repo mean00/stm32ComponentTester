@@ -5,3 +5,5 @@
 #include "generated/splash_compressed.h"
 #include "generated/diode_compressed.h"
 #include "generated/coil_compressed.h"
+#include "generated/Nmosfet2_compressed.h"
+#include "generated/Pmosfet_compressed.h"
