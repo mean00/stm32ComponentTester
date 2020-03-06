@@ -43,39 +43,35 @@ bool PMosFet::computeDiode()
  * @return 
  */
 bool PMosFet::computeRdsOn()
-{
-    
+{    
      // Pull the gate to Ground so it is passing
-    pinGate.pullDown(TestPin::PULL_LOW);    // make it passing current 
-    
-    pinUp.setToVcc();   
+    pinGate.pullDown(TestPin::PULL_LOW);    // make it passing current     
     pinDown.pullDown(TestPin::PULL_LOW);    
-    
-    xDelay(100);
-    float R=pinUp.getCurrentRes()+pinDown.getCurrentRes();    
-    DeltaADC delta(pinUp,pinDown);
-    delta.setup(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_6,128);
-    int nbSamples;
-    uint16_t *samples;
-    float period;
-    if(!delta.get(nbSamples, &samples,period))
-    {
-        return false;
-    }
+    pinUp.setToVcc();           
+    bool r=Mosfet::computeRdsOn(pinUp,pinDown,_rdsOn);    
     pinGate.pullDown(TestPin::PULL_LOW);
-    pinUp.pullDown(TestPin::PULL_LOW);
-    pinDown.pullDown(TestPin::PULL_LOW);
-
-    float sum=0;
-    for(int i=nbSamples/2;i<nbSamples;i++)
-    {
-        sum+=samples[i];
-    }
-    sum=sum/(float)(nbSamples/2.);
-    
-    this->_rdsOn= TestPin::resistanceDivider(sum,R);
-    return true;
+    return r;
 }
+
+
+/**
+ * 
+ * @return 
+ */
+bool PMosFet::computeCg()
+{
+    return Mosfet::computeCg(pinGate, pinDown,_capacitance);
+}
+
+/**
+ * 
+ * @return 
+ */
+bool PMosFet::compute()
+{
+    return Mosfet::compute();
+}
+
 /**
  * 
  * @return 
@@ -125,42 +121,4 @@ bool PMosFet::computeVgOn()
     return false;
 }
 
-
-/**
- * 
- * @return 
- */
-bool PMosFet::compute()
-{
-    zeroAllPins();
-    TesterGfx::printStatus("Mos Diode"); 
-    // Compute reverse diode
-    if(!computeDiode())
-        return false;
-
-   TesterGfx::printStatus("Mos Cap"); 
-    // First compute G-S capacitance, pin1/pin3
-    Capacitor cap(pinGate,pinDown,pinUp);
-    if(!cap.calibrationValue(_capacitance))
-    {
-        _capacitance=0;
-        return false;
-    }
-
-    // and RDS on    
-    zeroAllPins();
-    TesterGfx::printStatus("Mos Rds"); 
-    if(!computeRdsOn())
-    {
-     //   return false;
-    }
-    zeroAllPins();
-
-    TesterGfx::printStatus("Mos VgOn"); 
-    if(!computeVgOn())
-    {
-     //   return false;
-    }
-    return true;
-}
 // EOF

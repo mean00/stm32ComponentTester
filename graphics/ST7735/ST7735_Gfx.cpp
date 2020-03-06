@@ -104,7 +104,7 @@ void TesterGfx::drawPMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int
       instance->setFontSize(Adafruit_ST7735Ex::SmallFont);
       
       instance->setCursor(5,BASELINE_PRELAST2);
-      Component::prettyPrintPrefix("RdsOn:",RdsOn, "Ohm",st);      
+      Component::prettyPrintPrefix("RdsOn:",RdsOn, "O",st);      
       instance->print(st);
       
       instance->setCursor(5,BASELINE_PRELAST);
@@ -134,7 +134,7 @@ void TesterGfx::drawNMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int
       instance->setFontSize(Adafruit_ST7735Ex::SmallFont);
       
       instance->setCursor(5,BASELINE_PRELAST2);
-      Component::prettyPrintPrefix("RdsOn:",RdsOn, "Ohm",st);      
+      Component::prettyPrintPrefix("RdsOn:",RdsOn, "O",st);      
       instance->print(st);
       
       instance->setCursor(5,BASELINE_PRELAST);

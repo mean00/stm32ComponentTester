@@ -112,7 +112,7 @@ void myLoop(void)
     Component *c=Component::identity(pin1,pin2,pin3,type);
 #else
     TesterGfx::printStatus("Probing");
-    Component *c=new PMosFet(pin1,pin2,pin3);
+    Component *c=new NMosFet(pin1,pin2,pin3);
     //Component *c=new Coil(pin1,pin2,pin3);
     //Component *c=new Capacitor(pin3,pin2,pin1);
 #endif

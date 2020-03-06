@@ -45,34 +45,13 @@ bool NMosFet::computeDiode()
  */
 bool NMosFet::computeRdsOn()
 {
-    
-     // Pull the gate to Ground so it is passing
-    pinGate.pullUp(TestPin::PULL_LOW);    // make it passing current 
-    pinDrain.pullUp(TestPin::PULL_LOW);   
-    pinSource.setToGround();    
-    
-    xDelay(100);
-    float R=pinDrain.getCurrentRes()+pinSource.getCurrentRes();    
-    DeltaADC delta(pinDrain,pinSource);
-    delta.setup(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_6,64);
-    int nbSamples;
-    uint16_t *samples;
-    float period;
-    if(!delta.get(nbSamples, &samples,period))
-    {
-        return false;
-    }
-
-    float sum=0;
-    for(int i=8;i<nbSamples;i++)
-    {
-        sum+=samples[i];
-    }
-    sum=sum/(float)(nbSamples-8);
-    
-    
-    this->_rdsOn= TestPin::resistanceDivider(sum,R);
-    return true;
+    // Pull the gate to Ground so it is passing
+    pinGate.pullUp(TestPin::PULL_LOW);    // make it passing current     
+    pinDrain.pullUp(TestPin::PULL_LOW);    
+    pinSource.setToGround();         
+    bool r=Mosfet::computeRdsOn(pinDrain,pinSource,_rdsOn);    
+    pinGate.pullDown(TestPin::PULL_LOW);
+    return r;    
 }
 /**
  * 
@@ -122,41 +101,20 @@ bool NMosFet::computeVgOn()
     }
     return false;
 }
-
-
+/**
+ * 
+ * @return 
+ */
+bool NMosFet::computeCg()
+{
+    return Mosfet::computeCg(pinGate, pinSource,_capacitance);
+}
 /**
  * 
  * @return 
  */
 bool NMosFet::compute()
 {
-    zeroAllPins();
-    TesterGfx::printStatus("Mos Diode"); 
-    // Compute reverse diode
-    if(!computeDiode())
-        return false;
-
-   TesterGfx::printStatus("Mos Cap"); 
-    // First compute G-S capacitance, pin1/pin3
-    Capacitor cap(pinGate,pinSource,pinDrain);
-    if(!cap.calibrationValue(_capacitance))
-    {
-        _capacitance=0;
-        return false;
-    }
-
-    // and RDS on    
-    zeroAllPins();
-    TesterGfx::printStatus("Mos Rds"); 
-    if(!computeRdsOn())
-        return false;
-    zeroAllPins();
-
-
-    TesterGfx::printStatus("Mos VgOn"); 
-    if(!computeVgOn())
-        return false;
-
-    return true;
+    return Mosfet::compute();
 }
 // EOF
