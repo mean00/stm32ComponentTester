@@ -89,7 +89,9 @@ bool PMosFet::computeVgOn()
     int nbSamples;
     uint16_t *samples;
     
-    pinGate.prepareDualDmaSample(pinDown,ADC_SMPR_13_5,ADC_PRE_PCLK2_DIV_6,512);    
+    adc_smp_rate sampleRate=evaluateSampleRate();
+    
+    pinGate.prepareDualDmaSample(pinDown,sampleRate,ADC_PRE_PCLK2_DIV_6,512);    
     // now charge the gate 
     pinGate.pullDown(TestPin::PULL_HI);
     if(!pinGate.finishDmaSample(nbSamples,&samples)) 

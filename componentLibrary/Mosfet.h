@@ -22,7 +22,9 @@ public:
     virtual bool  computeRdsOn()=0;
     virtual bool  computeVgOn()=0;
     virtual bool  computeCg()=0;
-    
+
+protected:
+            adc_smp_rate evaluateSampleRate();
 protected:
         float _rdsOn;
         float _diodeVoltage;
