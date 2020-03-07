@@ -1,0 +1,4 @@
+This project by itself is GPL V2 or later
+It contains and uses other projects with their own licenses (Arduino-cmake, arduino-stm32, etc...)
+
+
