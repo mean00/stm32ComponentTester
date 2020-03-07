@@ -1,5 +1,8 @@
 # STM32 Component tester
 
+
+![screenshot](web/demo.jpg?raw=true "front")
+
 ## Scope
 
 /!\ This is work in progress, it is not usable at the moment /!\
@@ -24,9 +27,22 @@ Due to the low voltage (3.3v), some mosfet will not work
 
 * Install arduino and cmake
 * Checkout the project, make sure you checkout the submodules
-* Edit platformConfig.cmake to set the path to your compiler (i strongly suggest to use that ( [one] (https://github.com/xpack-dev-tools/arm-none-eabi-gcc-xpack/releases)) )
+* Edit platformConfig.cmake to set the path to your compiler (i strongly suggest to use that ( [one](https://github.com/xpack-dev-tools/arm-none-eabi-gcc-xpack/releases)) )
 * mkdir build && cd build && cmake .. && make
   
   It should work fine on linux and windows/mingw.
   
+## How does it work
+The code is in two parts :
+ * Identifying the component
+ * Probing the component, using only the MCU ADC in single or dual mode. The can go down to ~ 1us (0.5 in fast dual mode)
+ * Since we dont have a DAC on the bluepill, we'll (dis)charge the parasitic capacitor to act as a DAC
+
+  ## Restriction
+While accuracy is not bad at all the following restrictions apply :
+* Mosfet with VGsOn> 3.3 v will not be probed correctly
+* Inductor less than ~1 mH will not be probed correctly
+* Capacitor of less than 10 pF will not be probed correctly
+* Capacitor can be reverse charged with a small current. I'm unsure if that's a big deal. The current is a few mA.
+
 
