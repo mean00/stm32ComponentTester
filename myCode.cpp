@@ -108,7 +108,7 @@ void mySetup(void)
 void myLoop(void)
 {
     COMPONENT_TYPE type;
-#if 0   
+#if 1   
     Component *c=Component::identity(pin1,pin2,pin3,type);
 #else
     TesterGfx::printStatus("Probing");

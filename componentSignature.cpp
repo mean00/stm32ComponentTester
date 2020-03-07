@@ -42,6 +42,20 @@ int getSignature(TestPin &A,TestPin &B)
 {
     return (getSignature(A)<<2)+(getSignature(B));
 }
+
+
+/*
+ * 
+ */
+Component *Component::identify3poles(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type)
+{
+    // We know the gate/base is C
+    // Where is the diode A/B ?
+    
+    // The mosfet is the other way
+    
+    return NULL;
+}
 /**
  * 
  * @param A
@@ -58,6 +72,8 @@ Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE
     
     int topLeft,topRight,bottomLeft,bottomRight;
     
+    // We do the same on B & C
+    // but invert A
     {
             AutoDisconnect ad;
 
@@ -67,6 +83,7 @@ Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE
             C.pullDown(st);    
             topLeft=getSignature(A,B);
             C.pullUp(st);
+            xDelay(50); // wait for discharge
             topRight=getSignature(A,B);
     }
     {
@@ -80,41 +97,89 @@ Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE
     }
     zeroAllPins();
     AutoDisconnect ad;
-    if(bottomLeft==bottomRight && topLeft==topRight) // dipole
-    {
-#if 0        
-        if((topLeft==SIG(HIGH,LOW)) && bottomLeft==SIG(LOW,HIGH))
-        {               
-               return NULL;
-        }
-#endif
-        
-        if(topLeft==SIG(MEDIUM,MEDIUM) && bottomLeft==SIG(LOW,HIGH)) // Diodie anode = A
-        {
-            type=COMPONENT_DIODE;
-            return new Diode(A,B,C);
-        }
-        if(bottomLeft==SIG(MEDIUM,MEDIUM) && topLeft==SIG(HIGH,LOW)) // Diodie cathode = A
-        {
-           type=COMPONENT_DIODE;
-           return new Diode(B,A,C);
-        }
-    }
     
+    // topLeft = Top/bottom with 3rd=0, topRight=top/bottom with rd=1
+    // bottomLeft = bottom/top with 3rd=0, topRight=bottom/Top with rd=1
+    
+    // if the result differs depending on C, its a transistor of some sort
+    if((bottomLeft!=bottomRight) || (topLeft!=topRight)) // dipole
+    {        
+        if(bottomLeft==SIG(LOW,HIGH) && bottomRight==SIG(LOW,HIGH))
+        {
+            // Ok A/B is a diode with B is anode, Drain/source diode
+            // C is Gate
+            if((topLeft==SIG(HIGH,LOW)) && topRight==SIG(HIGH,MEDIUM))
+            {
+                // N Mosfet
+                zeroAllPins();
+                return new NMosFet(A,B,C);
+            }
+        }
+        if((topLeft==SIG(HIGH,LOW)) && (topRight==SIG(HIGH,LOW))) // P mosfet 
+        {
+                if((bottomLeft==SIG(LOW,MEDIUM)) && (bottomRight==SIG(LOW,HIGH)))
+                {
+                    zeroAllPins();
+                    return new PMosFet(A,B,C);
+                }
+        }                    
+    }
+    // Stay the same => dipole
+    return identify2poles(A,B,C,type);
+}
+/**
+ * 
+ * @param A
+ * @param B
+ * @param C
+ * @param type
+ * @return 
+ */
+Component *Component::identify2poles(TestPin &A, TestPin &B, TestPin &C, COMPONENT_TYPE &type)
+{
+     int topLeft,bottomLeft;
+    TestPin::PULL_STRENGTH st=TestPin::PULL_LOW;
+    // We do the same on B & C
+    // but invert A
+    {
+            AutoDisconnect ad;
+
+            A.pullUp(st);
+            B.pullDown(st);
+            topLeft=getSignature(A,B);
+            
+    }
+    {
+        AutoDisconnect ad;
+        A.pullDown(st);
+        B.pullUp(st);        
+        bottomLeft=getSignature(A,B);
+    }
+
+    if(topLeft==SIG(MEDIUM,MEDIUM) && bottomLeft==SIG(LOW,HIGH)) // Diodie anode = A
+    {
+        type=COMPONENT_DIODE;
+        return new Diode(A,B,C);
+    }
+    if(bottomLeft==SIG(MEDIUM,MEDIUM) && topLeft==SIG(HIGH,LOW)) // Diodie cathode = A
+    {
+       type=COMPONENT_DIODE;
+       return new Diode(B,A,C);
+    }        
     // Resistor, coil or capacitor
     // if it is a capacitor, it will keep its charge
     // let's charge it
     A.pullUp(TestPin::PULL_LOW);
     B.setToGround();
     xDelay(100); // 100 ms should give a decent charge
-    
+
     //now connect both to ground
-    
+
     // Disconnect them now, they should be connected to Vcc high impedance
-    
+
     // connect A & B to ground through 300k
     // if it is a cap, it will "slowly" discharge
-    
+
      if(!A.prepareDmaSample(  ADC_SMPR_13_5,  ADC_PRE_PCLK2_DIV_6, 512)) 
         return false;        
     // Go!    
@@ -135,6 +200,4 @@ Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE
     type=COMPONENT_RESISTOR;
     zeroAllPins();    
     return new Resistor(A,B,C);
-    
-    
 }

@@ -6,7 +6,8 @@
 
 enum COMPONENT_TYPE
 {
-  COMPONENT_OPEN=0,
+  COMPONENT_UNKNOWN=0,
+  COMPONENT_OPEN=4,
   COMPONENT_RESISTOR=1,
   COMPONENT_CAPACITOR=2,
   COMPONENT_DIODE=3,
@@ -34,4 +35,8 @@ protected:
             
 public:
     static          Component *identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type);
+    
+protected:
+    static          Component *identify3poles(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type);
+    static          Component *identify2poles(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type);
 };
