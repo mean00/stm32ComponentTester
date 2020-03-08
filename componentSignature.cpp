@@ -102,8 +102,32 @@ Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE
     // bottomLeft = bottom/top with 3rd=0, topRight=bottom/Top with rd=1
     
     // if the result differs depending on C, its a transistor of some sort
-    if((bottomLeft!=bottomRight) || (topLeft!=topRight)) // dipole
+    if((bottomLeft!=bottomRight) || (topLeft!=topRight)) // tripole
     {        
+        if(topLeft==topRight && topLeft==SIG(MEDIUM,MEDIUM))
+        {
+            if(bottomLeft==SIG(HIGH,LOW) && bottomRight==SIG(HIGH,LOW) && bottomRight==SIG(MEDIUM,MEDIUM))
+            {
+                return new NMosFet(C,B,A);
+            }
+            if(bottomLeft==SIG(MEDIUM,MEDIUM) && bottomRight==SIG(HIGH,LOW))
+            {
+                return new PMosFet(C,B,A);
+            }
+        }
+        
+        if(bottomLeft==bottomRight && bottomLeft==SIG(MEDIUM,MEDIUM))
+        {
+            if(topLeft==SIG(HIGH,LOW) && topRight==SIG(HIGH,LOW) && bottomRight==SIG(MEDIUM,MEDIUM))
+            {
+                return new NMosFet(C,A,B);
+            }
+            if(topLeft==SIG(MEDIUM,MEDIUM) && topRight==SIG(HIGH,LOW))
+            {
+                return new PMosFet(C,A,B);
+            }
+        }
+        
         if(bottomLeft==SIG(LOW,HIGH) && bottomRight==SIG(LOW,HIGH))
         {
             // Ok A/B is a diode with B is anode, Drain/source diode
