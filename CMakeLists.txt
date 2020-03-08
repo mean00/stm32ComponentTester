@@ -49,5 +49,5 @@ FOREACH(comp ${SUB_COMPONENTS})
     target_link_libraries(stm32ComponentTester ${libPrefix}${comp})
 ENDFOREACH(comp ${SUB_COMPONENTS})
 
-
+#dump_all()
 # EOF
