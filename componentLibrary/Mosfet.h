@@ -13,6 +13,7 @@ public:
         _diodeVoltage=0;
         _vGsOn=0;
     }
+    int  nbPins() {return 3;};
     bool computeDiode(TestPin &top, TestPin &bottom,float &value);
     bool computeRdsOn(TestPin &top, TestPin &bottom,float &value);
     bool computeCg(TestPin &top, TestPin &bottom,float &value);

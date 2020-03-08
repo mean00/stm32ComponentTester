@@ -28,6 +28,7 @@ public:
             virtual bool compute()=0;
             virtual bool draw(int yOffset)=0;
             static  void prettyPrint(float value, const char *unit,  char *output);
+            virtual int  nbPins() {return 2;};
             static  void prettyPrintPrefix(const char *prefix,float value, const char *unit,  char *output);
                     float adcToVolt(float adc);
 protected:

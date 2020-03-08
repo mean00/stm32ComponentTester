@@ -102,6 +102,30 @@ void mySetup(void)
   vTaskStartScheduler();        
 }
 
+void probeMe(TestPin &a,TestPin &b,TestPin &c,Component **comp)
+{
+    COMPONENT_TYPE xtype;
+    Component *c2=Component::identity(a,b,c,xtype);
+    if(!c2)
+        return;
+    
+    if(!*comp) 
+    {
+        *comp=c2;
+        return ;
+    }        
+    
+    if(c2->nbPins()>(*comp)->nbPins())
+    {
+        delete *comp;
+        *comp=c2;
+    }else
+    {
+        delete c2;
+    } 
+}
+
+
 /**
  * 
  */
@@ -109,7 +133,11 @@ void myLoop(void)
 {
     COMPONENT_TYPE type;
 #if 1   
-    Component *c=Component::identity(pin1,pin2,pin3,type);
+    Component *c=NULL;
+    probeMe(pin1,pin2,pin3,&c);
+    probeMe(pin1,pin3,pin2,&c);
+    probeMe(pin2,pin3,pin1,&c);    
+    
 #else
     TesterGfx::printStatus("Probing");
     Component *c=new NMosFet(pin1,pin2,pin3);

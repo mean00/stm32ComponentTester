@@ -81,6 +81,7 @@ Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE
             B.pullDown(st);
 
             C.pullDown(st);    
+            xDelay(50); // wait for discharge
             topLeft=getSignature(A,B);
             C.pullUp(st);
             xDelay(50); // wait for discharge
@@ -106,47 +107,29 @@ Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE
     {        
         if(topLeft==topRight && topLeft==SIG(MEDIUM,MEDIUM))
         {
-            if(bottomLeft==SIG(HIGH,LOW) && bottomRight==SIG(HIGH,LOW) && bottomRight==SIG(MEDIUM,MEDIUM))
+            //
+            if((bottomLeft==SIG(LOW,HIGH) ||  bottomLeft==SIG(LOW,MEDIUM) )&&  bottomRight==SIG(MEDIUM,MEDIUM))
             {
-                return new NMosFet(C,B,A);
+                return new NMosFet(C,B,A); // k
             }
-            if(bottomLeft==SIG(MEDIUM,MEDIUM) && bottomRight==SIG(HIGH,LOW))
+            if(bottomLeft==SIG(MEDIUM,MEDIUM) && ( bottomRight==SIG(LOW,HIGH)|| bottomRight==SIG(LOW,MEDIUM)))
             {
-                return new PMosFet(C,B,A);
+                return new PMosFet(C,A,B); //k
             }
         }
         
         if(bottomLeft==bottomRight && bottomLeft==SIG(MEDIUM,MEDIUM))
         {
-            if(topLeft==SIG(HIGH,LOW) && topRight==SIG(HIGH,LOW) && bottomRight==SIG(MEDIUM,MEDIUM))
+            if((topLeft==SIG(HIGH,LOW)|| topLeft==SIG(MEDIUM,LOW)) && topRight==SIG(MEDIUM,MEDIUM))
             {
                 return new NMosFet(C,A,B);
             }
-            if(topLeft==SIG(MEDIUM,MEDIUM) && topRight==SIG(HIGH,LOW))
+            if(topLeft==SIG(MEDIUM,MEDIUM) && topRight==SIG(HIGH,LOW)|| topRight==SIG(MEDIUM,LOW))
             {
-                return new PMosFet(C,A,B);
+                return new PMosFet(C,B,A);  //k
             }
         }
-        
-        if(bottomLeft==SIG(LOW,HIGH) && bottomRight==SIG(LOW,HIGH))
-        {
-            // Ok A/B is a diode with B is anode, Drain/source diode
-            // C is Gate
-            if((topLeft==SIG(HIGH,LOW)) && topRight==SIG(HIGH,MEDIUM))
-            {
-                // N Mosfet
-                zeroAllPins();
-                return new NMosFet(A,B,C);
-            }
-        }
-        if((topLeft==SIG(HIGH,LOW)) && (topRight==SIG(HIGH,LOW))) // P mosfet 
-        {
-                if((bottomLeft==SIG(LOW,MEDIUM)) && (bottomRight==SIG(LOW,HIGH)))
-                {
-                    zeroAllPins();
-                    return new PMosFet(A,B,C);
-                }
-        }                    
+     
     }
     // Stay the same => dipole
     return identify2poles(A,B,C,type);
