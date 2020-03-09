@@ -36,7 +36,7 @@ protected:
             
 public:
     static          Component *identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type);
-    static          bool      computeDiode(TestPin &Anode, TestPin &Cathode,float vfOut);
+    static          bool      computeDiode(TestPin &Anode, TestPin &Cathode,float &vfOut);
     
 protected:
     static          Component *identify3poles(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type);

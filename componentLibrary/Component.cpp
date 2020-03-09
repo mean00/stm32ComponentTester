@@ -83,7 +83,7 @@ float Component::adcToVolt(float adc)
  * @param vfOut
  * @return 
  */
-bool Component::computeDiode(TestPin &Anode, TestPin &Cathode,float vfOut)
+bool Component::computeDiode(TestPin &Anode, TestPin &Cathode,float &vfOut)
 {
      AutoDisconnect ad;
     // even with the lowest resistance we are at max at 

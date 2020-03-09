@@ -22,7 +22,8 @@
  */
 bool NPNBjt::computeVbe(float &vf)
 {
-    return Component::computeDiode(pinBase,pinEmitter,vf);
+    bool r=Component::computeDiode(pinBase,pinEmitter,vf);
+    return r;
 }
 
 /**
@@ -67,6 +68,9 @@ bool NPNBjt::computeHfe(float &hfe)
     // Compute CE current
     float ceCurrent=(4095.-sumCollector)/collectorRes;
     
+    if(baseCurrent<1./(1000.*1000.*1000.)) // do not divide by zero
+            return false;
+    
     hfe=ceCurrent/baseCurrent;
     return true;
 }
@@ -78,7 +82,7 @@ bool NPNBjt::computeHfe(float &hfe)
 bool NPNBjt::compute()
 {
     AutoDisconnect ad;
-    // First compite Vbe
+    // First compute Vbe
     if(!computeVbe(Vf)) return false;
     // then hfe
     if(!computeHfe(beta)) return false;
