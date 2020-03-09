@@ -132,7 +132,7 @@ void probeMe(TestPin &a,TestPin &b,TestPin &c,Component **comp)
 void myLoop(void)
 {
     COMPONENT_TYPE type;
-#if 0   
+#if 1  
     Component *c=NULL;
     probeMe(pin1,pin2,pin3,&c);
     probeMe(pin1,pin3,pin2,&c);

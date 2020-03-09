@@ -95,6 +95,7 @@ bool NPNBjt::compute()
  */
 bool NPNBjt::draw(int yOffset)
 {
+    TesterGfx::drawNPN(beta,Vf);
     return true;
 }
 // EOF

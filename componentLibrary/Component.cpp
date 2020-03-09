@@ -90,7 +90,7 @@ bool Component::computeDiode(TestPin &Anode, TestPin &Cathode,float &vfOut)
     // 3.3v/470*2 Ohm= 3 mA, which is fine
     Anode.pullUp(TestPin::PULL_LOW);
     Cathode.pullDown(TestPin::PULL_LOW);   
-    xDelay(5);
+    xDelay(20);
     int adcA,nbA;
     int adcB,nbB;
     

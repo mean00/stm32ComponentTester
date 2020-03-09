@@ -129,7 +129,11 @@ Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE
                 return new PMosFet(C,B,A);  //k
             }
         }
-     
+        if(topRight==bottomRight && topRight==SIG(MEDIUM,MEDIUM))
+        {
+            if(topLeft==SIG(HIGH,LOW)&&bottomLeft==SIG(LOW,HIGH)) // NPN
+                return new NPNBjt(C,B,A);
+        }
     }
     // Stay the same => dipole
     return identify2poles(A,B,C,type);

@@ -121,7 +121,18 @@ void TesterGfx::drawPMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int
       Component::prettyPrintPrefix("Vt:",VfOn, "V",st);      
       instance->print(st);           
 }
-
+void TesterGfx::drawNPN(float hfe, float vf)
+{
+      char st[64];
+      instance->setCursor(5,BASELINE_PRELAST2);
+      Component::prettyPrintPrefix("hfe:",hfe, "",st);      
+      instance->print(st);
+      
+      instance->setCursor(5,BASELINE_LAST);
+      Component::prettyPrintPrefix("Vbe:",vf, "",st);      
+      instance->print(st);
+      
+}
 /**
  * 
  * @param offset
