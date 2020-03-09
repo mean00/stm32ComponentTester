@@ -37,7 +37,8 @@ bool NPNBjt::computeHfe(float &hfe)
     pinBase.pullUp(TestPin::PULL_HI);
     pinCollector.pullUp(TestPin::PULL_LOW);
     xDelay(50);
-    
+    float collectorRes=pinCollector.getCurrentRes();
+    float baseRes=pinBase.getCurrentRes();
     DeltaADC delta(pinBase,pinCollector);
     delta.setup(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_6,512);
     int nbSamples;
@@ -62,9 +63,9 @@ bool NPNBjt::computeHfe(float &hfe)
     sumCollector/=(float)nb;
     
     // Compute base current
-    float baseCurrent=(4095.-sumBase)/(float)pinBase.getRes(TestPin::PULLUP_HI);
+    float baseCurrent=(4095.-sumBase)/baseRes;
     // Compute CE current
-    float ceCurrent=(4095.-sumCollector)/((float)pinCollector.getRes(TestPin::PULLUP_MED)+(float)pinEmitter.getRes(TestPin::GND));
+    float ceCurrent=(4095.-sumCollector)/collectorRes;
     
     hfe=ceCurrent/baseCurrent;
     return true;
