@@ -132,7 +132,7 @@ void probeMe(TestPin &a,TestPin &b,TestPin &c,Component **comp)
 void myLoop(void)
 {
     COMPONENT_TYPE type;
-#if 1   
+#if 0   
     Component *c=NULL;
     probeMe(pin1,pin2,pin3,&c);
     probeMe(pin1,pin3,pin2,&c);
@@ -140,7 +140,7 @@ void myLoop(void)
     
 #else
     TesterGfx::printStatus("Probing");
-    Component *c=new NMosFet(pin1,pin2,pin3);
+    Component *c=new NPNBjt(pin2,pin3,pin1);
     //Component *c=new Coil(pin1,pin2,pin3);
     //Component *c=new Capacitor(pin3,pin2,pin1);
 #endif

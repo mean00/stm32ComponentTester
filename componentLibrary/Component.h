@@ -30,12 +30,13 @@ public:
             static  void prettyPrint(float value, const char *unit,  char *output);
             virtual int  nbPins() {return 2;};
             static  void prettyPrintPrefix(const char *prefix,float value, const char *unit,  char *output);
-                    float adcToVolt(float adc);
+            static  float adcToVolt(float adc);
 protected:
             TestPin &_pA, &_pB, &_pC;
             
 public:
     static          Component *identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type);
+    static          bool      computeDiode(TestPin &Anode, TestPin &Cathode,float vfOut);
     
 protected:
     static          Component *identify3poles(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type);

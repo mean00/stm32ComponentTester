@@ -3,7 +3,14 @@
 #include "Component.h"
 #include "math.h"
 #include "dso_adc.h"
-
+#include "MapleFreeRTOS1000_pp.h"
+/**
+ * 
+ * @param prefix
+ * @param value
+ * @param unit
+ * @param output
+ */
 void Component::prettyPrintPrefix(const char *prefix,float value, const char *unit,  char *output)
 {
     int n=strlen(prefix);
@@ -67,4 +74,31 @@ void Component::prettyPrint(float value, const char *unit,  char *output)
 float Component::adcToVolt(float adc)
 {
     return DSOADC::adcToVolt(adc);
+}
+
+/**
+ * 
+ * @param Anode
+ * @param Cathode
+ * @param vfOut
+ * @return 
+ */
+bool Component::computeDiode(TestPin &Anode, TestPin &Cathode,float vfOut)
+{
+     AutoDisconnect ad;
+    // even with the lowest resistance we are at max at 
+    // 3.3v/470*2 Ohm= 3 mA, which is fine
+    Anode.pullUp(TestPin::PULL_LOW);
+    Cathode.pullDown(TestPin::PULL_LOW);   
+    xDelay(5);
+    int adcA,nbA;
+    int adcB,nbB;
+    
+    Anode.slowDmaSample(adcA,nbA);
+    Cathode.slowDmaSample(adcB,nbB);
+
+    float vf=(float)(adcA-adcB);
+    vf/=(float)nbA;
+    vfOut=adcToVolt(vf);
+    return true;
 }
