@@ -6,3 +6,4 @@
 #include "generated/Nmosfet2_decl.h"
 #include "generated/Pmosfet_decl.h"
 #include "generated/NPN_decl.h"
+#include "generated/PNP_decl.h"

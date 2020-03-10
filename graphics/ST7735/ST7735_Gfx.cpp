@@ -137,6 +137,23 @@ void TesterGfx::drawNPN(float hfe, float vf)
       instance->print(st);
       
 }
+
+void TesterGfx::drawPNP(float hfe, float vf)
+{
+      char st[64];
+      
+     
+      instance->drawRLEBitmap(PNP_width,PNP_height,0,0,COMPONENT_COLOR,0,PNP);
+      
+      instance->setCursor(5,BASELINE_PRELAST);
+      Component::prettyPrintPrefix("hfe:",hfe, "",st);      
+      instance->print(st);
+      
+      instance->setCursor(5,BASELINE_LAST);
+      Component::prettyPrintPrefix("Vbe:",vf, "V",st);      
+      instance->print(st);
+      
+}
 /**
  * 
  * @param offset

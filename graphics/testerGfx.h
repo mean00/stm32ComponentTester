@@ -14,6 +14,7 @@ public:
   static void drawPMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int pinGate, int pinUp, int pinDown);
   static void drawNMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int pinGate, int pinUp, int pinDown);
   static void drawNPN(float hfe, float vf);
+  static void drawPNP(float hfe, float vf);
   static void printStatus(const char *status);
 
 };

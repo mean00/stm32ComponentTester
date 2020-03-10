@@ -24,3 +24,4 @@ conv coil
 convGif Nmosfet2
 convGif Pmosfet
 convGif NPN
+convGif PNP
