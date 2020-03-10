@@ -5,3 +5,4 @@
 #include "generated/coil_decl.h"
 #include "generated/Nmosfet2_decl.h"
 #include "generated/Pmosfet_decl.h"
+#include "generated/NPN_decl.h"
