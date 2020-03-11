@@ -22,7 +22,7 @@
  */
 bool PNPBjt::computeVbe(float &vf)
 {
-    bool r=Component::computeDiode(pinBase,pinEmitter,vf);
+    bool r=Component::computeDiode(pinEmitter,pinBase,vf);
     return r;
 }
 
@@ -34,9 +34,10 @@ bool PNPBjt::computeVbe(float &vf)
 bool PNPBjt::computeHfe(float &hfe)
 {
     zeroAllPins();
-    pinEmitter.setToGround();
-    pinBase.pullUp(TestPin::PULL_HI);
-    pinCollector.pullUp(TestPin::PULL_LOW);
+    
+    pinBase.pullDown(TestPin::PULL_HI);
+    pinCollector.pullDown(TestPin::PULL_LOW);
+    pinEmitter.setToVcc();
     xDelay(50);
     float collectorRes=pinCollector.getCurrentRes();
     float baseRes=pinBase.getCurrentRes();
@@ -50,7 +51,7 @@ bool PNPBjt::computeHfe(float &hfe)
             return false;
     }    
     pinBase.pullDown(TestPin::PULL_LOW);
-    pinCollector.pullDown(TestPin::PULL_LOW);
+    pinEmitter.pullDown(TestPin::PULL_LOW);
     
     int nb=nbSamples/2;
     float sumBase=0;
@@ -64,9 +65,9 @@ bool PNPBjt::computeHfe(float &hfe)
     sumCollector/=(float)nb;
     
     // Compute base current
-    float baseCurrent=(4095.-sumBase)/baseRes;
+    float baseCurrent=(sumBase)/baseRes;
     // Compute CE current
-    float ceCurrent=(4095.-sumCollector)/collectorRes;
+    float ceCurrent=(sumCollector)/collectorRes;
     
     if(baseCurrent<1./(1000.*1000.*1000.)) // do not divide by zero
             return false;
