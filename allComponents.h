@@ -6,3 +6,4 @@
 #include "N_Mosfet.h"
 #include "P_Mosfet.h"
 #include "NPN_bjt.h"
+#include "PNP_bjt.h"

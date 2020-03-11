@@ -134,6 +134,11 @@ Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE
             if(topLeft==SIG(HIGH,LOW)&&bottomLeft==SIG(LOW,HIGH)) // NPN
                 return new NPNBjt(C,B,A);
         }
+        if(topLeft==bottomLeft && topLeft==SIG(MEDIUM,MEDIUM))
+        {
+            if(topRight==SIG(HIGH,LOW)&&bottomRight==SIG(LOW,HIGH)) // NPN
+                return new PNPBjt(C,B,A);
+        }
     }
     // Stay the same => dipole
     return identify2poles(A,B,C,type);

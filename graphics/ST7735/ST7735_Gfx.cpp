@@ -126,7 +126,7 @@ void TesterGfx::drawNPN(float hfe, float vf)
       char st[64];
       
      
-      instance->drawRLEBitmap(NPN_width,NPN_height,0,0,COMPONENT_COLOR,0,NPN);
+      instance->drawRLEBitmap(NPN_width,NPN_height,0,INTERLINE,COMPONENT_COLOR,0,NPN);
       
       instance->setCursor(5,BASELINE_PRELAST);
       Component::prettyPrintPrefix("hfe:",hfe, "",st);      
@@ -143,7 +143,7 @@ void TesterGfx::drawPNP(float hfe, float vf)
       char st[64];
       
      
-      instance->drawRLEBitmap(PNP_width,PNP_height,0,0,COMPONENT_COLOR,0,PNP);
+      instance->drawRLEBitmap(PNP_width,PNP_height,0,INTERLINE,COMPONENT_COLOR,0,PNP);
       
       instance->setCursor(5,BASELINE_PRELAST);
       Component::prettyPrintPrefix("hfe:",hfe, "",st);      
