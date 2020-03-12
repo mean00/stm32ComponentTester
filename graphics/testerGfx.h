@@ -13,8 +13,8 @@ public:
   static void drawCoil(int offset, const char *value,int pinA, int pinB);
   static void drawPMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int pinGate, int pinUp, int pinDown);
   static void drawNMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int pinGate, int pinUp, int pinDown);
-  static void drawNPN(float hfe, float vf);
-  static void drawPNP(float hfe, float vf);
+  static void drawNPN(float hfe, float vf,int base, int emitter,int collector);
+  static void drawPNP(float hfe, float vf,int base, int emitter,int collector);
   static void printStatus(const char *status);
 
 };

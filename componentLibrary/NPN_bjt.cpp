@@ -95,7 +95,7 @@ bool NPNBjt::compute()
  */
 bool NPNBjt::draw(int yOffset)
 {
-    TesterGfx::drawNPN(beta,Vf);
+    TesterGfx::drawNPN(beta,Vf, pinBase.pinNumber(), pinEmitter.pinNumber(),pinCollector.pinNumber());
     return true;
 }
 // EOF

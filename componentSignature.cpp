@@ -136,8 +136,8 @@ Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE
         }
         if(topLeft==bottomLeft && topLeft==SIG(MEDIUM,MEDIUM))
         {
-            if(topRight==SIG(HIGH,LOW)&&bottomRight==SIG(LOW,HIGH)) // NPN
-                return new PNPBjt(C,B,A);
+            if(topRight==SIG(HIGH,LOW)&&bottomRight==SIG(LOW,HIGH)) // PNP
+                return new PNPBjt(C,A,B);
         }
     }
     // Stay the same => dipole

@@ -74,6 +74,33 @@ static void printPins(Adafruit_ST7735Ex *instance, int pinA, int pinB)
       instance->setTextColor(0xffff,0);      
 }
 
+#define P_LEFT_X (8)
+#define P_MID_Y ((128-20)/2)
+
+#define P_RIGHT_X   ((128/2)+10)
+#define P_TOP_Y     (20+20)
+#define P_BOTTOM_Y  (128-24)
+
+
+
+
+// Left Bottom Up
+static void print3Pins(Adafruit_ST7735Ex *instance, int pinA, int pinB, int pinC)
+{
+      instance->setTextColor(0x1f,0);      
+      instance->setCursor(P_LEFT_X,P_MID_Y);
+      instance->print(pinA);
+      
+      instance->setCursor(P_RIGHT_X,P_BOTTOM_Y);
+      instance->print(pinB);
+
+      instance->setCursor(P_RIGHT_X,P_TOP_Y);
+      instance->print(pinC);
+            
+      instance->setTextColor(0xffff,0);      
+}
+
+
 /**
  * 
  * @param offset
@@ -121,12 +148,14 @@ void TesterGfx::drawPMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int
       Component::prettyPrintPrefix("Vt:",VfOn, "V",st);      
       instance->print(st);           
 }
-void TesterGfx::drawNPN(float hfe, float vf)
+void TesterGfx::drawNPN(float hfe, float vf,int base, int emitter,int collector)
 {
       char st[64];
       
      
       instance->drawRLEBitmap(NPN_width,NPN_height,0,INTERLINE,COMPONENT_COLOR,0,NPN);
+      
+         print3Pins(instance,base, emitter,collector);
       
       instance->setCursor(5,BASELINE_PRELAST);
       Component::prettyPrintPrefix("hfe:",hfe, "",st);      
@@ -138,12 +167,15 @@ void TesterGfx::drawNPN(float hfe, float vf)
       
 }
 
-void TesterGfx::drawPNP(float hfe, float vf)
+void TesterGfx::drawPNP(float hfe, float vf,int base, int emitter,int collector)
 {
       char st[64];
       
      
       instance->drawRLEBitmap(PNP_width,PNP_height,0,INTERLINE,COMPONENT_COLOR,0,PNP);
+      
+      
+      print3Pins(instance,base, emitter,collector);
       
       instance->setCursor(5,BASELINE_PRELAST);
       Component::prettyPrintPrefix("hfe:",hfe, "",st);      
