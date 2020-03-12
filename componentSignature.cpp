@@ -132,7 +132,10 @@ Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE
         if(topRight==bottomRight && topRight==SIG(MEDIUM,MEDIUM))
         {
             if(topLeft==SIG(HIGH,LOW)&&bottomLeft==SIG(LOW,HIGH)) // NPN
+            {
+                // C is the base, but we are not sure yet about collector & emitter
                 return new NPNBjt(C,B,A);
+            }
         }
         if(topLeft==bottomLeft && topLeft==SIG(MEDIUM,MEDIUM))
         {

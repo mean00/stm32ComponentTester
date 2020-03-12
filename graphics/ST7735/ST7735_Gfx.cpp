@@ -129,7 +129,8 @@ void TesterGfx::drawPMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int
     char st[64];
     
       instance->drawRLEBitmap(Pmosfet_width,Pmosfet_height,0,0,COMPONENT_COLOR,0,Pmosfet);
-    
+      print3Pins(instance,pinGate, pinUp,pinDown);
+      
       instance->setFontSize(Adafruit_ST7735Ex::SmallFont);
       
       instance->setCursor(5,BASELINE_PRELAST2);
@@ -155,7 +156,7 @@ void TesterGfx::drawNPN(float hfe, float vf,int base, int emitter,int collector)
      
       instance->drawRLEBitmap(NPN_width,NPN_height,0,INTERLINE,COMPONENT_COLOR,0,NPN);
       
-         print3Pins(instance,base, emitter,collector);
+      print3Pins(instance,base, emitter,collector);
       
       instance->setCursor(5,BASELINE_PRELAST);
       Component::prettyPrintPrefix("hfe:",hfe, "",st);      
@@ -198,6 +199,9 @@ void TesterGfx::drawNMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int
     char st[64];
     
       instance->drawRLEBitmap(Nmosfet2_width,Nmosfet2_height,0,0,COMPONENT_COLOR,0,Nmosfet2);
+      
+      print3Pins(instance,pinGate, pinDown,pinUp);
+      
       instance->setFontSize(Adafruit_ST7735Ex::SmallFont);
       
       instance->setCursor(5,BASELINE_PRELAST2);
