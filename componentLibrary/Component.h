@@ -31,6 +31,7 @@ public:
             virtual int  nbPins() {return 2;};
             static  void prettyPrintPrefix(const char *prefix,float value, const char *unit,  char *output);
             static  float adcToVolt(float adc);
+            static  int  evaluate(TestPin &pin);
 protected:
             TestPin &_pA, &_pB, &_pC;
             

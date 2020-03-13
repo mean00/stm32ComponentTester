@@ -42,8 +42,16 @@ int getSignature(TestPin &A,TestPin &B)
 {
     return (getSignature(A)<<2)+(getSignature(B));
 }
-
-
+/**
+ */
+int  Component::evaluate(TestPin &pin)
+{
+    int sum,nb;
+    xAssert(pin.slowDmaSample(sum,nb));
+    
+    sum=sum/nb;    
+    return (int)sum;
+}
 /*
  * 
  */
@@ -134,13 +142,52 @@ Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE
             if(topLeft==SIG(HIGH,LOW)&&bottomLeft==SIG(LOW,HIGH)) // NPN
             {
                 // C is the base, but we are not sure yet about collector & emitter
-                return new NPNBjt(C,B,A);
+                // E &C are hard to distinguish
+                // We'll check the bigger HFE to spot Emitter
+                A.pullDown(TestPin::PULL_LOW);
+                B.pullDown(TestPin::PULL_LOW);
+                C.pullUp(TestPin::PULL_HI);
+                xDelay(10);
+                A.pullUp(TestPin::PULL_LOW);
+                int forward=evaluate(A);
+                A.pullDown(TestPin::PULL_LOW);
+                B.pullUp(TestPin::PULL_LOW);
+                xDelay(10);
+                int backward=evaluate(B);
+                
+                // Smaller = Emitter
+                // B E C
+                if(backward<forward)                
+                    return new NPNBjt(C,A,B);
+                else
+                    return new NPNBjt(C,B,A);
+                
             }
         }
         if(topLeft==bottomLeft && topLeft==SIG(MEDIUM,MEDIUM))
         {
+            // same story here
+            // Collector & emitter behave the same
+            // with just a very bad Hfe when connected backward
+            
             if(topRight==SIG(HIGH,LOW)&&bottomRight==SIG(LOW,HIGH)) // PNP
-                return new PNPBjt(C,A,B);
+            {
+                A.pullDown(TestPin::PULL_LOW);
+                B.pullDown(TestPin::PULL_LOW);
+                C.pullDown(TestPin::PULL_HI);  // Base                
+                A.setToVcc();
+                xDelay(10);
+                int forward=evaluate(B);
+                A.pullDown(TestPin::PULL_LOW);
+                xDelay(10);
+                B.setToVcc();
+                int backward=evaluate(A);                
+                B.pullDown(TestPin::PULL_LOW);
+                if(forward>backward)
+                    return new PNPBjt(C,A,B);
+                else
+                    return new PNPBjt(C,B,A);
+            }
         }
     }
     // Stay the same => dipole
