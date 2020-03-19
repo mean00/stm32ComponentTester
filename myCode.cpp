@@ -32,6 +32,8 @@ WavRotary rotary(PB10,PB11); // PB1,PB10,PB11, PB1 is the button
 void MainTask( void *a )
 {
     cpuID::identify();
+    
+    
     TesterGfx::init();
     
     TestPin::initADC(PA0);

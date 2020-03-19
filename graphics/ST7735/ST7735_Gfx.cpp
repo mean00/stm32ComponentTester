@@ -6,6 +6,7 @@
 #include "cpuID.h"
 #include "testerVersion.h"
 #include "Component.h"
+#include "pinConfiguration.h"
 static Adafruit_ST7735Ex *instance=NULL;
 
 #define INTERLINE 15
@@ -18,7 +19,7 @@ static Adafruit_ST7735Ex *instance=NULL;
  */
 void TesterGfx::init()
 {
-    instance=new Adafruit_ST7735Ex(PA4,PA3,PB0);    
+    instance=new Adafruit_ST7735Ex(PIN_ST7735_CS,PIN_ST7735_RS,PIN_ST7735_RST);    
     instance->init();    
     instance->setRotation(2);
     instance->setFontFamily(&FreeSans7pt7b, &FreeSansBold9pt7b, &FreeSansBold9pt7b);  
