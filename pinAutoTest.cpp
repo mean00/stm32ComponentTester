@@ -13,18 +13,21 @@ extern uint32_t  deviceId;
 
 #define Y_OFFSET 20
 
+#define HIGH_CEIL 3960
+#define LOW_FLOOR 10
+
+
+static int easySample(TestPin &M);
+
 static bool singlePinTest(TestPin &A, TestPin &MeasurePin, const char **failure)
 {
+    int sum;
     AutoDisconnect ad;
     {
-        pinMode(MeasurePin.pinADC(),INPUT_ANALOG);
-        A.setToGround();
-        xDelay(10);
-        int sum,nb;
-        if(!MeasurePin.slowDmaSample(sum, nb))
-            return false;
-        sum/=nb;
-        if(sum>11)
+         pinMode(MeasurePin.pinADC(),INPUT_ANALOG);
+        A.setToGround();        
+        sum=easySample(MeasurePin);       
+        if(sum>LOW_FLOOR)
         {
             *failure="G";
             return false;
@@ -32,12 +35,8 @@ static bool singlePinTest(TestPin &A, TestPin &MeasurePin, const char **failure)
     }
     {
         A.setToVcc();
-        xDelay(5);
-        int sum,nb;
-        if(!MeasurePin.slowDmaSample(sum, nb))
-            return false;
-        sum/=nb;
-        if(sum<3900) // might be wrong at high end of the spectrum, take extra margin
+        sum=easySample(MeasurePin);       
+        if(sum<HIGH_CEIL) // might be wrong at high end of the spectrum, take extra margin
         {
             *failure="V";
             return false;
@@ -50,29 +49,21 @@ static bool singlePinTest(TestPin &A, TestPin &MeasurePin, const char **failure)
         TestPin::PULL_STRENGTH strength=(TestPin::PULL_STRENGTH )i;
         *failure=label[i];
         A.pullUp(strength);
-        xDelay(5);
-        int sum,nb;
-        if(!MeasurePin.slowDmaSample(sum, nb))
-            return false;
-        sum/=nb;
-        if(sum<3900) // might be wrong at high end of the spectrum, take extra margin
+        sum=easySample(MeasurePin);       
+        if(sum<HIGH_CEIL) // might be wrong at high end of the spectrum, take extra margin
         {
-            
             return false;
         }
         A.pullDown(strength);
         xDelay(5);
-        if(!MeasurePin.slowDmaSample(sum, nb))
-            return false;
-        sum/=nb;
-        if(sum>11) // might be wrong at high end of the spectrum, take extra margin
+        sum=easySample(MeasurePin);      
+        if(sum>LOW_FLOOR) // might be wrong at high end of the spectrum, take extra margin
         {
             return false;
         }
     }
     
     return true;
-    
 }
 #define RUNTEST(PIN,MPIN,LINE) \
 { \
@@ -113,8 +104,8 @@ bool dualDmaTest(const char *text, TestPin &A, TestPin & B, int line)
     }
     low/=nbSamples;
     hi/=nbSamples;
-    if(hi<4000) return false;
-    if(low>20) return false;
+    if(hi<3950) return false;
+    if(low>40) return false;
             
     return true;
 }
@@ -154,5 +145,14 @@ void pinTest()
         {
 
         }
+}
+
+int easySample(TestPin &M)
+{
+    int sum,nb;
+    xDelay(10);
+    xAssert(M.slowDmaSample(sum, nb)); // should never fail
+    sum/=nb;
+    return sum;
 }
 

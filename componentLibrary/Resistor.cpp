@@ -68,16 +68,6 @@ bool Resistor::compute()
             candidate=i;
         }
     }
-#if 0       
-    extern Ucglib *ucg;
-    for(int i=0;i<n;i++)
-    {
-        float r=computeResistance(adcs[i],resistances[i]);   
-        char st[16];    
-        sprintf(st,"%3.1f",r);     
-        ucg->drawString(10,30+20*i,0,st); 
-    }
-#endif    
     resistance=computeResistance(adcs[candidate],resistances[candidate]);    
     return true;
     

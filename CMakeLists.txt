@@ -11,8 +11,6 @@ cmake_minimum_required(VERSION 2.8)
 Project("stm32ComponentTester" C CXX ASM)
 
 #print_board_list()
-
-
 set(ARDUINO_DEFAULT_BOARD genericSTM32F103C)        # Default Board ID, when not specified
 set(ARDUINO_DEFAULT_PORT ttyACM0) # Default Port, when not specified
 set(ARDUINO_CPU          STM32F103C8)
@@ -39,9 +37,10 @@ ENDFOREACH(comp ${SUB_COMPONENTS})
 SET(UTILS utils/fancyLock.cpp    utils/cycleClock.cpp)
 
 ADD_DEFINITIONS(-D__NOP="")
+include_directories(embedded_printf)
 generate_arduino_firmware(stm32ComponentTester 
                 SKETCH stm32ComponentTester.ino
-                SRCS myCode.cpp testPins.cpp  pinAutoTest.cpp ${UTILS}  ${GFX} componentSignature.cpp deltaADC.cpp nvm.cpp calibration.cpp cpuID.cpp
+                SRCS myCode.cpp testPins.cpp  pinAutoTest.cpp ${UTILS}  ${GFX} componentSignature.cpp deltaADC.cpp nvm.cpp calibration.cpp cpuID.cpp embedded_printf/printf.c
                 PORT ${ARDUINO_DEFAULT_PORT}
                 BOARD_CPU ${ARDUINO_CPU}
                 )

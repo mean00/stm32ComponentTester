@@ -1,9 +1,10 @@
 
 #pragma once
+
 #include "testPins.h"
 #include "testerGfx.h"
 #include "deltaADC.h"
-
+#include "embedded_printf/printf.h"
 enum COMPONENT_TYPE
 {
   COMPONENT_UNKNOWN=0,

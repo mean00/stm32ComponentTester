@@ -19,3 +19,6 @@
 [submodule "rotary/Rotary"]
 	path = rotary/Rotary
 	url = https://github.com/brianlow/Rotary.git
+[submodule "embedded_printf"]
+	path = embedded_printf
+	url = https://github.com/mpaland/printf

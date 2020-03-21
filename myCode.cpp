@@ -10,6 +10,7 @@
 #include "wav_irotary.h"
 #include "componentSignature.h"
 #include "cpuID.h"
+#include "pinConfiguration.h"
 #define LED PC13
 void myLoop(void);
 extern void calibration();
@@ -24,10 +25,9 @@ extern void  pinTest();
 //
 uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
 //
-TestPin   pin1(1,PA2, PA8,  PB5, PB12,PB4,303800,20110,470);  //TestPin(int pinNo, int pinADC, int pinVolt int pinDriveHighRes, int pinDriveMed,int pinDriveLow, int hiRes, int medRes,int lowRes);
-TestPin   pin2(2,PA1, PA9,  PB7, PB13,PB6,303300,20100,470);
-TestPin   pin3(3,PA0, PA10, PB9, PB14,PB8,303000,20130,468);
-WavRotary rotary(PB10,PB11); // PB1,PB10,PB11, PB1 is the button
+#include "pinConfiguration_old.cpp"
+
+WavRotary rotary(PIN_ROTARTY_LEFT,PIN_ROTARTY_RIGHT); // PB1,PB10,PB11, PB1 is the button
 
 void MainTask( void *a )
 {

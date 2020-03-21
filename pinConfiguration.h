@@ -6,4 +6,8 @@
 #define PIN_ST7735_RST PB0
 
 
+#define PIN_ROTARTY_LEFT  PA8
+#define PIN_ROTARTY_RIGHT PA9
+
+
 
