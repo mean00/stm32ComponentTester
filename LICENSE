@@ -1,0 +1,5 @@
+
+The code here is GPL v2
+But it is also using other projects :
+ * It is using embedded printf https://github.com/mpaland/printf, MIT
+ * To be completed
