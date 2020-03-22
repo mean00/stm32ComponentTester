@@ -3,9 +3,13 @@ SET(PLATFORM_ARCHITECTURE "STM32F1")
 # Must be named arduino
 #  else the cmake code will look for ARDUINO
 # while the name will be the name of the folder
+IF(NOT DEFINED CONFIGURATION)
+    SET(CONFIGURATION default)
+ENDIF(NOT DEFINED CONFIGURATION)
+
 include(./platformConfig.cmake)
 SET(CMAKE_TOOLCHAIN_FILE cmake/ArduinoToolchain.cmake)
-MESSAGE(STATUS "Starting hello-stm32")
+MESSAGE(STATUS "Starting Component Tester")
 ADD_DEFINITIONS("-g3")
 cmake_minimum_required(VERSION 2.8)
 Project("stm32ComponentTester" C CXX ASM)
@@ -16,7 +20,8 @@ set(ARDUINO_DEFAULT_PORT ttyACM0) # Default Port, when not specified
 set(ARDUINO_CPU          STM32F103C8)
 SET(libPrefix ${ARDUINO_DEFAULT_BOARD}_)
 #
-
+MESSAGE(STATUS "**** Configuration is ** ${CONFIGURATION} **")
+include_directories(configurations/${CONFIGURATION})
 SET(SUB_COMPONENTS FreeRTOS adc graphics assets rotary componentLibrary)
 FOREACH(comp ${SUB_COMPONENTS})
     include_directories(${comp})

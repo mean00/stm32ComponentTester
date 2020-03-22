@@ -25,7 +25,7 @@ extern void  pinTest();
 //
 uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
 //
-#include "pinConfiguration_old.cpp"
+#include "pinConfiguration.cpp"
 
 WavRotary rotary(PIN_ROTARTY_LEFT,PIN_ROTARTY_RIGHT); // PB1,PB10,PB11, PB1 is the button
 
