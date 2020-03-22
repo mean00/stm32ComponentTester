@@ -23,7 +23,7 @@ public:
     virtual bool  computeRdsOn()=0;
     virtual bool  computeVgOn()=0;
     virtual bool  computeCg()=0;
-
+    int  likely() {return 100;} // Highly likely
 protected:
             adc_smp_rate evaluateSampleRate();
 protected:

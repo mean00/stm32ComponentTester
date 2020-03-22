@@ -116,8 +116,18 @@ void probeMe(TestPin &a,TestPin &b,TestPin &c,Component **comp)
         *comp=c2;
         return ;
     }        
-    
+    bool replace=false;
     if(c2->nbPins()>(*comp)->nbPins())
+    {
+        replace=true;
+    }else
+        // is the detection more reliable for the new one ?
+        if(c2->nbPins()==(*comp)->nbPins())
+            if(c2->likely()>(*comp)->likely())
+            {
+                replace=true;
+            }
+    if(replace)
     {
         delete *comp;
         *comp=c2;

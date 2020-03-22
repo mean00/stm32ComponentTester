@@ -14,7 +14,8 @@ public:
                     }
             virtual bool compute()            ;
             virtual bool draw(int yOffset);
-                    int  nbPins() {return 3;};        
+                    int  nbPins() {return 3;};    
+                    int  likely() {return 100;} // Highly likely
             
 protected:
             float beta;  

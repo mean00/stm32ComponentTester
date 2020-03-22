@@ -33,6 +33,7 @@ public:
             static  void prettyPrintPrefix(const char *prefix,float value, const char *unit,  char *output);
             static  float adcToVolt(float adc);
             static  int  evaluate(TestPin &pin);
+            virtual int  likely()=0; // higher means detection is more reliable
 protected:
             TestPin &_pA, &_pB, &_pC;
             

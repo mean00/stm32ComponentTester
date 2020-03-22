@@ -14,6 +14,7 @@ public:
             virtual bool compute()            ;
             virtual bool draw(int yOffset);
                     int  getValue() {return forward;}
+                    int  likely() {return 100;} // very likely
             
 protected:
             float forward;  

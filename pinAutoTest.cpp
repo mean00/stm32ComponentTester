@@ -13,11 +13,9 @@ extern uint32_t  deviceId;
 
 #define Y_OFFSET 20
 
-#define HIGH_CEIL 3960
-#define LOW_FLOOR 10
 
 
-static int easySample(TestPin &M);
+int easySample(TestPin &M);
 
 static bool singlePinTest(TestPin &A, TestPin &MeasurePin, const char **failure)
 {

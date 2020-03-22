@@ -14,6 +14,8 @@
 
 #define SIG(a,b) (((PIN_SIG_##a)<<2)+(PIN_SIG_##b))
 
+extern int easySample(TestPin &M);
+
 /**
  * 
  * @param A
@@ -23,12 +25,10 @@ static int getSignature(TestPin &A)
 {
     int sum,nb;
     xDelay(10);
-    xAssert(A.slowDmaSample(sum,nb));
-    
-    sum=sum/nb;    
-    if(sum<12)
+    sum=easySample(A);    
+    if(sum<LOW_FLOOR)
         return PIN_SIG_LOW;
-    if(sum>3950)
+    if(sum>HIGH_CEIL)
         return PIN_SIG_HIGH;
     return PIN_SIG_MEDIUM;    
 }

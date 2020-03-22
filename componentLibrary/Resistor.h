@@ -13,6 +13,7 @@ public:
             virtual bool compute()            ;
             virtual bool draw(int yOffset);
                     int  getValue() {return resistance;}
+                    int  likely() {return 50;} // medium likely
             
 protected:
             float resistance;

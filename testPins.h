@@ -87,4 +87,9 @@ public:
 
 void zeroAllPins();
 #define pPICO (1000.*1000.*1000.*1000.)
+
+// Value considered as valid
+#define HIGH_CEIL 3900
+#define LOW_FLOOR 10
+
 // EOF
