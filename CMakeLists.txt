@@ -22,6 +22,7 @@ SET(libPrefix ${ARDUINO_DEFAULT_BOARD}_)
 #
 MESSAGE(STATUS "**** Configuration is ** ${CONFIGURATION} **")
 include_directories(configurations/${CONFIGURATION})
+ADD_DEFINITIONS(-D__NOP="" -DTESTER_CONFIGURATION="${CONFIGURATION}")
 SET(SUB_COMPONENTS FreeRTOS adc graphics assets rotary componentLibrary)
 FOREACH(comp ${SUB_COMPONENTS})
     include_directories(${comp})
@@ -41,7 +42,6 @@ ENDFOREACH(comp ${SUB_COMPONENTS})
 #
 SET(UTILS utils/fancyLock.cpp    utils/cycleClock.cpp)
 
-ADD_DEFINITIONS(-D__NOP="")
 include_directories(embedded_printf)
 generate_arduino_firmware(stm32ComponentTester 
                 SKETCH stm32ComponentTester.ino

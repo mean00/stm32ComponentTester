@@ -5,6 +5,7 @@
 #include "dso_adc.h"
 #include "testerGfx.h"
 #include "MapleFreeRTOS1000_pp.h"
+#include "wav_irotary.h"
 extern TestPin   pin1;
 extern TestPin   pin2;
 extern TestPin   pin3;
@@ -13,6 +14,7 @@ extern uint32_t  deviceId;
 
 #define Y_OFFSET 20
 
+extern WavRotary rotary;
 
 
 int easySample(TestPin &M);
@@ -154,3 +156,31 @@ int easySample(TestPin &M)
     return sum;
 }
 
+
+/**
+ * 
+ */    
+void rotaryTest()
+{
+    int  rot=0;
+    int  c=0;
+    char st[32];
+    xDelay(100);
+    int z;
+    TesterGfx::clear();
+    TesterGfx::print(2,60,"TEST STRING"); // takes 0.3 ms
+
+    while(1)
+    {
+        int inc=rotary.getCount();        
+        if(inc)
+        {
+            rot+=inc;
+            TesterGfx::clear();
+            sprintf(st,"%d-%d",rot,c);
+            TesterGfx::print(20,20,st);
+        }
+        c++;
+        xDelay(10);
+    }
+}

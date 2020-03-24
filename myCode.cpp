@@ -13,6 +13,7 @@
 #include "pinConfiguration.h"
 #define LED PC13
 void myLoop(void);
+extern void rotaryTest();
 extern void calibration();
 uint32_t  deviceId;
 
@@ -27,7 +28,7 @@ uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
 //
 #include "pinConfiguration.cpp"
 
-WavRotary rotary(PIN_ROTARTY_LEFT,PIN_ROTARTY_RIGHT); // PB1,PB10,PB11, PB1 is the button
+WavRotary rotary(PIN_ROTARY_LEFT,PIN_ROTARY_RIGHT); // PB1,PB10,PB11, PB1 is the button
 
 void MainTask( void *a )
 {
@@ -44,26 +45,8 @@ void MainTask( void *a )
     pin3.init();
     xDelay(100);
     rotary.start();
-    
- 
-    
-#if 0   
-    int  rot=0;
-    int  c=0;
-    char st[32];
-    xDelay(100);
-    while(1)
-    {
-        rot+=rotary.getCount();        
-        sprintf(st,"%d-%d",rot,c);
-        TesterGfx::clear();
-        TesterGfx::print(20,20,st);
-        z=micros();
-        TesterGfx::print(2,60,"TEST STRING"); // takes 0.3 ms
-        z=micros()-z;
-        c++;
-        //xDelay(200);
-    }
+#if 0    
+    rotaryTest();
 #endif
     
 #if 0    
@@ -99,6 +82,9 @@ void mySetup(void)
   
   Serial.end(); // dont let usb bother us
   interrupts();
+  Serial1.begin(38400);
+  Serial1.println("Starting...\n");
+  
   
   xTaskCreate( MainTask, "MainTask", 750,NULL, 10, NULL );   
   vTaskStartScheduler();        
