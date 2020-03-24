@@ -8,6 +8,7 @@
 
 #define PIN_ROTARTY_LEFT  PA8
 #define PIN_ROTARTY_RIGHT PA9
+#define PIN_ROTARY_PUSH   PA15
 
 
 

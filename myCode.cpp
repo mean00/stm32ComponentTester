@@ -83,7 +83,7 @@ void mySetup(void)
   Serial.end(); // dont let usb bother us
   interrupts();
   Serial1.begin(38400);
-  Serial1.println("Starting...\n");
+  PRINTF("Starting...\n");
   
   
   xTaskCreate( MainTask, "MainTask", 750,NULL, 10, NULL );   
