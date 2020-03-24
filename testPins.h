@@ -6,7 +6,7 @@
 #include "Arduino.h"
 #include "nvm.h"
 #include "tester_constant.h"
-// mostly internal pin resistance when pulled to VCC or GND
+#include "debug_conf.h"
 
 #define ADC_OFFSET  0 
 
