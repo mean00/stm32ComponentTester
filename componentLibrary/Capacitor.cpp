@@ -229,7 +229,11 @@ bool Capacitor::computeLowCap()
     {
         capacitance=capacitance-_pA._calibration.capOffsetInPf/pPICO;
     }
-    if(capacitance<MINIMUM_DETECTED_CAP/pPICO) capacitance=0.;
+    if(capacitance<MINIMUM_DETECTED_CAP/pPICO) 
+    {
+        capacitance=0.;
+        return false;
+    }
     return true;
 }
 /**
