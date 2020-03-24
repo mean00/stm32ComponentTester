@@ -109,7 +109,15 @@ Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE
     
     // topLeft = Top/bottom with 3rd=0, topRight=top/bottom with rd=1
     // bottomLeft = bottom/top with 3rd=0, topRight=bottom/Top with rd=1
-    
+    PRINTF("Top Left");
+    PRINTF(topLeft);
+    PRINTF("Bottom Left");
+    PRINTF(bottomLeft);
+    PRINTF("Top Right");
+    PRINTF(topRight);
+    PRINTF("Bottom Right");
+    PRINTF(bottomRight);
+
     // if the result differs depending on C, its a transistor of some sort
     if((bottomLeft!=bottomRight) || (topLeft!=topRight)) // tripole
     {        
@@ -239,25 +247,21 @@ Component *Component::identify2poles(TestPin &A, TestPin &B, TestPin &C, COMPONE
     B.setToGround();
     xDelay(100); // 100 ms should give a decent charge
 
-    //now connect both to ground
-
-    // Disconnect them now, they should be connected to Vcc high impedance
-
-    // connect A & B to ground through 300k
-    // if it is a cap, it will "slowly" discharge
-
-     if(!A.prepareDmaSample(  ADC_SMPR_13_5,  ADC_PRE_PCLK2_DIV_6, 512)) 
-        return false;        
+    // if it is a cap, it will "slowly" discharge due to leakage
     // Go!    
     A.disconnect();
     B.pullDown(  TestPin::PULL_HI );   
     int nbSamples;
     uint16_t *samples;
+    xDelay(10); // let it stabilize
+    if(!A.prepareDmaSample(  ADC_SMPR_13_5,  ADC_PRE_PCLK2_DIV_6, 512)) 
+        return false;        
+
     if(!A.finishDmaSample(nbSamples,&samples)) 
     {
         return false;
     }
-    if(samples[100]>100)  // ok it's a cap
+    if(samples[100]>100)  // ok it's a cap (or nothing)
     {
         type=COMPONENT_CAPACITOR;
         zeroAllPins();
