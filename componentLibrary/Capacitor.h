@@ -9,6 +9,7 @@ public:
                     Capacitor( TestPin &A, TestPin &B,TestPin &C) :  Component(A,B,C)
                     {
                       capacitance=0;
+                      computed=false;
                     }
             virtual bool compute()            ;
             virtual bool draw(int yOffset);
@@ -27,6 +28,9 @@ protected:
             bool getRange(int dex, int &range);
             bool getEsr(float &esr);
             bool minMax(bool high,int &minmax);
+            bool computeWrapper();
 public:
             bool calibrationValue(float &c);
+            bool quickEval(float &c);
+            bool computed;
 };

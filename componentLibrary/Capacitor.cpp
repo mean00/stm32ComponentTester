@@ -257,9 +257,39 @@ bool Capacitor::calibrationValue(float &c)
 }
 /**
  * 
+ * @param c
  * @return 
  */
+bool Capacitor::quickEval(float &c)
+{
+    if(!computeHiCap()) return false;
+    if(capacitance<300./pPICO)
+    {
+        capacitance=capacitance-_pA._calibration.capOffsetInPf/pPICO;
+    }
+    if(capacitance<MINIMUM_DETECTED_CAP/pPICO) 
+    {
+        capacitance=0.;
+        return false;
+    }
+    if(capacitance<=0.0)
+        return false;
+    c=capacitance;
+    return true;
+}
+/**
+ * 
+ * @return 
+ */
+
 bool Capacitor::compute()
+{
+    if(computed) return true;
+    computed=computeWrapper();
+    return computed;
+}
+
+bool Capacitor::computeWrapper()
 {
     AutoDisconnect ad;
     capacitance=0;

@@ -126,10 +126,12 @@ Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE
             //
             if((bottomLeft==SIG(LOW,HIGH) ||  bottomLeft==SIG(LOW,MEDIUM) )&&  bottomRight==SIG(MEDIUM,MEDIUM))
             {
+                PRINTF("N MOSFET");
                 return new NMosFet(C,B,A); // k
             }
             if(bottomLeft==SIG(MEDIUM,MEDIUM) && ( bottomRight==SIG(LOW,HIGH)|| bottomRight==SIG(LOW,MEDIUM)))
             {
+                PRINTF("P MOSFET");
                 return new PMosFet(C,A,B); //k
             }
         }
@@ -138,10 +140,12 @@ Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE
         {
             if((topLeft==SIG(HIGH,LOW)|| topLeft==SIG(MEDIUM,LOW)) && topRight==SIG(MEDIUM,MEDIUM))
             {
+                PRINTF("N MOSFET");
                 return new NMosFet(C,A,B);
             }
             if(topLeft==SIG(MEDIUM,MEDIUM) && topRight==SIG(HIGH,LOW)|| topRight==SIG(MEDIUM,LOW))
             {
+                PRINTF("P MOSFET");
                 return new PMosFet(C,B,A);  //k
             }
         }
@@ -165,6 +169,7 @@ Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE
                 
                 // Smaller = Emitter
                 // B E C
+                PRINTF("NPN");
                 if(backward<forward)                
                     return new NPNBjt(C,A,B);
                 else
@@ -191,6 +196,7 @@ Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE
                 B.setToVcc();
                 int backward=evaluate(A);                
                 B.pullDown(TestPin::PULL_LOW);
+                PRINTF("PNP");
                 if(forward>backward)
                     return new PNPBjt(C,A,B);
                 else
@@ -232,11 +238,13 @@ Component *Component::identify2poles(TestPin &A, TestPin &B, TestPin &C, COMPONE
 
     if(topLeft==SIG(MEDIUM,MEDIUM) && bottomLeft==SIG(LOW,HIGH)) // Diodie anode = A
     {
+        PRINTF("DIODE");
         type=COMPONENT_DIODE;
         return new Diode(A,B,C);
     }
     if(bottomLeft==SIG(MEDIUM,MEDIUM) && topLeft==SIG(HIGH,LOW)) // Diodie cathode = A
     {
+       PRINTF("DIODE");
        type=COMPONENT_DIODE;
        return new Diode(B,A,C);
     }        
@@ -263,10 +271,22 @@ Component *Component::identify2poles(TestPin &A, TestPin &B, TestPin &C, COMPONE
     }
     if(samples[100]>100)  // ok it's a cap (or nothing)
     {
+        PRINTF("CAPACITOR");
+        // We need to evaluate it to confirm
+        // too bad we'll do it twice
         type=COMPONENT_CAPACITOR;
+        Capacitor *c= new Capacitor(A,B,C);
+        if(c->compute())
+        {
+            PRINTF("CONFIRMED");
+            return c;
+        }
+        delete c;
+        PRINTF("NOT");
         zeroAllPins();
-        return new Capacitor(A,B,C);
+        return NULL;
     }
+    PRINTF("RESISTOR");
     type=COMPONENT_RESISTOR;
     zeroAllPins();    
     return new Resistor(A,B,C);
