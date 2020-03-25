@@ -16,5 +16,7 @@ public:
     void        interrupt();
 protected:
   int           _pin;
-  EVENTS        _event;
+  int           _event;
+  uint32_t      _lastRead;
+  uint32_t      _down; // time down was detected
 };

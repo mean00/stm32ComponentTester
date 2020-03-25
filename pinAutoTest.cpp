@@ -6,6 +6,7 @@
 #include "testerGfx.h"
 #include "MapleFreeRTOS1000_pp.h"
 #include "wav_irotary.h"
+#include "pushButton.h"
 extern TestPin   pin1;
 extern TestPin   pin2;
 extern TestPin   pin3;
@@ -15,7 +16,7 @@ extern uint32_t  deviceId;
 #define Y_OFFSET 20
 
 extern WavRotary rotary;
-
+extern PushButton *pushButton;
 
 int easySample(TestPin &M);
 
@@ -170,15 +171,32 @@ void rotaryTest()
     TesterGfx::clear();
     TesterGfx::print(2,60,"TEST STRING"); // takes 0.3 ms
 
+    int nbShort=0;
+    int nbLong=0;
+    
     while(1)
     {
+        bool refresh=false;
+        int evt=pushButton->getEvent();
+        if(evt & PushButton::SHORT_PRESS)  {nbShort++;refresh=true;}
+        if(evt & PushButton::LONG_PRESS)   {nbLong++;refresh=true;}
+        
         int inc=rotary.getCount();        
         if(inc)
         {
             rot+=inc;
+            refresh=true;
+        }
+        if(refresh)
+        {
             TesterGfx::clear();
             sprintf(st,"%d-%d",rot,c);
             TesterGfx::print(20,20,st);
+            sprintf(st,"Long %d",nbLong);
+            TesterGfx::print(20,40,st);
+            sprintf(st,"Short %d",nbShort);
+            TesterGfx::print(20,60,st);
+
         }
         c++;
         xDelay(10);

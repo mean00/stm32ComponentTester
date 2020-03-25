@@ -11,6 +11,7 @@
 #include "componentSignature.h"
 #include "cpuID.h"
 #include "pinConfiguration.h"
+#include "pushButton.h"
 #define LED PC13
 void myLoop(void);
 extern void rotaryTest();
@@ -19,6 +20,7 @@ uint32_t  deviceId;
 
 uint32_t  memDensity=0;
 uint32_t cr2;
+PushButton *pushButton;
 //
 int result[20];
 int z,zz;
@@ -43,9 +45,12 @@ void MainTask( void *a )
     pin1.init();
     pin2.init();
     pin3.init();
+    
+    pushButton=new PushButton(PIN_ROTARY_PUSH);
+    
     xDelay(100);
     rotary.start();
-#if 0    
+#if 1  
     rotaryTest();
 #endif
     
