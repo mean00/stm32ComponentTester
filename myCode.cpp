@@ -38,6 +38,7 @@ void MainTask( void *a )
     
     
     TesterGfx::init();
+    TesterGfx::splash();
     
     TestPin::initADC(PA0);
     
@@ -135,6 +136,21 @@ void probeMe(TestPin &a,TestPin &b,TestPin &c,Component **comp)
 void myLoop(void)
 {
     COMPONENT_TYPE type;
+    
+    // 1 : Zeroing
+    TesterGfx::clear();
+    TesterGfx::print(30,40,"Zeroing..");
+    zeroAllPins();
+    TesterGfx::clear();
+    TesterGfx::print(0,40,"Click to probe");
+    while(!(pushButton->getEvent() & PushButton::SHORT_PRESS))
+    {
+        xDelay(50);
+    }
+next:
+    TesterGfx::clear();
+    TesterGfx::print(0,40,"Detecting");
+    
 #if 1  
     Component *c=NULL;
     probeMe(pin1,pin2,pin3,&c);
@@ -152,11 +168,19 @@ void myLoop(void)
         xDelay(1000);
         return;
     }
-      
+    TesterGfx::clear();
+    TesterGfx::print(0,40,"Measuring");
+
     if(c->compute())
     {     
         TesterGfx::clear();
         c->draw(0);
+        while(!(pushButton->getEvent() & PushButton::SHORT_PRESS))
+        {
+            xDelay(50);
+        }
+        goto next;
+
         
     }
     delete c;

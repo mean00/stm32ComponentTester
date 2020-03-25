@@ -33,25 +33,34 @@ void TesterGfx::init()
     instance->setRotation(2);
     instance->setFontFamily(&FONT1, &FONT2, &FONT2);  
     instance->setFont(&FONT2 /*&Waree9pt7b*/);
-    instance->fillScreen(0x0);  
-    
+    instance->fillScreen(0x0);      
     instance->setFontSize(Adafruit_ST7735Ex::MediumFont);
     instance->setTextColor(0xFFFF,0);    
-    instance->setCursor(4,30);
+}
+/**
+ */
+void TesterGfx::splash()
+{
+#define INC 23
+#define LINE(x) (23+INC*x)
+    instance->fillScreen(0x0);
+    instance->setCursor(10,LINE(0));
     instance->print("Component");
-    instance->setCursor(4,50);
-    instance->print("    Tester");    
-    instance->setCursor(36,70);        
+    instance->setCursor(20,LINE(1));
+    instance->print("Tester");    
+    instance->setCursor(40,LINE(2));        
     instance->print( TESTER_VERSION );
-    instance->setCursor(36,90);        
-    instance->print( TESTER_CONFIGURATION );
     
     
     instance->setFontSize(Adafruit_ST7735Ex::SmallFont);
-    instance->setCursor(0,96);
-    instance->print(cpuID::getIdAsString());
-    instance->setFontSize(Adafruit_ST7735Ex::MediumFont);
+    instance->setCursor(0,LINE(4)-4);        
+    instance->print( TESTER_CONFIGURATION );
     
+    instance->setCursor(0,LINE(4)+12);
+    instance->print(cpuID::getIdAsString());
+    instance->setFontSize(Adafruit_ST7735Ex::MediumFont);    
+    xDelay(2000);
+    instance->fillScreen(0x0);
 }
 /**
  * 
