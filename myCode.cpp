@@ -50,7 +50,7 @@ void MainTask( void *a )
     
     xDelay(100);
     rotary.start();
-#if 1  
+#if 0  
     rotaryTest();
 #endif
     
