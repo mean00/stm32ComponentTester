@@ -19,7 +19,7 @@ python3 convert.py $1.png generated/$1_compressed.h generated/$1_decl.h $1
 conv resistor
 conv cap
 conv splash
-conv2 diode
+convGif diode
 conv coil
 convGif Nmosfet2
 convGif Pmosfet

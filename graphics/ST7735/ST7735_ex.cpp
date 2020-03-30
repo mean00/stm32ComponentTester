@@ -159,6 +159,12 @@ void Adafruit_ST7735Ex::drawRLEBitmap(int widthInPixel, int height, int wx, int 
             }
             x+=count;
         }    
+        // Padd if needed with bg color if not multiple of 8, this is a hack
+        // Fixme : handle that properly
+        for(int j=widthInByte*8;j<widthInPixel;j++)
+        {
+            *o++=bgcolor;
+        }
         pushColors16(line,widthInPixel,true);
         first=false;
     }   
