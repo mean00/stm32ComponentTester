@@ -51,6 +51,20 @@ void MainTask( void *a )
     
     xDelay(100);
     rotary.start();
+    
+#if 0
+    //TesterGfx::drawDiode(0,"5pf",1,2);
+    //TesterGfx::drawResistor(0,"5kO",1,2);
+    //TesterGfx::drawCapacitor(0,"5pF",1,2);
+    TesterGfx::drawCoil(0,"5pF",1,2);
+    
+    
+    while(1)
+    {
+        
+    };
+#endif    
+    
 #if 0  
     rotaryTest();
 #endif
@@ -175,6 +189,7 @@ next:
     {     
         TesterGfx::clear();
         c->draw(0);
+        zeroAllPins();
         while(!(pushButton->getEvent() & PushButton::SHORT_PRESS))
         {
             xDelay(50);

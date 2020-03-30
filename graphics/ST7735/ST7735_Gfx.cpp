@@ -25,6 +25,22 @@ static Adafruit_ST7735Ex *instance=NULL;
 #define BASELINE_PRELAST3 (BASELINE_LAST-INTERLINE*3)
 
 /**
+ * 
+ * @param title
+ */
+void xtitle(const char *title) 
+{
+   // guestimate width
+    int l=strlen(title);
+    l*=11;
+    int center=(128-l)/2;
+    if(center<0) center=0;
+    instance->setCursor(center,INTERLINE);
+    instance->print(title) ;
+}
+
+
+/**
  */
 void TesterGfx::init()
 {
@@ -121,22 +137,6 @@ static void print3Pins(Adafruit_ST7735Ex *instance, int pinA, int pinB, int pinC
 }
 
 
-/**
- * 
- * @param offset
- * @param value
- * @param pinA
- * @param pinB
- */
-void TesterGfx::drawCapacitor(int offset, const char *value,int pinA, int pinB)
-{
-
-      instance->drawRLEBitmap(cap_width,cap_height,0,0,COMPONENT_COLOR,0,cap);
-      printPins(instance,pinA,pinB);
-      instance->setCursor(5,98);
-      instance->print("C=");
-      instance->print(value);
-}
 /**
  * 
  * @param offset
@@ -241,6 +241,16 @@ void TesterGfx::drawNMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int
       instance->print(st);           
 }
 
+
+void simple2Pole(int offset, const char *title,const char *value, const char *prefix, int pinA,int pinB)
+{
+    xtitle(title);   
+    printPins(instance,pinA,pinB);
+    instance->setCursor(5,BASELINE_PRELAST);
+    instance->print(prefix);
+    instance->print(value);
+}
+
 /**
  * 
  * @param offset
@@ -250,13 +260,9 @@ void TesterGfx::drawNMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int
  */
 void TesterGfx::drawCoil(int offset, const char *value,int pinA, int pinB)
 {
-
-      instance->drawRLEBitmap(coil_width,coil_height,0,0,COMPONENT_COLOR,0,coil);
-      printPins(instance,pinA,pinB);
-      instance->setCursor(5,98);
-      instance->print("H=");
-      instance->print(value);
-      
+    clear();      
+    instance->drawRLEBitmap(coil_width,coil_height,0,0,COMPONENT_COLOR,0,coil);
+    simple2Pole(offset,"Coil",value,"H=",pinA,pinB);
 }
 /**
  * 
@@ -267,12 +273,9 @@ void TesterGfx::drawCoil(int offset, const char *value,int pinA, int pinB)
  */
 void TesterGfx::drawResistor(int offset, const char *value,int pinA, int pinB)
 {
-
-      instance->drawRLEBitmap(resistor_width,resistor_height,0,0,COMPONENT_COLOR,0,resistor);
-      printPins(instance,pinA,pinB);
-      instance->setCursor(5,98);
-      instance->print("R=");
-      instance->print(value);
+    clear();      
+    instance->drawRLEBitmap(resistor_width,resistor_height,0,0,COMPONENT_COLOR,0,resistor);
+    simple2Pole(offset,"Resistor",value,"R=",pinA,pinB);
 }
 /**
  * 
@@ -283,12 +286,23 @@ void TesterGfx::drawResistor(int offset, const char *value,int pinA, int pinB)
  */
 void TesterGfx::drawDiode(int offset, const char *value,int pinA, int pinB)
 {
+    clear();      
+    instance->drawRLEBitmap(diode_width,diode_height,0,0,COMPONENT_COLOR,0,diode);
+    simple2Pole(offset,"Diode",value,"Vf=",pinA,pinB);   
+}
 
-      instance->drawRLEBitmap(diode_width,diode_height,0,0,COMPONENT_COLOR,0,diode);
-      printPins(instance,pinA,pinB);      
-      instance->setCursor(5,98);
-      instance->print("Vf=");
-      instance->print(value);    
+/**
+ * 
+ * @param offset
+ * @param value
+ * @param pinA
+ * @param pinB
+ */
+void TesterGfx::drawCapacitor(int offset, const char *value,int pinA, int pinB)
+{
+    clear();      
+    instance->drawRLEBitmap(cap_width,cap_height,0,0,COMPONENT_COLOR,0,cap);
+    simple2Pole(offset,"Cap",value,"C=",pinA,pinB);   
 }
 /**
  * 
@@ -296,7 +310,5 @@ void TesterGfx::drawDiode(int offset, const char *value,int pinA, int pinB)
  */
 void TesterGfx::printStatus(const char *status)
 {
-    instance->setCursor(5,16);
-    instance->fillRect(0,16-16,128,16,0);
-    instance->print(status);
+    Serial.println(status);
 }

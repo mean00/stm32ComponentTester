@@ -1209,4 +1209,36 @@ Wire Wire Line
 	5350 3850 5900 3850
 Wire Wire Line
 	5900 3850 5900 6200
+$Comp
+L Amplifier_Operational:LMV324 U?
+U 4 1 5E7D1B3F
+P 6450 900
+F 0 "U?" H 6450 533 50  0000 C CNN
+F 1 "LMV324" H 6450 624 50  0000 C CNN
+F 2 "" H 6400 1000 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/lmv324.pdf" H 6500 1100 50  0001 C CNN
+	4    6450 900 
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	6750 800  6750 550 
+Wire Wire Line
+	6750 550  6150 550 
+Wire Wire Line
+	6150 550  6150 900 
+$Comp
+L power:GND #PWR?
+U 1 1 5E7DD9B3
+P 6850 1050
+F 0 "#PWR?" H 6850 800 50  0001 C CNN
+F 1 "GND" H 6855 877 50  0000 C CNN
+F 2 "" H 6850 1050 50  0001 C CNN
+F 3 "" H 6850 1050 50  0001 C CNN
+	1    6850 1050
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6750 1000 6850 1000
+Wire Wire Line
+	6850 1000 6850 1050
 $EndSCHEMATC
