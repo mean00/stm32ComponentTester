@@ -222,9 +222,8 @@ void drawMosfetInfo(Adafruit_ST7735Ex *instance, float RdsOn, float Cg, float Vf
  */
 void TesterGfx::drawPMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int pinGate, int pinUp, int pinDown)
 {
-    simple3Pole(0, "P Mos", pinGate,pinDown,pinUp, Pmosfet_width,Pmosfet_height, Pmosfet);
-    drawMosfetInfo(instance,RdsOn,   Cg,   VfOn,   Vdiode);
-   
+    simple3Pole(0, "P Mos", pinGate,pinUp,pinDown, Pmosfet_width,Pmosfet_height, Pmosfet);
+    drawMosfetInfo(instance,RdsOn,   Cg,   VfOn,   Vdiode);  
 }
 /**
  * 
