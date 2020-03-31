@@ -77,6 +77,8 @@ bool NMosFet::compute()
  */
 bool NMosFet::computeVgOn()
 {
+    
+    Debug("NMosfet VgOn");
     AutoDisconnect ad;
      // Pull the gate to Ground so it is passing
     pinGate.pullDown(TestPin::PULL_LOW);    
@@ -95,7 +97,8 @@ bool NMosFet::computeVgOn()
     pinGate.pullUp(TestPin::PULL_HI);
     if(!pinGate.finishDmaSample(nbSamples,&samples)) 
     {
-            return false;
+        Debug("Dma failed");
+        return false;
     }    
     pinGate.disconnect();
     pinDrain.disconnect();
@@ -116,9 +119,14 @@ bool NMosFet::computeVgOn()
         if(samples[2*i+1]<2000) // It's passing !
         {
             this->_vGsOn=adcToVolt(samples[2*i]);
+            Debug("NMosfet VgOn OK");            
             return true;            
         }
     }
+    Debug("No passing \n");
+    Debug(nbSamples);
+    Debug("-- last sample -- \n");
+    Debug(samples[nbSamples*2]);
     return false;
 }
 // EOF
