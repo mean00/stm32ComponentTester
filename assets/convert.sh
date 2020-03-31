@@ -16,8 +16,8 @@ conv2()
 rm -f converted/$1*
 python3 convert.py $1.png generated/$1_compressed.h generated/$1_decl.h $1
 }
-conv resistor
-conv cap
+convGif resistor
+convGif cap
 conv splash
 convGif diode
 conv coil

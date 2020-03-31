@@ -1,1 +1,3 @@
-PNP: From wikimedia.org, author MovGP0, license public domain commons.wikimedia.org/wiki/File:Symbol_NPN_Transistor.svg
+NPN: From wikimedia.org, author MovGP0, license public domain commons.wikimedia.org/wiki/File:Symbol_NPN_Transistor.svg
+PNP same commons.wikimedia.org/wiki/File:Symbol_PNP_Transistor.svg
+

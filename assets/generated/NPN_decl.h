@@ -1,3 +1,3 @@
-#define NPN_width 128
-#define NPN_height 96
+#define NPN_width 48
+#define NPN_height 48
 extern const unsigned char NPN[];
