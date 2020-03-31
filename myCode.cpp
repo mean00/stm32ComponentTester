@@ -168,8 +168,11 @@ next:
 #if 1  
     Component *c=NULL;
     probeMe(pin1,pin2,pin3,&c);
+    TesterGfx::print(20,75,"*");
     probeMe(pin1,pin3,pin2,&c);
-    probeMe(pin2,pin3,pin1,&c);    
+    TesterGfx::print(40,75,"*");
+    probeMe(pin2,pin3,pin1,&c); 
+    TesterGfx::print(60,75,"*");
     
 #else
     TesterGfx::printStatus("Probing");
@@ -195,8 +198,6 @@ next:
             xDelay(50);
         }
         goto next;
-
-        
     }
     delete c;
     TesterGfx::printStatus("-------------");
