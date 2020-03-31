@@ -191,20 +191,9 @@ void TesterGfx::drawPNP(float hfe, float vf,int base, int emitter,int collector)
       instance->print(st);
       
 }
-
-/**
- * 
- * @param offset
- * @param value
- * @param pinA
- * @param pinB
- */
-void TesterGfx::drawPMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int pinGate, int pinUp, int pinDown)
+void drawMosfetInfo(Adafruit_ST7735Ex *instance, float RdsOn, float Cg, float VfOn,float Vdiode)
 {
     char st[64];
-    
-      simple3Pole(0, "P Mos", pinGate,pinUp,pinDown, Pmosfet_width,Pmosfet_height, Pmosfet);
-    
       instance->setFontSize(Adafruit_ST7735Ex::SmallFont);
       
       instance->setCursor(5,BASELINE_PRELAST2);
@@ -221,7 +210,21 @@ void TesterGfx::drawPMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int
       
       instance->setCursor(5,BASELINE_PRELAST3);
       Component::prettyPrintPrefix("Vt:",VfOn, "V",st);      
-      instance->print(st);           
+      instance->print(st);     
+      instance->setFontSize(Adafruit_ST7735Ex::MediumFont);          
+}
+/**
+ * 
+ * @param offset
+ * @param value
+ * @param pinA
+ * @param pinB
+ */
+void TesterGfx::drawPMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int pinGate, int pinUp, int pinDown)
+{
+    simple3Pole(0, "P Mos", pinGate,pinDown,pinUp, Pmosfet_width,Pmosfet_height, Pmosfet);
+    drawMosfetInfo(instance,RdsOn,   Cg,   VfOn,   Vdiode);
+   
 }
 /**
  * 
@@ -232,29 +235,9 @@ void TesterGfx::drawPMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int
  */
 void TesterGfx::drawNMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int pinGate, int pinUp, int pinDown)
 {
-    char st[64];
-    
-      instance->drawRLEBitmap(Nmosfet2_width,Nmosfet2_height,0,0,COMPONENT_COLOR,0,Nmosfet2);
       
-      print3Pins(instance,pinGate, pinDown,pinUp);
-      
-      instance->setFontSize(Adafruit_ST7735Ex::SmallFont);
-      
-      instance->setCursor(5,BASELINE_PRELAST2);
-      Component::prettyPrintPrefix("RdsOn:",RdsOn, "O",st);      
-      instance->print(st);
-      
-      instance->setCursor(5,BASELINE_PRELAST);
-      Component::prettyPrintPrefix("Diode:",Vdiode, "V",st);      
-      instance->print(st);
-      
-      instance->setCursor(5,BASELINE_LAST);
-      Component::prettyPrintPrefix("Cg:",Cg, "F",st);      
-      instance->print(st);
-      
-      instance->setCursor(5,BASELINE_PRELAST3);
-      Component::prettyPrintPrefix("Vt:",VfOn, "V",st);      
-      instance->print(st);           
+      simple3Pole(0, "N Mos", pinGate,pinDown,pinUp, Nmosfet2_width,Nmosfet2_height, Nmosfet2);
+      drawMosfetInfo(instance,RdsOn,   Cg,   VfOn,   Vdiode);       
 }
 
 
