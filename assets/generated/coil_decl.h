@@ -1,3 +1,3 @@
-#define coil_width 128
-#define coil_height 96
+#define coil_width 98
+#define coil_height 54
 extern const unsigned char coil[];

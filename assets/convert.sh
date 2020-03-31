@@ -20,7 +20,7 @@ convGif resistor
 convGif cap
 conv splash
 convGif diode
-conv coil
+convGif coil
 convGif Nmosfet2
 convGif Pmosfet
 convGif NPN
