@@ -154,6 +154,44 @@ void print3Pins(Adafruit_ST7735Ex *instance, int pinA, int pinB, int pinC)
 }
 
 
+void TesterGfx::drawNPN(float hfe, float vf,int base, int emitter,int collector)
+{
+    char st[64];
+
+   simple3Pole(0, "NPN", base,emitter,collector, NPN_width,NPN_height, NPN);
+
+   instance->setCursor(5,BASELINE_PRELAST);
+   Component::prettyPrintPrefix("hfe:",hfe, "",st);      
+   instance->print(st);
+
+   instance->setCursor(5,BASELINE_LAST);
+   Component::prettyPrintPrefix("Vbe:",vf, "V",st);      
+   instance->print(st);      
+}
+/**
+ * 
+ * @param hfe
+ * @param vf
+ * @param base
+ * @param emitter
+ * @param collector
+ */
+void TesterGfx::drawPNP(float hfe, float vf,int base, int emitter,int collector)
+{
+      char st[64];
+      
+      simple3Pole(0, "PNP", base,emitter,collector, PNP_width,PNP_height, PNP);
+      
+      instance->setCursor(5,BASELINE_PRELAST);
+      Component::prettyPrintPrefix("hfe:",hfe, "",st);      
+      instance->print(st);
+      
+      instance->setCursor(5,BASELINE_LAST);
+      Component::prettyPrintPrefix("Vbe:",vf, "V",st);      
+      instance->print(st);
+      
+}
+
 /**
  * 
  * @param offset
@@ -165,9 +203,8 @@ void TesterGfx::drawPMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int
 {
     char st[64];
     
-      instance->drawRLEBitmap(Pmosfet_width,Pmosfet_height,0,0,COMPONENT_COLOR,0,Pmosfet);
-      print3Pins(instance,pinGate, pinUp,pinDown);
-      
+      simple3Pole(0, "P Mos", pinGate,pinUp,pinDown, Pmosfet_width,Pmosfet_height, Pmosfet);
+    
       instance->setFontSize(Adafruit_ST7735Ex::SmallFont);
       
       instance->setCursor(5,BASELINE_PRELAST2);
@@ -185,36 +222,6 @@ void TesterGfx::drawPMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int
       instance->setCursor(5,BASELINE_PRELAST3);
       Component::prettyPrintPrefix("Vt:",VfOn, "V",st);      
       instance->print(st);           
-}
-void TesterGfx::drawNPN(float hfe, float vf,int base, int emitter,int collector)
-{
-    char st[64];
-
-   simple3Pole(0, "NPN", base,emitter,collector, NPN_width,NPN_height, NPN);
-
-   instance->setCursor(5,BASELINE_PRELAST);
-   Component::prettyPrintPrefix("hfe:",hfe, "",st);      
-   instance->print(st);
-
-   instance->setCursor(5,BASELINE_LAST);
-   Component::prettyPrintPrefix("Vbe:",vf, "V",st);      
-   instance->print(st);      
-}
-
-void TesterGfx::drawPNP(float hfe, float vf,int base, int emitter,int collector)
-{
-      char st[64];
-      
-      simple3Pole(0, "PNP", base,emitter,collector, PNP_width,PNP_height, PNP);
-      
-      instance->setCursor(5,BASELINE_PRELAST);
-      Component::prettyPrintPrefix("hfe:",hfe, "",st);      
-      instance->print(st);
-      
-      instance->setCursor(5,BASELINE_LAST);
-      Component::prettyPrintPrefix("Vbe:",vf, "V",st);      
-      instance->print(st);
-      
 }
 /**
  * 

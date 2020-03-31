@@ -1,3 +1,5 @@
 NPN: From wikimedia.org, author MovGP0, license public domain commons.wikimedia.org/wiki/File:Symbol_NPN_Transistor.svg
 PNP same commons.wikimedia.org/wiki/File:Symbol_PNP_Transistor.svg
+N mosfet https://upload.wikimedia.org/wikipedia/commons/f/f8/Enh_N_channel_Mosfet.svg Creative Commons Attribution-Share Alike 4.0 International Erik Buer
+P mosfet same as above
 
