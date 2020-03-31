@@ -145,9 +145,9 @@ adc_smp_rate Mosfet::evaluateSampleRate()
     float clock=72000000/6;
     float rc=(float)_pA.getRes(TestPin::PULLUP_HI)*this->_capacitance; // in seconds        
     // Rc is the time to charge the cap up to 70%
-    // if we take 3*Rc, the cap is charged up to 95 % (1-exp(-3))
+    // if we take 2*Rc, the cap is charged up to 86 % (1-exp(-2)) =~ 2.8 V
     // and we add 15 us , time to setup the charge
-    rc=3*rc+15./1000000;
+    rc=2*rc+15./1000000;
     // we want i/300 of that
     rc=rc/300.;
     int n=sizeof(clockDivier)/sizeof(int);
