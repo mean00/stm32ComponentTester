@@ -24,6 +24,14 @@ static Adafruit_ST7735Ex *instance=NULL;
 #define BASELINE_PRELAST2 (BASELINE_LAST-INTERLINE*2)
 #define BASELINE_PRELAST3 (BASELINE_LAST-INTERLINE*3)
 
+
+#define CAP_LINE 54
+#define CAP_COL1 8
+#define CAP_COL2 128-20
+#define COMPONENT_COLOR (0x1f<<6)
+
+static void print3Pins(Adafruit_ST7735Ex *instance, int pinA, int pinB, int pinC);
+
 /**
  * 
  * @param title
@@ -37,6 +45,20 @@ void xtitle(const char *title)
     if(center<0) center=0;
     instance->setCursor(center,INTERLINE);
     instance->print(title) ;
+}
+
+
+void simple3Pole(int offset, const char *title, int pinA,int pinB,int pinC, int w, int h, const uint8_t *data)
+{
+    TesterGfx::clear();
+
+    int mid=(86-h)/2;    
+    if(h>86) mid=0;
+    int center=(128-w)/2;
+    if(center<0) center=0;
+    instance->drawRLEBitmap(w,h,center,mid+INTERLINE,COMPONENT_COLOR,0,data);
+    xtitle(title);      
+    print3Pins(instance,pinA,pinB,pinC);
 }
 
 
@@ -95,11 +117,6 @@ void TesterGfx::print(int x, int y, const char *txt)
 };
 
 
-#define CAP_LINE 54
-#define CAP_COL1 8
-#define CAP_COL2 128-20
-#define COMPONENT_COLOR (0x1f<<6)
-
 static void print2Pins(Adafruit_ST7735Ex *instance, int pinA, int pinB, int line)
 {
       instance->setTextColor(0x1f,0);      
@@ -121,7 +138,7 @@ static void print2Pins(Adafruit_ST7735Ex *instance, int pinA, int pinB, int line
 
 
 // Left Bottom Up
-static void print3Pins(Adafruit_ST7735Ex *instance, int pinA, int pinB, int pinC)
+void print3Pins(Adafruit_ST7735Ex *instance, int pinA, int pinB, int pinC)
 {
       instance->setTextColor(0x1f,0);      
       instance->setCursor(P_LEFT_X,P_MID_Y);
@@ -171,21 +188,21 @@ void TesterGfx::drawPMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int
 }
 void TesterGfx::drawNPN(float hfe, float vf,int base, int emitter,int collector)
 {
-      char st[64];
-      
-     
-      instance->drawRLEBitmap(NPN_width,NPN_height,0,INTERLINE,COMPONENT_COLOR,0,NPN);
-      
-      print3Pins(instance,base, emitter,collector);
-      
-      instance->setCursor(5,BASELINE_PRELAST);
-      Component::prettyPrintPrefix("hfe:",hfe, "",st);      
-      instance->print(st);
-      
-      instance->setCursor(5,BASELINE_LAST);
-      Component::prettyPrintPrefix("Vbe:",vf, "V",st);      
-      instance->print(st);
-      
+    char st[64];
+
+   simple3Pole(0, "NPN", base,emitter,collector, NPN_width,NPN_height, NPN);
+
+
+   //instance->drawRLEBitmap(NPN_width,NPN_height,0,INTERLINE,COMPONENT_COLOR,0,NPN);
+   //print3Pins(instance,base, emitter,collector);
+
+   instance->setCursor(5,BASELINE_PRELAST);
+   Component::prettyPrintPrefix("hfe:",hfe, "",st);      
+   instance->print(st);
+
+   instance->setCursor(5,BASELINE_LAST);
+   Component::prettyPrintPrefix("Vbe:",vf, "V",st);      
+   instance->print(st);      
 }
 
 void TesterGfx::drawPNP(float hfe, float vf,int base, int emitter,int collector)
