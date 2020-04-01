@@ -7,7 +7,7 @@ class PNPBjt : public Component
 {
 public:                
                     // PinA is Anode, pinB is cathode
-                    PNPBjt( TestPin &Base, TestPin &Emitter,TestPin &Collector) :  Component(Base,Emitter,Collector)
+                    PNPBjt( TestPin &Base, TestPin &Emitter,TestPin &Collector) :  Component(Base,Emitter,Collector,"PNP")
                     {
                       beta=0;
                       Vf=0;

@@ -7,7 +7,7 @@ class Diode : public Component
 {
 public:                
                     // PinA is Anode, pinB is cathode
-                    Diode( TestPin &A, TestPin &B,TestPin &C) :  Component(A,B,C)
+                    Diode( TestPin &A, TestPin &B,TestPin &C) :  Component(A,B,C,"Diode")
                     {
                       forward=0;
                     }

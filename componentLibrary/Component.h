@@ -23,9 +23,10 @@ enum COMPONENT_TYPE
 class Component
 {
 public:
-                    Component(TestPin &A, TestPin &B,TestPin &C) : _pA(A),_pB(B),_pC(C)
+                    Component(TestPin &A, TestPin &B,TestPin &C,const char *shortName) : _pA(A),_pB(B),_pC(C),_shortName(shortName)
                     {
                     }
+            virtual const char *getShortName() {return _shortName;};
             virtual bool compute()=0;
             virtual bool draw(int yOffset)=0;
             static  void prettyPrint(float value, const char *unit,  char *output);
@@ -36,6 +37,7 @@ public:
             virtual int  likely()=0; // higher means detection is more reliable
 protected:
             TestPin &_pA, &_pB, &_pC;
+            const char    *_shortName;
             
 public:
     static          Component *identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type);

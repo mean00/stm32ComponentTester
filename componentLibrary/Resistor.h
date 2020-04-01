@@ -6,7 +6,7 @@
 class Resistor : public Component
 {
 public:                 
-                    Resistor( TestPin &A, TestPin &B,TestPin &C) :  Component(A,B,C)
+                    Resistor( TestPin &A, TestPin &B,TestPin &C) :  Component(A,B,C,"Resistor")
                     {
                       resistance=0;
                     }

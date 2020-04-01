@@ -6,7 +6,7 @@
 class Mosfet : public Component
 {
 public:
-    Mosfet(TestPin &A, TestPin &B,TestPin &C) :  Component(A,B,C)
+    Mosfet(TestPin &A, TestPin &B,TestPin &C) :  Component(A,B,C,"MosFet")
     {
         _capacitance=0;
         _rdsOn=0;

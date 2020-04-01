@@ -6,7 +6,7 @@
 class Capacitor : public Component
 {
 public:                 
-                    Capacitor( TestPin &A, TestPin &B,TestPin &C) :  Component(A,B,C)
+                    Capacitor( TestPin &A, TestPin &B,TestPin &C) :  Component(A,B,C,"Capacitor")
                     {
                       capacitance=0;
                       computed=false;

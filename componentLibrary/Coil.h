@@ -6,7 +6,7 @@
 class Coil : public Component
 {
 public:                 
-                    Coil( TestPin &A, TestPin &B,TestPin &C) :  Component(A,B,C)
+                    Coil( TestPin &A, TestPin &B,TestPin &C) :  Component(A,B,C,"Coil")
                     {
                       inductance=0;
                       resistance=0;
