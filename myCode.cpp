@@ -31,11 +31,34 @@ uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
 #include "pinConfiguration.cpp"
 
 WavRotary rotary(PIN_ROTARY_LEFT,PIN_ROTARY_RIGHT); // PB1,PB10,PB11, PB1 is the button
+/**
+ * @brief 
+ * 
+ */
+class MainTask : public xTask
+{
+public:
+            MainTask() : xTask("MainTask",10,300)
+            {
 
-void MainTask( void *a )
+            }
+    void    run(void);
+protected:
+};
+
+
+
+void dummyTask(void *b)
+{
+    while(1)
+    {
+        xDelay(100);
+    }
+}
+
+void MainTask::run()
 {
     cpuID::identify();
-    
     
     TesterGfx::init();
     TesterGfx::splash();
@@ -106,7 +129,7 @@ void mySetup(void)
   PRINTF("Starting...\n");
   
   
-  xTaskCreate( MainTask, "MainTask", 750,NULL, 10, NULL );   
+  MainTask *mainTask=new MainTask();
   vTaskStartScheduler();        
 }
 
@@ -192,10 +215,10 @@ next:
     TesterGfx::print(0,60,"  Measuring");
 
     if(c->compute())
-    {     
-        TesterGfx::clear();
-        c->draw(0);
+    {   
         zeroAllPins();
+        TesterGfx::clear();
+        c->draw(0);        
         while(!(pushButton->getEvent() & PushButton::SHORT_PRESS))
         {
             xDelay(50);
