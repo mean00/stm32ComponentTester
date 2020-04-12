@@ -4,7 +4,7 @@
 
 static WavRotary *current=NULL;
 #define THRESHOLD           3        // 3ms
-#define TIME_LONG_PRESS     2000     // 2sec
+#define TIME_LONG_PRESS     1000     // 2sec
 #define TIME_SHORT_PRESS    8
 
 
@@ -37,9 +37,13 @@ void WavRotary::pushInterrupt()
     {
         uint32_t time=m-_down;
         if(time>TIME_LONG_PRESS)
-                _event|=LONG_PRESS;
+        {
+                _events.setEventsFromISR(LONG_PRESS);
+        }
         if(time>TIME_SHORT_PRESS)
-                _event|=SHORT_PRESS;
+        {
+                _events.setEventsFromISR(SHORT_PRESS);
+        }
     }
 }
 
