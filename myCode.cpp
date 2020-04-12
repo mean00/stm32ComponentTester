@@ -53,7 +53,8 @@ void dummyTask(void *b)
         xDelay(100);
     }
 }
-
+/**
+ */
 void MainTask::run()
 {
     cpuID::identify();
@@ -85,7 +86,7 @@ void MainTask::run()
     };
 #endif    
     
-#if 1  
+#if 0  
     rotaryTest();
 #endif
     
@@ -99,6 +100,8 @@ void MainTask::run()
   // 
     if(!NVM::hasCalibration())
         calibration();
+    
+    rotary.waitForEvent();
     
     while(1)
     {
@@ -212,8 +215,8 @@ next:
     {   
         zeroAllPins();
         TesterGfx::clear();
-        c->draw(0);        
-#warning wait for press
+        c->draw(0);      
+        rotary.waitForEvent();
         goto next;
     }
     delete c;
