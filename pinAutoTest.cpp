@@ -6,7 +6,7 @@
 #include "testerGfx.h"
 #include "MapleFreeRTOS1000_pp.h"
 #include "wav_irotary.h"
-#include "pushButton.h"
+
 extern TestPin   pin1;
 extern TestPin   pin2;
 extern TestPin   pin3;
@@ -16,7 +16,7 @@ extern uint32_t  deviceId;
 #define Y_OFFSET 20
 
 extern WavRotary rotary;
-extern PushButton *pushButton;
+
 
 int easySample(TestPin &M);
 
@@ -177,16 +177,27 @@ void rotaryTest()
     while(1)
     {
         bool refresh=false;
-        int evt=pushButton->getEvent();
-        if(evt & PushButton::SHORT_PRESS)  {nbShort++;refresh=true;}
-        if(evt & PushButton::LONG_PRESS)   {nbLong++;refresh=true;}
+        WavRotary::EVENTS evt=rotary.waitForEvent();
         
-        int inc=rotary.getCount();        
-        if(inc)
+        if(evt & WavRotary::ROTARY_CHANGE)
         {
-            rot+=inc;
-            refresh=true;
+            int inc=rotary.getCount();        
+            if(inc)
+            {
+                rot+=inc;
+                refresh=true;
+            }
         }
+        if(evt & WavRotary::LONG_PRESS )
+        {
+             {nbLong++;refresh=true;}
+        }
+         if(evt & WavRotary::SHORT_PRESS )
+        {
+             {nbShort++;refresh=true;}
+        }
+        
+       
         if(refresh)
         {
             TesterGfx::clear();
@@ -199,6 +210,5 @@ void rotaryTest()
 
         }
         c++;
-        xDelay(10);
     }
 }

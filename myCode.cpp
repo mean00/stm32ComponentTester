@@ -11,7 +11,6 @@
 #include "componentSignature.h"
 #include "cpuID.h"
 #include "pinConfiguration.h"
-#include "pushButton.h"
 #define LED PC13
 void myLoop(void);
 extern void rotaryTest();
@@ -20,7 +19,6 @@ uint32_t  deviceId;
 
 uint32_t  memDensity=0;
 uint32_t cr2;
-PushButton *pushButton;
 //
 int result[20];
 int z,zz;
@@ -30,7 +28,7 @@ uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
 //
 #include "pinConfiguration.cpp"
 
-WavRotary rotary(PIN_ROTARY_LEFT,PIN_ROTARY_RIGHT); // PB1,PB10,PB11, PB1 is the button
+WavRotary rotary(PIN_ROTARY_LEFT,PIN_ROTARY_RIGHT,PIN_ROTARY_PUSH); // PB1,PB10,PB11, PB1 is the button
 /**
  * @brief 
  * 
@@ -70,7 +68,6 @@ void MainTask::run()
     pin2.init();
     pin3.init();
     
-    pushButton=new PushButton(PIN_ROTARY_PUSH);
     
     xDelay(100);
     rotary.start();
@@ -88,7 +85,7 @@ void MainTask::run()
     };
 #endif    
     
-#if 0  
+#if 1  
     rotaryTest();
 #endif
     
@@ -180,10 +177,6 @@ void myLoop(void)
     zeroAllPins();
     TesterGfx::clear();
     TesterGfx::print(0,40,"Click to probe");
-    while(!(pushButton->getEvent() & PushButton::SHORT_PRESS))
-    {
-        xDelay(50);
-    }
 next:
     TesterGfx::clear();
     TesterGfx::print(0,40,"Detecting");
@@ -214,15 +207,13 @@ next:
     TesterGfx::print(8,40,sname);
     TesterGfx::print(0,60,"  Measuring");
 
+    // Valid component detected ?
     if(c->compute())
     {   
         zeroAllPins();
         TesterGfx::clear();
         c->draw(0);        
-        while(!(pushButton->getEvent() & PushButton::SHORT_PRESS))
-        {
-            xDelay(50);
-        }
+#warning wait for press
         goto next;
     }
     delete c;
