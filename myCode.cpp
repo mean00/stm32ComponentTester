@@ -7,7 +7,7 @@
 #include "allComponents.h"
 #include "dso_adc.h"
 #include "testerGfx.h"
-#include "wav_irotary.h"
+#include "testerControl.h"
 #include "componentSignature.h"
 #include "cpuID.h"
 #include "pinConfiguration.h"
@@ -28,7 +28,7 @@ uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
 //
 #include "pinConfiguration.cpp"
 
-WavRotary rotary(PIN_ROTARY_LEFT,PIN_ROTARY_RIGHT,PIN_ROTARY_PUSH); // PB1,PB10,PB11, PB1 is the button
+// PB1,PB10,PB11, PB1 is the button
 /**
  * @brief 
  * 
@@ -71,7 +71,7 @@ void MainTask::run()
     
     
     xDelay(100);
-    rotary.start();
+    TesterControl::init();
     
 #if 0
     //TesterGfx::drawDiode(0,"5pf",1,2);
@@ -101,7 +101,7 @@ void MainTask::run()
     if(!NVM::hasCalibration())
         calibration();
     
-    rotary.waitForEvent();
+    TesterControl::waitForAnyEvent();
     
     while(1)
     {
@@ -216,7 +216,7 @@ next:
         zeroAllPins();
         TesterGfx::clear();
         c->draw(0);      
-        rotary.waitForEvent();
+        TesterControl::waitForAnyEvent();
         goto next;
     }
     delete c;
