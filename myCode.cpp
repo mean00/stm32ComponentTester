@@ -101,6 +101,9 @@ void MainTask::run()
     if(!NVM::hasCalibration())
         calibration();
     
+    
+    TesterGfx::clear();
+    TesterGfx::print(6,70,"Press to start");
     TesterControl::waitForAnyEvent();
     
     while(1)

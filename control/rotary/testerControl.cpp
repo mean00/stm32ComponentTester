@@ -11,6 +11,10 @@ void TesterControl::init()
 }
 void TesterControl::waitForAnyEvent()
 {
+    while(!rotary.waitForEvent())
+    {
+        
+    }
 }
 
 
