@@ -86,7 +86,7 @@ void MainTask::run()
     };
 #endif    
     
-#if 1  
+#if 0  
     TesterControl::test();
 #endif
     
