@@ -10,6 +10,31 @@ void TesterControl::init()
     rotary=new WavRotary(PIN_ROTARY_LEFT,PIN_ROTARY_RIGHT,PIN_ROTARY_PUSH); 
     rotary->start();
 }
+
+int  TesterControl::getRotary()
+{
+    return rotary->getCount();
+}
+
+/**
+ * 
+ * @return 
+ */
+ int  TesterControl::waitForEvent()
+ {
+     int out=0;
+     while(1)
+     {
+          WavRotary::EVENTS evt=rotary->waitForEvent();
+          if(evt & WavRotary::SHORT_PRESS ) out |=CONTROL_SHORT;
+          if(evt & WavRotary::LONG_PRESS ) out |=CONTROL_LONG;
+          if(evt & WavRotary::ROTARY_CHANGE ) out |=CONTROL_ROTARY;
+          return out;          
+     }
+ }
+/**
+ * 
+ */
 void TesterControl::waitForAnyEvent()
 {
     

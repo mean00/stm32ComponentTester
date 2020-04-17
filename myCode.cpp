@@ -218,9 +218,20 @@ next:
     {   
         zeroAllPins();
         TesterGfx::clear();
-        c->draw(0);      
-        TesterControl::waitForAnyEvent();
-        goto next;
+        c->draw(0);     
+        while(1)
+        {
+            int evt=TesterControl::waitForEvent();
+            if(evt & CONTROL_SHORT) goto next; // probe next
+            // TODO LONG => menu
+            if(evt & CONTROL_ROTARY)
+            {
+                int count=TesterControl::getRotary();
+                c->changePage(count);
+            }
+        }
+
+        
     }
     delete c;
     TesterGfx::printStatus("-------------");

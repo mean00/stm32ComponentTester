@@ -25,6 +25,8 @@ class Component
 public:
                     Component(TestPin &A, TestPin &B,TestPin &C,const char *shortName) : _pA(A),_pB(B),_pC(C),_shortName(shortName)
                     {
+                      _maxPage=0,
+                      _curPage=0;        
                     }
             virtual const char *getShortName() {return _shortName;};
             virtual bool compute()=0;
@@ -35,6 +37,7 @@ public:
             static  float adcToVolt(float adc);
             static  int  evaluate(TestPin &pin);
             virtual int  likely()=0; // higher means detection is more reliable
+            virtual void  changePage(int count) {};
 protected:
             TestPin &_pA, &_pB, &_pC;
             const char    *_shortName;
@@ -46,4 +49,7 @@ public:
 protected:
     static          Component *identify3poles(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type);
     static          Component *identify2poles(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type);
+protected:
+            int  _maxPage;
+            int  _curPage;            
 };
