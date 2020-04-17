@@ -11,15 +11,15 @@ static WavRotary *current=NULL;
  /**
   */
  
-static void myInterrupt()
+static void myInterrupt(void *arg)
 {
-  if(!current) return;
-  current->rotaryInterrupt();
+    WavRotary *w=(WavRotary *)arg;
+    w->rotaryInterrupt();
 }
-static void myPushInterrupt()
+static void myPushInterrupt(void *arg )
 {
-  if(!current) return;
-  current->pushInterrupt(); 
+    WavRotary *w=(WavRotary *)arg;
+    w->pushInterrupt();
 }
 /**
  * 
@@ -63,19 +63,17 @@ void WavRotary::pushInterrupt()
  WavRotary::WavRotary(int pinA,int pinB, int pinPush ) 
  {
     current=this;
-    _count=0;
-    _rotary=new Rotary(pinA,pinB);
+    _count=0;    
     _event=NONE;
     _down=0;
-    _lastRead=0;
-    
+    _lastRead=0;    
     _pinA=pinA;
     _pinB=pinB;
     _pinPush=pinPush;
     pinMode(_pinA,INPUT_PULLUP); 
     pinMode(_pinB,INPUT_PULLUP); 
     pinMode(_pinPush,INPUT_PULLUP);
-    
+    _rotary=new Rotary(pinA,pinB);
     
  }
  
@@ -85,22 +83,22 @@ void WavRotary::pushInterrupt()
  void        WavRotary::start()
  {
     noInterrupts(); 
-    attachInterrupt(_pinA, myInterrupt, CHANGE);
-    attachInterrupt(_pinB, myInterrupt, CHANGE);
-    attachInterrupt(_pinPush,myPushInterrupt,CHANGE );
+    attachInterrupt(_pinA, myInterrupt,this,  CHANGE);
+    attachInterrupt(_pinB, myInterrupt,this, CHANGE);
+    attachInterrupt(_pinPush,myPushInterrupt, this,CHANGE );
     interrupts();
-    _rotary->begin(true);
+    _rotary->begin(false);
      
  }
  /*
   */
  int          WavRotary::getCount()
  {
-     noInterrupts();
-     int c=_count;
-     _count=0;
-     interrupts();
-     return c;
+    noInterrupts();
+    int c=_count;
+    _count=0;
+    interrupts();
+    return c;
  }
 /**
  * 

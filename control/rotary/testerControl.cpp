@@ -3,15 +3,17 @@
 #include "testerControl.h"
 #include "pinConfiguration.h"
 #include "testerGfx.h"
-WavRotary rotary(PIN_ROTARY_LEFT,PIN_ROTARY_RIGHT,PIN_ROTARY_PUSH); 
+WavRotary *rotary=NULL;
 
 void TesterControl::init()
 {
-        rotary.start();
+    rotary=new WavRotary(PIN_ROTARY_LEFT,PIN_ROTARY_RIGHT,PIN_ROTARY_PUSH); 
+    rotary->start();
 }
 void TesterControl::waitForAnyEvent()
 {
-    while(!rotary.waitForEvent())
+    
+    while(!rotary->waitForEvent())
     {
         
     }
@@ -29,7 +31,7 @@ void TesterControl::test()
     xDelay(100);
     int z;
     TesterGfx::clear();
-    TesterGfx::print(2,60,"TEST STRING"); // takes 0.3 ms
+    TesterGfx::print(2,60,"ROTARY TST"); // takes 0.3 ms
 
     int nbShort=0;
     int nbLong=0;
@@ -37,11 +39,11 @@ void TesterControl::test()
     while(1)
     {
         bool refresh=false;
-        WavRotary::EVENTS evt=rotary.waitForEvent();
+        WavRotary::EVENTS evt=rotary->waitForEvent();
         
         if(evt & WavRotary::ROTARY_CHANGE)
         {
-            int inc=rotary.getCount();        
+            int inc=rotary->getCount();        
             if(inc)
             {
                 rot+=inc;

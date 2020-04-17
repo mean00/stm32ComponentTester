@@ -86,8 +86,8 @@ void MainTask::run()
     };
 #endif    
     
-#if 0  
-    rotaryTest();
+#if 1  
+    TesterControl::test();
 #endif
     
 #if 0    
