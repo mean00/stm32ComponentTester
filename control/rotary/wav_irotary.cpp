@@ -87,7 +87,7 @@ void WavRotary::pushInterrupt()
     attachInterrupt(_pinB, myInterrupt,this, CHANGE);
     attachInterrupt(_pinPush,myPushInterrupt, this,CHANGE );
     interrupts();
-    _rotary->begin(false);
+    _rotary->begin(true);
      
  }
  /*
