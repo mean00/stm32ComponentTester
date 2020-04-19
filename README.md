@@ -5,7 +5,6 @@
 
 ## Scope
 
-/!\ This is work in progress, it is not usable at the moment /!\
 
 This  project is a redone from scratch component tester 
 ( see http://https://www.mikrocontroller.net/articles/AVR-Transistortester ).
@@ -36,12 +35,12 @@ Due to the low voltage (3.3v), some mosfet will not work
 The code is in two parts :
  * Identifying the component
  * Probing the component, using only the MCU ADC in single or dual mode. The can go down to ~ 1us (0.5 in fast dual mode)
- * Since we dont have a DAC on the bluepill, we'll (dis)charge the parasitic capacitor to act as a DAC
+ * Since we dont have a DAC on the bluepill, we'll use the charge/discharge of  the parasitic FET capacitor to act as a sort of DAC
 
   ## Restriction
 While accuracy is not bad at all the following restrictions apply :
 * Mosfet with VGsOn> 3.3 v will not be probed correctly
-* Inductor less than ~1 mH will not be probed correctly
+* Inductors are disabled, not working properly
 * Capacitor of less than 10 pF will not be probed correctly
 * Capacitor can be reverse charged with a small current. I'm unsure if that's a big deal. The current is a few mA.
 
