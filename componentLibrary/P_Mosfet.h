@@ -13,7 +13,7 @@ public:
                   
                     }
             virtual bool compute()            ;
-            virtual bool draw(int yOffset);
+            virtual bool draw2(int yOffset);
                     
             
 protected:                      

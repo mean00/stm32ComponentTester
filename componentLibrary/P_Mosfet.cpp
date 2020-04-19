@@ -21,9 +21,9 @@
  * @param yOffset
  * @return 
  */
-bool PMosFet::draw(int yOffset)
+bool PMosFet::draw2(int yOffset)
 {    
-     TesterGfx::drawPMosFet(_rdsOn,_capacitance,_vGsOn, _diodeVoltage,pinGate.pinNumber(),pinUp.pinNumber(),pinDown.pinNumber());
+     TesterGfx::drawPMosFet(pinGate.pinNumber(),pinUp.pinNumber(),pinDown.pinNumber());
     return true;
 }
 /**

@@ -132,7 +132,7 @@ static void print2Pins(Adafruit_ST7735Ex *instance, int pinA, int pinB, int line
 
 #define P_RIGHT_X   ((128/2)+20)
 #define P_TOP_Y     (20+12)
-#define P_BOTTOM_Y  (128-30)
+#define P_BOTTOM_Y  (128-33)
 
 
 
@@ -191,26 +191,30 @@ void TesterGfx::drawPNP(float hfe, float vf,int base, int emitter,int collector)
       instance->print(st);
       
 }
-void drawMosfetInfo(Adafruit_ST7735Ex *instance, float RdsOn, float Cg, float VfOn,float Vdiode)
+void drawMosfetInfo(Adafruit_ST7735Ex *instance, int page, float RdsOn, float Cg, float VfOn,float Vdiode)
 {
     char st[64];
       instance->setFontSize(Adafruit_ST7735Ex::SmallFont);
-      
-      instance->setCursor(5,BASELINE_PRELAST2);
-      Component::prettyPrintPrefix("RdsOn:",RdsOn, "O",st);      
-      instance->print(st);
-      
-      instance->setCursor(5,BASELINE_PRELAST);
-      Component::prettyPrintPrefix("Diode:",Vdiode, "V",st);      
-      instance->print(st);
-      
-      instance->setCursor(5,BASELINE_LAST);
-      Component::prettyPrintPrefix("Cg:",Cg, "F",st);      
-      instance->print(st);
-      
-      instance->setCursor(5,BASELINE_PRELAST3);
-      Component::prettyPrintPrefix("Vt:",VfOn, "V",st);      
-      instance->print(st);     
+      instance->fillRect(0,BASELINE_PRELAST2,128,128,0x0);
+      if(!page)
+      {
+        instance->setCursor(5,BASELINE_PRELAST);
+        Component::prettyPrintPrefix("RdsOn:",RdsOn, "O",st);      
+        instance->print(st);
+
+        instance->setCursor(5,BASELINE_LAST);
+        Component::prettyPrintPrefix("Diode:",Vdiode, "V",st);      
+        instance->print(st);
+      }else
+      {
+        instance->setCursor(5,BASELINE_PRELAST);
+        Component::prettyPrintPrefix("Cg:",Cg, "F",st);      
+        instance->print(st);
+
+        instance->setCursor(5,BASELINE_LAST);
+        Component::prettyPrintPrefix("Vt:",VfOn, "V",st);      
+        instance->print(st);     
+      }
       instance->setFontSize(Adafruit_ST7735Ex::MediumFont);          
 }
 /**
@@ -220,10 +224,9 @@ void drawMosfetInfo(Adafruit_ST7735Ex *instance, float RdsOn, float Cg, float Vf
  * @param pinA
  * @param pinB
  */
-void TesterGfx::drawPMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int pinGate, int pinUp, int pinDown)
+void TesterGfx::drawPMosFet( int pinGate, int pinUp, int pinDown)
 {
     simple3Pole(0, "P Mos", pinGate,pinUp,pinDown, Pmosfet_width,Pmosfet_height, Pmosfet);
-    drawMosfetInfo(instance,RdsOn,   Cg,   VfOn,   Vdiode);  
 }
 /**
  * 
@@ -232,13 +235,22 @@ void TesterGfx::drawPMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int
  * @param pinA
  * @param pinB
  */
-void TesterGfx::drawNMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int pinGate, int pinUp, int pinDown)
+void TesterGfx::drawNMosFet( int pinGate, int pinUp, int pinDown)
 {
       
-      simple3Pole(0, "N Mos", pinGate,pinDown,pinUp, Nmosfet2_width,Nmosfet2_height, Nmosfet2);
-      drawMosfetInfo(instance,RdsOn,   Cg,   VfOn,   Vdiode);       
+      simple3Pole(0, "N Mos", pinGate,pinDown,pinUp, Nmosfet2_width,Nmosfet2_height, Nmosfet2);        
 }
-
+/**
+ * 
+ * @param RdsOn
+ * @param Cg
+ * @param VfOn
+ * @param Vdiode
+ */
+void TesterGfx::drawMosInfo(int page, float RdsOn, float Cg, float VfOn, float Vdiode)
+{
+    drawMosfetInfo(instance, page, RdsOn,   Cg,   VfOn,   Vdiode);     
+}
 
 void simple2Pole(int offset, const char *title,const char *value, const char *prefix, int pinA,int pinB, int w, int h, const uint8_t *data)
 {

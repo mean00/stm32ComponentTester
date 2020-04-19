@@ -12,8 +12,9 @@ public:
   static void drawResistor(int offset, const char *value,int pinA, int pinB);
   static void drawDiode(int offset, const char *value,int pinA, int pinB);
   static void drawCoil(int offset, const char *value,int pinA, int pinB);
-  static void drawPMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int pinGate, int pinUp, int pinDown);
-  static void drawNMosFet(float RdsOn, float Cg, float VfOn, float Vdiode, int pinGate, int pinUp, int pinDown);
+  static void drawPMosFet( int pinGate, int pinUp, int pinDown);
+  static void drawNMosFet( int pinGate, int pinUp, int pinDown);
+  static void drawMosInfo(int page,float RdsOn, float Cg, float VfOn, float Vdiode);  
   static void drawNPN(float hfe, float vf,int base, int emitter,int collector);
   static void drawPNP(float hfe, float vf,int base, int emitter,int collector);
   static void printStatus(const char *status);

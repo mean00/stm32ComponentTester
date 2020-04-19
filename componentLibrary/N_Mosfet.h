@@ -13,12 +13,9 @@ public:
                    
                     }
             virtual bool compute()            ;
-            virtual bool draw(int yOffset);
-                    
-            
 protected:
          
-            
+            bool  draw2(int yOffset);
             bool  computeDiode();
             bool  computeRdsOn();
             bool  computeVgOn();

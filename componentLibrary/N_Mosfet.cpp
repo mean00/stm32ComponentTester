@@ -21,9 +21,9 @@
  * @param yOffset
  * @return 
  */
-bool NMosFet::draw(int yOffset)
+bool NMosFet::draw2(int yOffset)
 {    
-     TesterGfx::drawNMosFet(_rdsOn,_capacitance,_vGsOn, _diodeVoltage,pinGate.pinNumber(),pinDrain.pinNumber(),pinSource.pinNumber());
+    TesterGfx::drawNMosFet(pinGate.pinNumber(),pinDrain.pinNumber(),pinSource.pinNumber());
     return true;
 }
 /**

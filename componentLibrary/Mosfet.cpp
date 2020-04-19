@@ -10,7 +10,28 @@
 #include "cycleClock.h"
 #include "MapleFreeRTOS1000_pp.h"
 #include "Capacitor.h"
-//
+/**
+ * 
+ * @param count
+ */
+void  Mosfet::changePage(int count)
+{
+  _curPage+=count;
+  _curPage%=_maxPage;
+  TesterGfx::drawMosInfo(_curPage,_rdsOn,_capacitance,_vGsOn, _diodeVoltage);    
+}
+
+/**
+ * 
+ * @param yOffset
+ * @return 
+ */
+bool Mosfet::draw(int yOffset)
+{    
+    draw2(yOffset);    
+    TesterGfx::drawMosInfo(0,_rdsOn,_capacitance,_vGsOn, _diodeVoltage);    
+    return true;
+}
  
 bool Mosfet::computeDiode(TestPin &top, TestPin &bottom,float &vf)
 {
