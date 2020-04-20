@@ -2,7 +2,7 @@
 
 
 ![screenshot](web/demo2.jpg?raw=true "front")
-
+This is done using a discrete chip, you can also use a bluepill board.
 ## Scope
 
 
