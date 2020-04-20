@@ -1,7 +1,7 @@
 # STM32 Component tester
 
 
-![screenshot](web/demo.jpg?raw=true "front")
+![screenshot](web/demo2.jpg?raw=true "front")
 
 ## Scope
 
