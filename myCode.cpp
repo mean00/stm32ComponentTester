@@ -15,6 +15,7 @@
 void myLoop(void);
 extern void rotaryTest();
 extern void calibration();
+extern void menuSystem(void);
 uint32_t  deviceId;
 
 uint32_t  memDensity=0;
@@ -205,7 +206,10 @@ next:
 #endif
     if(!c)
     {
-        xDelay(1000);
+        TesterGfx::clear();
+        TesterGfx::print(0,60,"Found nothing");
+        if(TesterControl::waitForEvent() & CONTROL_LONG)
+            menuSystem();
         return;
     }
     TesterGfx::clear();
@@ -221,7 +225,8 @@ next:
         c->draw(0);     
         while(1)
         {
-            int evt=TesterControl::waitForEvent();
+            int evt=TesterControl::waitForEvent();            
+            if(evt & CONTROL_LONG) menuSystem(); // probe next
             if(evt & CONTROL_SHORT) goto next; // probe next
             // TODO LONG => menu
             if(evt & CONTROL_ROTARY)
