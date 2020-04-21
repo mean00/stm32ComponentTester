@@ -1,17 +1,6 @@
 #include "ST7735_ex.h"
 #include "testerGfx.h"
 #include "assets.h"
-#if 1
-#include "Fonts/FreeSansBold9pt7b.h"
-#include "Fonts/FreeSans7pt7b.h"
-#define FONT1 FreeSans7pt7b
-#define FONT2 FreeSansBold9pt7b
-#else
-#include "Fonts/FreeMono7pt7b.h"
-#include "Fonts/FreeMono9pt7b.h"
-#define FONT1 FreeMono7pt7b
-#define FONT2 FreeMono9pt7b
-#endif
 #include "cpuID.h"
 #include "testerVersion.h"
 #include "Component.h"
@@ -29,6 +18,14 @@ static Adafruit_ST7735Ex *instance=NULL;
 #define CAP_COL1 8
 #define CAP_COL2 128-20
 #define COMPONENT_COLOR (0x1f<<6)
+
+#define FONT1 FreeSans7pt7b
+#define FONT2 FreeSansBold9pt7b
+
+extern const GFXfont  FONT1  ;
+extern const GFXfont  FONT2  ;
+//const GFXfont  FreeSansBold9pt7b 
+
 
 static void print3Pins(Adafruit_ST7735Ex *instance, int pinA, int pinB, int pinC);
 

@@ -52,6 +52,6 @@ generate_arduino_firmware(stm32ComponentTester
 FOREACH(comp ${SUB_COMPONENTS})
     target_link_libraries(stm32ComponentTester ${libPrefix}${comp})
 ENDFOREACH(comp ${SUB_COMPONENTS})
-
+target_link_libraries(stm32ComponentTester ${libPrefix}fonts)
 #dump_all()
 # EOF
