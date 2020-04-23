@@ -18,5 +18,5 @@ public:
   static void drawNPN(float hfe, float vf,int base, int emitter,int collector);
   static void drawPNP(float hfe, float vf,int base, int emitter,int collector);
   static void printStatus(const char *status);
-
+  static void test(void);
 };

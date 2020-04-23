@@ -124,50 +124,56 @@ void Adafruit_ST7735Ex::pushColors16(const uint16_t *data, int len, boolean firs
  * @param data
  */
 void Adafruit_ST7735Ex::drawRLEBitmap(int widthInPixel, int height, int wx, int wy, int fgcolor, int bgcolor, const uint8_t *data)
-{
-    uint8_t *p=(uint8_t *)data;    
+{    
     uint16_t *line=lineBuffer;
     bool first=true;
-    
-    int widthInByte=(widthInPixel>>3); // pixel -> bytes
-    for(int y=0;y<height;y++)
+    int nbPixel=widthInPixel*height;
+    int pixel=0;
+    setAddrWindow(wx, wy, wx+widthInPixel-1, wy+height);
+    int mask=0;
+    int cur;   
+    uint16_t *o=line;
+    int ready=0;
+    int repeat;
+    uint16_t color;
+    while(pixel<nbPixel)        
     {
-        uint16_t *o=line;
-        setAddrWindow(wx, wy+y, wx+widthInPixel, wy+y);
-        for(int x=0;x<widthInByte;) // in bytes
+        // load next
+        cur=*data++;
+        if(cur==0x76)
         {
-            int val=*p++;
-            int count=1;
-            if(val==0x76)
-            {
-                val=*p++;
-                count=*p++;
-            }
-            for(int i=0;i<count;i++)
-            {
-                int stack=val;
-                for(int step=0;step<8;step++)
-                {
-                    int color;
-                    if(stack&0x80)                                        
-                        color=fgcolor;
-                    else
-                        color=bgcolor;
-                    *o++=color;
-                    stack<<=1;
-                }            
-            }
-            x+=count;
-        }    
-        // Padd if needed with bg color if not multiple of 8, this is a hack
-        // Fixme : handle that properly
-        for(int j=widthInByte*8;j<widthInPixel;j++)
+            cur=*data++;
+            repeat=*data++;
+        }else
         {
-            *o++=bgcolor;
+            repeat=1;
         }
-        pushColors16(line,widthInPixel,true);
-        first=false;
-    }   
+        // 8 pixels at a time
+        for(int r=0;r<repeat;r++)
+        {
+            int mask=0x80;
+            for(int i=0;i<8;i++)
+            {
+                if(mask & cur)
+                {
+                    color=fgcolor;
+                }else
+                    color=0xff00*0+1*bgcolor;
+                mask>>=1;
+                *o++=color;
+                ready++;
+            }
+            if(ready>(ST7735_BUFFER_SIZE-16))
+            { // Flush
+              pushColors16(line,ready,first);  
+              first=false;
+              ready=0;
+              o=line;
+            }
+        }
+        pixel+=repeat*8;
+    }
+    pushColors16(line,ready,true);  
 }
 
 /**

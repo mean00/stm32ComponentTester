@@ -5,6 +5,8 @@
 #include "testerVersion.h"
 #include "Component.h"
 #include "pinConfiguration.h"
+#include "testerControl.h"
+
 static Adafruit_ST7735Ex *instance=NULL;
 
 #define INTERLINE 15
@@ -317,4 +319,17 @@ void TesterGfx::drawCapacitor(int offset, const char *value,int pinA, int pinB)
 void TesterGfx::printStatus(const char *status)
 {
     Serial.println(status);
+}
+
+/**
+ * 
+ */
+void TesterGfx::test()
+{
+    splash();
+    TesterControl::waitForAnyEvent();
+    drawDiode(0,"'600mV",1,2);
+    TesterControl::waitForAnyEvent();
+    drawResistor(0,"'50kO",1,2);
+    TesterControl::waitForAnyEvent();
 }
