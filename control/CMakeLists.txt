@@ -1,1 +1,1 @@
-add_subdirectory(rotary)
+add_subdirectory(RotaryEncoder)

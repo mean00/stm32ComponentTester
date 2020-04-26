@@ -13,12 +13,9 @@
 [submodule "Arduino_STM32"]
 	path = Arduino_STM32
 	url = https://github.com/rogerclarkmelbourne/Arduino_STM32
-[submodule "Rotarty/Rotary"]
-	path = Rotarty/Rotary
-	url = https://github.com/brianlow/Rotary.git
-[submodule "rotary/Rotary"]
-	path = control/rotary/Rotary
-	url = https://github.com/brianlow/Rotary.git
 [submodule "embedded_printf"]
 	path = embedded_printf
 	url = https://github.com/mpaland/printf
+[submodule "control/RotaryEncoder"]
+	path = control/RotaryEncoder
+	url = https://github.com/mean00/RotaryEncoder_FreeRTOS.git

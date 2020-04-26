@@ -1,7 +1,7 @@
 # SET(ARDUINO_USE_FLOAT_PRINTF 1) Use this if you use sprintf("%f") => it costs ~ 6 kB
 SET(ARDUINO_USE_NEWLIB 1)
 SET(PLATFORM_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Arduino_STM32/STM32F1/")
-SET(ARDUINO_UPLOAD_METHOD BMP) # Use blackmagic link, if you comment it out you'll use DFU => 8kB flash
+#SET(ARDUINO_UPLOAD_METHOD BMP) # Use blackmagic link, if you comment it out you'll use DFU => 8kB flash
 MESSAGE(STATUS "HOST SYSTEM ${CMAKE_HOST_SYSTEM_NAME} ")
 # Warning the paths are mingw i.e. c:\dev becomes /c/dev
 IF("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
