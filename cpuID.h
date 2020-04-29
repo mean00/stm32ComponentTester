@@ -7,6 +7,7 @@ typedef enum MCU_IDENTIFICATION
     MCU_STM32_128K,
     MCU_GD32_64K,
     MCU_GD32_128K,
+    MCU_GD32F3_256K
 };
 
 class cpuID

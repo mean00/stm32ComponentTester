@@ -36,12 +36,15 @@ void cpuID::identify()
     _flashSize=density & 0xffff;
     if(ramSize!=0xffff) // GD
     {
-        if(_flashSize==128) 
-            _chipId=MCU_GD32_128K;
-        else if(_flashSize == 64)
-            _chipId=MCU_GD32_64K;
-        else
-            xAssert(0);
+        switch(_flashSize)
+        {
+            case 128:  _chipId=MCU_GD32_128K;break;
+            case 64:   _chipId=MCU_GD32_64K;break;
+            case 256 : _chipId=MCU_GD32F3_256K;break;
+            default:
+                        xAssert(0);
+                        break;
+        }
         _ramSize=ramSize;
     }else // STM32
     {
@@ -108,6 +111,7 @@ int cpuID::getRamSize()
             case MCU_STM32_128K:return "STM32F1/128kB";break;
             case MCU_GD32_64K:return "GD32F1/64kB";break;
             case MCU_GD32_128K:return "GD32F1/128kB";break;
+            case MCU_GD32F3_256K: return  "GD32F3/256kB";break;
             default:break;
      }
      xAssert(0);
