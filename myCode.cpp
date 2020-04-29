@@ -138,11 +138,35 @@ void mySetup(void)
   MainTask *mainTask=new MainTask();
   vTaskStartScheduler();        
 }
-
-void probeMe(TestPin &a,TestPin &b,TestPin &c,Component **comp)
+/**
+ * \fn probe for 3 poles 
+ * @param a
+ * @param b
+ * @param c
+ * @param comp
+ */
+bool probeMe3(TestPin &a,TestPin &b,TestPin &c,Component **comp)
 {
     COMPONENT_TYPE xtype;
-    Component *c2=Component::identity(a,b,c,xtype);
+    Component *c2=Component::identity3(a,b,c,xtype);
+    if(!c2)
+        return false;
+  
+    delete *comp;
+    *comp=c2;
+    return true;
+}
+/**
+ * \fn probe for 2 poles
+ * @param a
+ * @param b
+ * @param c
+ * @param comp
+ */
+void probeMe2(TestPin &a,TestPin &b,TestPin &c,Component **comp)
+{
+    COMPONENT_TYPE xtype;
+    Component *c2=Component::identity2(a,b,c,xtype);
     if(!c2)
         return;
     
@@ -152,16 +176,10 @@ void probeMe(TestPin &a,TestPin &b,TestPin &c,Component **comp)
         return ;
     }        
     bool replace=false;
-    if(c2->nbPins()>(*comp)->nbPins())
+    if(c2->likely()>(*comp)->likely())
     {
         replace=true;
-    }else
-        // is the detection more reliable for the new one ?
-        if(c2->nbPins()==(*comp)->nbPins())
-            if(c2->likely()>(*comp)->likely())
-            {
-                replace=true;
-            }
+    }
     if(replace)
     {
         delete *comp;
@@ -192,12 +210,21 @@ next:
     
 #if 1      
     Component *c=NULL;
-    TesterGfx::print(20,75,"*");
-    probeMe(pin1,pin2,pin3,&c);
-    TesterGfx::print(40,75,"*");
-    probeMe(pin1,pin3,pin2,&c);
-    TesterGfx::print(60,75,"*");
-    probeMe(pin2,pin3,pin1,&c); 
+
+#define PROBEME3(column, alpha, beta,gamma)     {TesterGfx::print(column,75,"x");   probeMe3(alpha,beta,gamma,&c);}     
+#define PROBEME(column, alpha, beta,gamma)     {TesterGfx::print(column,75,"*");    probeMe2(alpha,beta,gamma,&c);} 
+    
+    PROBEME3(20,pin1,pin2,pin3)
+    PROBEME3(40,pin1,pin3,pin2)
+    PROBEME3(60,pin2,pin3,pin1)
+    
+    if(!c)
+    {
+        PROBEME(20,pin1,pin2,pin3)
+        PROBEME(40,pin1,pin3,pin2)
+        PROBEME(60,pin2,pin3,pin1)
+        
+    }
     
     
 #else

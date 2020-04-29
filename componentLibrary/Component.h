@@ -43,7 +43,8 @@ protected:
             const char    *_shortName;
             
 public:
-    static          Component *identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type);
+    static          Component *identity2(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type);
+    static          Component *identity3(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type);    
     static          bool      computeDiode(TestPin &Anode, TestPin &Cathode,float &vfOut);
     
 protected:

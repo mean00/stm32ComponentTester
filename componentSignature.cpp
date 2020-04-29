@@ -52,18 +52,6 @@ int  Component::evaluate(TestPin &pin)
     sum=sum/nb;    
     return (int)sum;
 }
-/*
- * 
- */
-Component *Component::identify3poles(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type)
-{
-    // We know the gate/base is C
-    // Where is the diode A/B ?
-    
-    // The mosfet is the other way
-    
-    return NULL;
-}
 /**
  * 
  * @param A
@@ -72,7 +60,23 @@ Component *Component::identify3poles(TestPin &A, TestPin &B, TestPin &C,COMPONEN
  * @param type
  * @return 
  */
-Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type)
+Component *Component::identity2(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type)
+{
+    zeroAllPins();    
+    AutoDisconnect ad;    
+    // Stay the same => dipole
+    return identify2poles(A,B,C,type);
+}
+/**
+ * Try to identify 3 pins poles
+ * Ignore 2 pin poles
+ * @param A
+ * @param B
+ * @param C
+ * @param type
+ * @return 
+ */
+Component *Component::identity3(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE &type)
 {
     TestPin::PULL_STRENGTH st=TestPin::PULL_LOW;
          
@@ -204,8 +208,7 @@ Component *Component::identity(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYPE
             }
         }
     }
-    // Stay the same => dipole
-    return identify2poles(A,B,C,type);
+    return NULL;
 }
 /**
  * 

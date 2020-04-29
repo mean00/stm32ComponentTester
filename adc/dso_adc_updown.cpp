@@ -90,6 +90,7 @@ bool    DSOADC::fastSampleUp(int threshold1,int threshold2,int &value1,int &valu
     uint32_t val=regs->DR ; // clear pending value
       // go
     int c;
+    uint32_t timeout=millis();
     uint32_t start=micros();
     uint32_t sampleTime;
     bool first=true;
@@ -100,6 +101,7 @@ bool    DSOADC::fastSampleUp(int threshold1,int threshold2,int &value1,int &valu
     timeUs2=0;
     while(1)
     {
+       // if((millis()-timeout)>10000) return false; // timeout!
         regs->CR2|=ADC_CR2_SWSTART;
         uint32_t sampleStart=millis();
         while(1)
