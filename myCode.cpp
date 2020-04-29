@@ -19,7 +19,7 @@ extern void menuSystem(void);
 uint32_t  deviceId;
 
 uint32_t  memDensity=0;
-uint32_t cr2;
+
 //
 int result[20];
 int z,zz;

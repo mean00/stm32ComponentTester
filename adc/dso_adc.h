@@ -31,9 +31,9 @@ public:
             void    clearSemaphore() ;
     static  uint32_t getVCCmv(); // this one is cached
     static  float    readVCCmv();    
-            bool getSamples(uint16_t **samples, int &nbSamples);
-            
-
+            bool    getSamples(uint16_t **samples, int &nbSamples);
+            bool    startDMA();
+            int     pollingRead();
             bool startDMASampling (int count);
             bool startDualDMASampling (int otherPin,int count);
 
