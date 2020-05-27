@@ -45,7 +45,7 @@ SET(UTILS utils/fancyLock.cpp    utils/cycleClock.cpp)
 include_directories(embedded_printf)
 generate_arduino_firmware(stm32ComponentTester 
                 SKETCH stm32ComponentTester.ino
-                SRCS myCode.cpp testPins.cpp  pinAutoTest.cpp ${UTILS}  ${GFX} componentSignature.cpp deltaADC.cpp nvm.cpp calibration.cpp cpuID.cpp embedded_printf/printf.c menuSystem.cpp control/testerControl.cpp
+                SRCS myCode.cpp testPins.cpp  pinAutoTest.cpp ${UTILS}  ${GFX} componentSignature.cpp deltaADC.cpp nvm.cpp calibration.cpp cpuID.cpp embedded_printf/printf.c menuSystem.cpp control/testerControl.cpp helpers/helper_pwm.cpp
                 PORT ${ARDUINO_DEFAULT_PORT}
                 BOARD_CPU ${ARDUINO_CPU}
                 )

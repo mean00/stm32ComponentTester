@@ -30,6 +30,7 @@ public:
           PULLDOWN_LOW=5,
           PULLUP_MED=6,
           PULLDOWN_MED=7,
+          PULLUP_PWM=8,
           VCC=10,
           GND=11                    
         };
@@ -47,6 +48,7 @@ public:
         void    init();
 static  void    initADC(int pin);
         void    pullUp(PULL_STRENGTH strength);
+        void    pwm(PULL_STRENGTH strength, int fq);
         void    pullDown(PULL_STRENGTH strength);
         void    setToVcc();
         void    setToGround();

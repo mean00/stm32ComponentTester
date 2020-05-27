@@ -7,6 +7,7 @@
 #include "dso_adc.h"
 #include "MapleFreeRTOS1000_pp.h"
 #include "testerGfx.h"
+#include "helpers/helper_pwm.h"
 
  DSOADC *adc;
 uint32_t lastCR2=0;
@@ -122,6 +123,10 @@ void TestPin::init()
       
      pinMode(_pin,OUTPUT);     
      digitalWrite(_pin,0);
+     
+     // Init PWM frequency for LOW RES
+     setPWMPinFrequency(_pinDriveLowRes,50*1000.); // 50 khz should be fast enough (?)
+     
      pinMode(_pin,INPUT_ANALOG);     
      pinMode(_pinVolt,INPUT_PULLDOWN);
      pinMode(_pinDriveHighRes,INPUT_PULLDOWN);
@@ -151,6 +156,10 @@ void    TestPin::setMode(TESTPIN_STATE mode)
 {
     switch(mode)
     {
+            case PULLUP_PWM:        pullUp(PULL_LOW);
+                                    pinMode(_pinDriveLowRes ,PWM);
+                                    _state=PULLUP_PWM;
+                                    break;
             case PULLUP_LOW:        pullUp(PULL_LOW);break;
             case PULLUP_MED:        pullUp(PULL_MED);break;
             case PULLUP_HI:         pullUp(PULL_HI);break;
@@ -166,6 +175,23 @@ void    TestPin::setMode(TESTPIN_STATE mode)
                 break;
             
     }
+}
+/**
+ * 
+ * @param strength
+ * @param fq
+ */
+void    TestPin::pwm(PULL_STRENGTH strength, int fq)
+{
+    // Assume it is low drive
+    int pinNo=_pinDriveLowRes;
+    
+    
+    digitalWrite(pinNo,1);
+    pinMode(pinNo,PWM);
+    digitalWrite(pinNo,1);
+    pwmWrite(pinNo, 65535/2); // 50% duty cycle
+    
 }
 
 /**
@@ -391,9 +417,11 @@ int TestPin::getRes(TESTPIN_STATE state)
         case DISCONNECTED: 
                     xFail("Invalid");
         case VCC:
+        case PULLUP_PWM:
         case GND:
                     return _calibration.resDown;
                     break;
+                    
         case PULLUP_HI:         return _hiRes+ _calibration.resUp;;break;
         case PULLUP_LOW:        return _lowRes+_calibration.resUp;break;
         case PULLUP_MED:        return _medRes+_calibration.resUp;break;
