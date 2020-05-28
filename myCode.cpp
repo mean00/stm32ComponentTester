@@ -164,7 +164,7 @@ void MainTask::run()
 #if 0
     TesterGfx::test();
 #endif    
-#if 1    
+#if 0    
     pinTest();
     while(1)
     {

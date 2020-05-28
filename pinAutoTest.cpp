@@ -124,11 +124,15 @@ bool T1DmaTest(const char *text, TestPin &A,  int onoff)
  * @param line
  * @return 
  */
-bool dualDmaTest(const char *text, TestPin &A, TestPin & B, int line)
+bool dualDmaTest(const char *text, TestPin &A, TestPin & B, TestPin &C, bool thirdState)
 {
     AutoDisconnect ad;
     A.setToVcc();
     B.pullDown(TestPin::PULL_MED);
+    if(thirdState)
+        C.setToVcc();
+    else
+        C.pullDown(TestPin::PULL_MED);
     xDelay(5);
     A.prepareDualDmaSample(B,ADC_SMPR_28_5, DSOADC::ADC_PRESCALER_6 ,64);
     int nbSamples;
@@ -153,18 +157,25 @@ bool dualDmaTest(const char *text, TestPin &A, TestPin & B, int line)
             
     return true;
 }
-#define RUNDDMATEST(PIN,MPIN,LINE) \
+#define RUNDDMATEST(PIN,MPIN,CPIN,LINE) \
 { \
     const char *failure; \
     TesterGfx::print(2,LINE,"DMA " #PIN #MPIN ":"); \
     DSOADC::clearSamples(); \
-    if(dualDmaTest("",pin##PIN,pin##MPIN,0)) \
-        TesterGfx::print(100,LINE,"OK"); \
+    if(dualDmaTest("",pin##PIN,pin##MPIN,pin##CPIN,false)) \
+        TesterGfx::print(100,LINE,"+"); \
     else \
     { \
         testFailed=true; \
-        TesterGfx::print(100,LINE,"KO"); \
+        TesterGfx::print(100,LINE,"-"); \
     } \
+    if(dualDmaTest("",pin##PIN,pin##MPIN,pin##CPIN,true)) \
+        TesterGfx::print(110,LINE,"+"); \
+    else \
+    { \
+        testFailed=true; \
+        TesterGfx::print(110,LINE,"-"); \
+    } \    
 }
 #define RUN1DMATEST(PIN,MPIN,LINE) \
 { \
@@ -214,14 +225,15 @@ void pinTest()
     
     TesterGfx::clear();
     TesterGfx::print(1,Y_OFFSET,"2DMA Test");
-    RUNDDMATEST(1,2,20+Y_OFFSET);
-    RUNDDMATEST(1,3,50+Y_OFFSET);
-    RUNDDMATEST(2,3,80+Y_OFFSET);
+    RUNDDMATEST(1,2,3,20+Y_OFFSET);
+    RUNDDMATEST(1,3,2,50+Y_OFFSET);
+    RUNDDMATEST(2,3,1,80+Y_OFFSET);
     if( testFailed)        
         while(1)
         {
 
         }
+    TesterGfx::print(1,120,"*** PASS **");    
 }
 
 int easySample(TestPin &M)
