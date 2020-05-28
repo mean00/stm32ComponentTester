@@ -125,7 +125,7 @@ void TestPin::init()
      digitalWrite(_pin,0);
      
      // Init PWM frequency for LOW RES
-     setPWMPinFrequency(_pinDriveLowRes,50*1000.); // 50 khz should be fast enough (?)
+     setPWMPinFrequency(_pinDriveLowRes,52127); // 50 khz should be fast enough (?) we want something with a bit of noise in it
      
      pinMode(_pin,INPUT_ANALOG);     
      pinMode(_pinVolt,INPUT_PULLDOWN);
@@ -417,12 +417,12 @@ int TestPin::getRes(TESTPIN_STATE state)
         case DISCONNECTED: 
                     xFail("Invalid");
         case VCC:
-        case PULLUP_PWM:
         case GND:
                     return _calibration.resDown;
                     break;
                     
         case PULLUP_HI:         return _hiRes+ _calibration.resUp;;break;
+        case PULLUP_PWM:        
         case PULLUP_LOW:        return _lowRes+_calibration.resUp;break;
         case PULLUP_MED:        return _medRes+_calibration.resUp;break;
         case PULLDOWN_HI:       return _hiRes+ _calibration.resDown;;break;
