@@ -137,16 +137,17 @@ bool dualDmaTest(const char *text, TestPin &A, TestPin & B, int line)
     {
             return false;
     }    
+    int nbPair=nbSamples/2;
    // We should have 32 pairs alternating 0 && 4095 
     // B A B A
     int hi=0,low=0;
-    for(int i=1;i<nbSamples/2;i++)
+    for(int i=1;i<nbPair;i++)
     {
         hi+=samples[i*2];
         low+=samples[i*2+1];
     }
-    low/=nbSamples;
-    hi/=nbSamples;
+    low/=nbPair;
+    hi/=nbPair;
     if(hi<3950) return false;
     if(low>40) return false;
             
