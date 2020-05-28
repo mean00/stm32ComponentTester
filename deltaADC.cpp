@@ -32,7 +32,7 @@ bool DeltaADC::get(int &nbSamples, uint16_t **samples, float &period)
     _pA.disconnect();
     _pB.disconnect();
     // convert to delta
-    if(_rate==ADC_SMPR_1_5 && _scale==ADC_PRE_PCLK2_DIV_6)
+    if(_rate==ADC_SMPR_1_5 && _scale== DSOADC::ADC_PRESCALER_6)
     {
         _pA.dualInterleavedDelta(nbSamples,*samples); // skip first samples
         period=0.5/1000000.; // 0.5 us
@@ -41,10 +41,10 @@ bool DeltaADC::get(int &nbSamples, uint16_t **samples, float &period)
     _pA.dualSimulatenousDelta(nbSamples,*samples);
     switch(_scale)
     {
-        case  ADC_PRE_PCLK2_DIV_2 : period=2;break;
-        case  ADC_PRE_PCLK2_DIV_4 : period=4;break;
-        case  ADC_PRE_PCLK2_DIV_6 : period=6;break;
-        case  ADC_PRE_PCLK2_DIV_8 : period=8;break;
+        case  DSOADC::ADC_PRESCALER_2 : period=2;break;
+        case  DSOADC::ADC_PRESCALER_4 : period=4;break;
+        case  DSOADC::ADC_PRESCALER_6 : period=6;break;
+        case  DSOADC::ADC_PRESCALER_8 : period=8;break;
         default:
             xAssert(0);
             break;

@@ -78,12 +78,53 @@ static bool singlePinTest(TestPin &A, TestPin &MeasurePin, const char **failure)
         TesterGfx::print(80,LINE,failure); \
     } \
 }
+/**
+ * Do a simple one pin dma sampling, by pulling that pin up / down
+ * @param text
+ * @param A
+ * @param onoff
+ * @return 
+ */
+#define MARGIN 10
+bool T1DmaTest(const char *text, TestPin &A,  int onoff)
+{
+    AutoDisconnect ad;
+    if(onoff)
+        A.setToVcc();
+    else
+        A.pullDown(TestPin::PULL_MED);    
+    xDelay(5);
+    A.prepareDmaSample(ADC_SMPR_28_5, DSOADC::ADC_PRESCALER_6 ,32);
+    int nbSamples;
+    uint16_t *samples;
+    if(!A.finishDmaSample(nbSamples,&samples)) 
+    {
+            return false;
+    }    
 
+    if(onoff) // should be to VCC
+        for(int i=1;i<nbSamples;i++) // Skip 1st sample!
+        {
+            if(samples[i]<(4095-MARGIN)) return false;
+        }
+    else  // to ground
+        for(int i=1;i<nbSamples;i++)
+        {
+            if(samples[i]>MARGIN) return false;
+        }
+    
+    return true;
+}
+/**
+ * Do a dual DMA test i.e. sample 2 different pins at the same time
+ * @param text
+ * @param A
+ * @param B
+ * @param line
+ * @return 
+ */
 bool dualDmaTest(const char *text, TestPin &A, TestPin & B, int line)
 {
-       
-    
-    
     AutoDisconnect ad;
     A.setToVcc();
     B.pullDown(TestPin::PULL_MED);
@@ -122,6 +163,26 @@ bool dualDmaTest(const char *text, TestPin &A, TestPin & B, int line)
         TesterGfx::print(100,LINE,"KO"); \
     } \
 }
+#define RUN1DMATEST(PIN,MPIN,LINE) \
+{ \
+    const char *failure; \
+    TesterGfx::print(2,LINE,"1DMA " #PIN  ":"); \
+    if(T1DmaTest("",pin##PIN,0)) \
+        TesterGfx::print(100,LINE,"+"); \
+    else \
+    { \
+        testFailed=true; \
+        TesterGfx::print(80,LINE,"KO"); \
+    } \
+    if(T1DmaTest("",pin##PIN,1)) \
+        TesterGfx::print(110,LINE,"+"); \
+    else \
+    { \
+        testFailed=true; \
+        TesterGfx::print(80,LINE,"KO2"); \
+    } \
+}
+
 void pinTest()
 {
 
@@ -136,8 +197,20 @@ void pinTest()
     {
         while(1) {};
     }
+    
     TesterGfx::clear();
-    TesterGfx::print(1,Y_OFFSET,"DMA Test");
+    TesterGfx::print(1,Y_OFFSET,"1DMA Test");
+    RUN1DMATEST(1,2,20+Y_OFFSET);
+    RUN1DMATEST(1,3,50+Y_OFFSET);
+    RUN1DMATEST(2,3,80+Y_OFFSET);
+    if( testFailed)        
+        while(1)
+        {
+
+        }
+    
+    TesterGfx::clear();
+    TesterGfx::print(1,Y_OFFSET,"2DMA Test");
     RUNDDMATEST(1,2,20+Y_OFFSET);
     RUNDDMATEST(1,3,50+Y_OFFSET);
     RUNDDMATEST(2,3,80+Y_OFFSET);
