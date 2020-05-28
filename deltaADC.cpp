@@ -29,6 +29,7 @@ bool DeltaADC::get(int &nbSamples, uint16_t **samples, float &period)
     {
             return false;
     }    
+    nbSamples/=2; // we deal with pairs from here on
     _pA.disconnect();
     _pB.disconnect();
     // convert to delta
@@ -49,7 +50,7 @@ bool DeltaADC::get(int &nbSamples, uint16_t **samples, float &period)
             xAssert(0);
             break;
     }
-    period=72000000./period;
+    period=(float)F_CPU/period;
     // now divide by rate
     float r;
     switch(_rate)
