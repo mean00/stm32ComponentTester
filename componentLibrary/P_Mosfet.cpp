@@ -91,7 +91,7 @@ bool PMosFet::computeVgOn()
     
     adc_smp_rate sampleRate=evaluateSampleRate();
     
-    pinGate.prepareDualDmaSample(pinDown,sampleRate, DSOADC::ADC_PRESCALER_6,512);    
+    pinGate.prepareDualDmaSample(pinDown,sampleRate, DSOADC::ADC_PRESCALER_6,1024);    
     // now charge the gate 
     pinGate.pullDown(TestPin::PULL_HI);
     if(!pinGate.finishDmaSample(nbSamples,&samples)) 
@@ -102,8 +102,9 @@ bool PMosFet::computeVgOn()
     pinUp.disconnect();
      
     // search for blocked
+    int nbPair=nbSamples/2;
     int blocked=-1;
-    for(int i=0;i<50;i++)
+    for(int i=1;i<50;i++)
         if(samples[i*2+1]<100)
         {
             blocked=i;
@@ -112,7 +113,7 @@ bool PMosFet::computeVgOn()
     if(blocked==-1)
         return false;
     
-    for(int i=blocked;i<nbSamples;i++)
+    for(int i=blocked;i<nbPair;i++)
     {
         if(samples[2*i+1]>1000) // It's passing !
         {

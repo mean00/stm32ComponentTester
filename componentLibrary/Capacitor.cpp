@@ -75,7 +75,7 @@ bool Capacitor::doOne(float target,int dex, float &cap)
     // max duration ~ 512 us
     uint16_t *samples;
     int nbSamples;
-     DeltaADC delta(_pA,_pB);
+    DeltaADC delta(_pA,_pB);
     float period;
     
     if(!delta.setup(capScales[dex].rate,capScales[dex].scale,512)) return false;

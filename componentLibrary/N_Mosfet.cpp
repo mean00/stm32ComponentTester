@@ -92,7 +92,7 @@ bool NMosFet::computeVgOn()
 //
     adc_smp_rate sampleRate=evaluateSampleRate();
         
-    pinGate.prepareDualDmaSample(pinDrain,sampleRate, DSOADC::ADC_PRESCALER_6,512);    
+    pinGate.prepareDualDmaSample(pinDrain,sampleRate, DSOADC::ADC_PRESCALER_6,1024);    
     // now charge the gate 
     pinGate.pullUp(TestPin::PULL_HI);
     if(!pinGate.finishDmaSample(nbSamples,&samples)) 
@@ -105,7 +105,7 @@ bool NMosFet::computeVgOn()
      
     // search for blocked
     int blocked=-1;
-    for(int i=0;i<50;i++)
+    for(int i=1;i<50;i++)
         if(samples[i*2+1]>3900)
         {
             blocked=i;
@@ -114,7 +114,8 @@ bool NMosFet::computeVgOn()
     if(blocked==-1)
         return false;
     
-    for(int i=blocked;i<nbSamples;i++)
+    int nbPair=nbSamples/2;
+    for(int i=blocked;i<nbPair;i++)
     {
         if(samples[2*i+1]<2000) // It's passing !
         {
@@ -124,9 +125,9 @@ bool NMosFet::computeVgOn()
         }
     }
     Debug("No passing \n");
-    Debug(nbSamples);
+    Debug(nbPair);
     Debug("-- last sample -- \n");
-    Debug(samples[nbSamples*2]);
+    Debug(samples[nbPair*2]);
     return false;
 }
 // EOF
