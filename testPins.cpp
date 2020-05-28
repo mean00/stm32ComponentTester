@@ -300,8 +300,10 @@ AutoDisconnect::~AutoDisconnect()
  */
 bool    TestPin::prepareDmaSample(adc_smp_rate rate,  DSOADC::Prescaler scale,int nbSamples)
 {
+    
     adc->setADCPin(_pin);    
     adc->prepareDMASampling(rate,scale);     
+    adc->clearSemaphore();
     adc->startDMASampling(nbSamples);
     return true;    
 }
@@ -322,9 +324,10 @@ bool    TestPin::finishDmaSample(int &nbSamples, uint16_t **xsamples)
  * @return 
  */
 bool    TestPin::prepareDualDmaSample(TestPin &otherPin,adc_smp_rate rate,   DSOADC::Prescaler scale ,int nbSamples)
-{
+{    
     adc->setADCPin(_pin); 
     adc->prepareFastDualDMASampling(otherPin._pin,rate,scale);     
+    adc->clearSemaphore();
     adc->startDualDMASampling(otherPin._pin,nbSamples);
     return true;    
 }

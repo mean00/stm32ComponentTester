@@ -80,6 +80,7 @@ static bool singlePinTest(TestPin &A, TestPin &MeasurePin, const char **failure)
 }
 /**
  * Do a simple one pin dma sampling, by pulling that pin up / down
+ * it is mostly the same as the pinTest above
  * @param text
  * @param A
  * @param onoff
@@ -129,17 +130,17 @@ bool dualDmaTest(const char *text, TestPin &A, TestPin & B, int line)
     A.setToVcc();
     B.pullDown(TestPin::PULL_MED);
     xDelay(5);
-    A.prepareDualDmaSample(B,ADC_SMPR_28_5, DSOADC::ADC_PRESCALER_6 ,32);
+    A.prepareDualDmaSample(B,ADC_SMPR_28_5, DSOADC::ADC_PRESCALER_6 ,64);
     int nbSamples;
     uint16_t *samples;
     if(!A.finishDmaSample(nbSamples,&samples)) 
     {
             return false;
     }    
-   // We should have 32 alternating 0 && 4095 
+   // We should have 32 pairs alternating 0 && 4095 
     // B A B A
     int hi=0,low=0;
-    for(int i=0;i<nbSamples;i++)
+    for(int i=1;i<nbSamples/2;i++)
     {
         hi+=samples[i*2];
         low+=samples[i*2+1];
@@ -155,6 +156,7 @@ bool dualDmaTest(const char *text, TestPin &A, TestPin & B, int line)
 { \
     const char *failure; \
     TesterGfx::print(2,LINE,"DMA " #PIN #MPIN ":"); \
+    DSOADC::clearSamples(); \
     if(dualDmaTest("",pin##PIN,pin##MPIN,0)) \
         TesterGfx::print(100,LINE,"OK"); \
     else \

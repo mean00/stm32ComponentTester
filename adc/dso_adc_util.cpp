@@ -246,10 +246,10 @@ bool DSOADC::getSamples(FullSampleSet &fullSet)
 
 bool DSOADC::getSamples(uint16_t **samples, int  &nbSamples)
 {
-    if(!dmaSemaphore->take(10)) // dont busy loop
+    if(!dmaSemaphore->take(200)) // dont busy loop
         return false;   
-    *samples=_captured.set1.data;
-    nbSamples=_captured.set1.samples;
+    *samples=adcInternalBuffer;
+    nbSamples=requestedSamples;
     return true;
 }
 

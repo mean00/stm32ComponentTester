@@ -56,6 +56,10 @@ static  void    initADC(int pin);
         bool    slowDmaSample(int &adcSum, int &nbSamples);
         bool    finishDmaSample(int &nbSamples, uint16_t **xsamples);
         bool    prepareDmaSample(adc_smp_rate rate,  DSOADC::Prescaler scale,int nbSamples);
+        
+                // For this one, we actually sample 2 pins alternatively : pin & otherPin
+                // The nbSample asked is sample Pin + sample OtherPin, i.e. you'll get half of nbSample for pin1 and half of nbSample for otherPin
+                // Odd / even. the first pair may be incorrect
         bool    prepareDualDmaSample(TestPin &otherPin,  adc_smp_rate rate,  DSOADC::Prescaler scale,int nbSamples);
         //
         bool    sample(int &value);

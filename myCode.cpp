@@ -113,7 +113,7 @@ void MainTask::run()
     
     xDelay(100);
     TesterControl::init();
-#if 1     
+#if 0     
     pin1.setMode(TestPin::PULLUP_PWM);
     pin2.setMode(TestPin::GND);
     xDelay(10); // let it stabilize
@@ -164,7 +164,7 @@ void MainTask::run()
 #if 0
     TesterGfx::test();
 #endif    
-#if 0    
+#if 1    
     pinTest();
     while(1)
     {
