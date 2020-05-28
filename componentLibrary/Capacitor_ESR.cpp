@@ -29,7 +29,7 @@ bool Capacitor::minMax(bool high,int &minmax)
     {
         samplePin=&_pA;
     }
-    if(!samplePin->prepareDmaSample( ADC_SMPR_13_5,  ADC_PRE_PCLK2_DIV_6,512))
+    if(!samplePin->prepareDmaSample( ADC_SMPR_13_5,  DSOADC::ADC_PRESCALER_6 ,512))
         return false;        
     // Go!
     _pA.pullUp(TestPin::PULL_LOW);   

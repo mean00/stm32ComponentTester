@@ -88,7 +88,7 @@ bool dualDmaTest(const char *text, TestPin &A, TestPin & B, int line)
     A.setToVcc();
     B.pullDown(TestPin::PULL_MED);
     xDelay(5);
-    A.prepareDualDmaSample(B,ADC_SMPR_28_5,ADC_PRE_PCLK2_DIV_6,32);
+    A.prepareDualDmaSample(B,ADC_SMPR_28_5, DSOADC::ADC_PRESCALER_6 ,32);
     int nbSamples;
     uint16_t *samples;
     if(!A.finishDmaSample(nbSamples,&samples)) 

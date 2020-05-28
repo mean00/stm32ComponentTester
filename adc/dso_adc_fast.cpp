@@ -26,7 +26,6 @@ Adafruit Libraries released under their specific licenses Copyright (c) 2013 Ada
 /**
  */
 
-
 adc_reg_map *adc_Register;
 volatile uint32_t cr2;
 
@@ -35,7 +34,7 @@ uint16_t DSOADC::adcInternalBuffer[ADC_INTERNAL_BUFFER_SIZE] __attribute__ ((ali
 
 int dmaSpuriousInterrupt=0;
 extern HardwareTimer Timer4;
-static bool triggered=false;
+
 
 /**
  */
@@ -63,8 +62,8 @@ DSOADC::DSOADC(int pin)
   enableDisableIrqSource(false,ADC_AWD);
   enableDisableIrqSource(false,ADC_EOC);  
   
-//  setTriggerMode(DSOADC::Trigger_Run);
-//  attachWatchdogInterrupt(NULL);
+  setTriggerMode(DSOADC::Trigger_Run);
+  attachWatchdogInterrupt(NULL);
   
 }
   
@@ -100,10 +99,9 @@ bool    DSOADC::setADCPin(int pin)
 // I think we have reached the speed limit of the chip, now all we can do is improve accuracy.
 // See; http://stm32duino.com/viewtopic.php?f=19&t=107&p=1202#p1194
 
-
-
 bool DSOADC::startDMA()
-{
+{    
+    
   cr2=ADC1->regs->CR2;
   cr2&= ~ADC_CR2_SWSTART;   
   ADC1->regs->CR2=cr2;
@@ -114,14 +112,45 @@ bool DSOADC::startDMA()
   return true;
   
 }
-
-bool DSOADC::startDMASampling (int count)
+/**
+ * 
+ * @return 
+ */
+bool DSOADC::startDualDMA()
+{    
+ volatile uint32_t adc2;   
+ // ADC -- 1 --
+  cr2=ADC1->regs->CR2;
+  cr2&= ~ADC_CR2_SWSTART;   
+  ADC1->regs->CR2=cr2;
+  cr2|=ADC_CR2_CONT+ADC_CR2_DMA;
+  ADC1->regs->CR2=cr2;
+  
+  // ADC -- 2 --
+  adc2=ADC2->regs->CR2;
+  adc2 |=ADC_CR2_CONT;
+  adc2 &=~ADC_CR2_DMA;
+  ADC2->regs->CR2=adc2;
+  
+  // ADC -- 1 --
+  cr2=ADC1->regs->CR2;
+  cr2|= ADC_CR2_SWSTART;   
+  ADC1->regs->CR2=cr2;
+  return true;
+  
+}
+#define XMAX(a,b) (((a)>(b))?(a):(b))
+#define XMIN(a,b) (((a)<(b))?(a):(b))
+/**
+ * 
+ * @param count
+ * @return 
+ */
+bool DSOADC::startDMASampling (const int count)
 {
-  if(count>ADC_INTERNAL_BUFFER_SIZE)
-        count=ADC_INTERNAL_BUFFER_SIZE;
-  requestedSamples=count;    
+  requestedSamples=XMIN(count,ADC_INTERNAL_BUFFER_SIZE);    
   enableDisableIrqSource(false,ADC_AWD);
-  enableDisableIrq(true);
+  enableDisableIrq(true);  
   setupAdcDmaTransfer( requestedSamples,adcInternalBuffer, DMA1_CH1_Event );
   startDMA();
   return true;
@@ -131,15 +160,13 @@ bool DSOADC::startDMASampling (int count)
  * @param count
  * @return 
  */
-bool DSOADC::startDualDMASampling (int otherPin, int count)
+bool DSOADC::startDualDMASampling (const int otherPin, const int count)
 {
-  if(count>ADC_INTERNAL_BUFFER_SIZE/2)
-        count=ADC_INTERNAL_BUFFER_SIZE/2;  
-  requestedSamples=count;    
+  requestedSamples=XMIN(count,ADC_INTERNAL_BUFFER_SIZE);    
   enableDisableIrqSource(false,ADC_AWD);
   enableDisableIrq(true);
   setupAdcDualDmaTransfer( otherPin, requestedSamples,(uint32_t *)adcInternalBuffer, DMA1_CH1_Event );
-  ADC1->regs->CR2 |= ADC_CR2_SWSTART;   
+  startDualDMA();
   return true;
 }
 
@@ -185,6 +212,9 @@ int DSOADC::pollingRead()
 {
   // deactivate DMA
   adc_reg_map *regs=ADC1->regs;
+  
+  uint32_t oldCr2=regs->CR2;
+  
   cr2=regs->CR2;
   cr2&= ~(ADC_CR2_SWSTART+ADC_CR2_CONT+ADC_CR2_DMA);   
   regs->CR2=cr2;
@@ -196,6 +226,8 @@ int DSOADC::pollingRead()
   {
       
   }      
-  return (uint16)(regs->DR & ADC_DR_DATA);
+  uint16_t val= (uint16)(regs->DR & ADC_DR_DATA);
+  regs->CR2=oldCr2;
+  return val;
 }
 

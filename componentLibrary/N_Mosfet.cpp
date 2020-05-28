@@ -92,7 +92,7 @@ bool NMosFet::computeVgOn()
 //
     adc_smp_rate sampleRate=evaluateSampleRate();
         
-    pinGate.prepareDualDmaSample(pinDrain,sampleRate,ADC_PRE_PCLK2_DIV_6,512);    
+    pinGate.prepareDualDmaSample(pinDrain,sampleRate, DSOADC::ADC_PRESCALER_6,512);    
     // now charge the gate 
     pinGate.pullUp(TestPin::PULL_HI);
     if(!pinGate.finishDmaSample(nbSamples,&samples)) 

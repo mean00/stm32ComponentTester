@@ -41,7 +41,7 @@ bool NPNBjt::computeHfe(float &hfe)
     float collectorRes=pinCollector.getCurrentRes();
     float baseRes=pinBase.getCurrentRes();
     DeltaADC delta(pinBase,pinCollector);
-    delta.setup(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_6,512);
+    delta.setup(ADC_SMPR_239_5,DSOADC::ADC_PRESCALER_6,512);
     int nbSamples;
     uint16_t *samples;
     float period;

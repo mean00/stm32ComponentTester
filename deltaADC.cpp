@@ -10,7 +10,7 @@
  * @param nbSamples
  * @return 
  */
-bool DeltaADC::setup(const adc_smp_rate rate,  const adc_prescaler scale, const int nbSamples)
+bool DeltaADC::setup(const adc_smp_rate rate,  const  DSOADC::Prescaler  scale, const int nbSamples)
 {
     _rate=rate;
     _scale=scale;

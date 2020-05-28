@@ -15,15 +15,15 @@
 
 typedef struct coilScale
 {   
-    adc_smp_rate    rate;
-    adc_prescaler   scale;
-    float           tickUs;
+    adc_smp_rate        rate;
+    DSOADC::Prescaler   scale;
+    float               tickUs;
 };
 const coilScale coilScales[]=
 {
-    { ADC_SMPR_1_5,  ADC_PRE_PCLK2_DIV_6,  1.17},  // T=500 us, LMax =~ 50 mH
-    { ADC_SMPR_41_5,  ADC_PRE_PCLK2_DIV_6,  4.5},   // T=2.3 ms, LMax =~ 200 mH
-    { ADC_SMPR_239_5,  ADC_PRE_PCLK2_DIV_8, 28.},  //  T=14 ms   LMax =~ 1500 mH
+    { ADC_SMPR_1_5,  DSOADC::ADC_PRESCALER_6  ,  1.17},  // T=500 us, LMax =~ 50 mH
+    { ADC_SMPR_41_5, DSOADC::ADC_PRESCALER_6  ,  4.5},   // T=2.3 ms, LMax =~ 200 mH
+    { ADC_SMPR_239_5,DSOADC::ADC_PRESCALER_8   , 28.},  //  T=14 ms   LMax =~ 1500 mH
 };
 
 #define LAST_SCALE ((sizeof(coilScales)/sizeof(coilScale))-1)

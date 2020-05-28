@@ -45,7 +45,7 @@ bool Mosfet::computeDiode(TestPin &top, TestPin &bottom,float &vf)
     xDelay(10);
     
     DeltaADC delta(top,bottom);
-    delta.setup(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_6,512);
+    delta.setup(ADC_SMPR_239_5, DSOADC::ADC_PRESCALER_6 ,512);
     int nbSamples;
     uint16_t *samples;
     float period;
@@ -73,7 +73,7 @@ bool Mosfet::computeRdsOn(TestPin &top, TestPin &bottom,float &value)
     xDelay(100);
     float R=top.getCurrentRes()+bottom.getCurrentRes();    
     DeltaADC delta(top,bottom);
-    delta.setup(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_6,128);
+    delta.setup(ADC_SMPR_239_5,DSOADC::ADC_PRESCALER_6,128);
     int nbSamples;
     uint16_t *samples;
     float period;

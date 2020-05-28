@@ -265,7 +265,7 @@ Component *Component::identify2poles(TestPin &A, TestPin &B, TestPin &C, COMPONE
     int nbSamples;
     uint16_t *samples;
     xDelay(10); // let it stabilize
-    if(!A.prepareDmaSample(  ADC_SMPR_13_5,  ADC_PRE_PCLK2_DIV_6, 512)) 
+    if(!A.prepareDmaSample(  ADC_SMPR_13_5,  DSOADC::ADC_PRESCALER_6 , 512)) 
         return false;        
 
     if(!A.finishDmaSample(nbSamples,&samples)) 

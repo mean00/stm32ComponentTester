@@ -7,7 +7,7 @@
 #include "nvm.h"
 #include "tester_constant.h"
 #include "debug_conf.h"
-
+#include "dso_adc.h"
 #define ADC_OFFSET  0 
 
 class AutoDisconnect
@@ -55,8 +55,8 @@ static  void    initADC(int pin);
         void    disconnect();
         bool    slowDmaSample(int &adcSum, int &nbSamples);
         bool    finishDmaSample(int &nbSamples, uint16_t **xsamples);
-        bool    prepareDmaSample(adc_smp_rate rate,  adc_prescaler scale,int nbSamples);
-        bool    prepareDualDmaSample(TestPin &otherPin,  adc_smp_rate rate,  adc_prescaler scale,int nbSamples);
+        bool    prepareDmaSample(adc_smp_rate rate,  DSOADC::Prescaler scale,int nbSamples);
+        bool    prepareDualDmaSample(TestPin &otherPin,  adc_smp_rate rate,  DSOADC::Prescaler scale,int nbSamples);
         //
         bool    sample(int &value);
         bool    fastSampleUp(int threshold1,int threshold2,int &value1,int &value2, int &timeUs1,int &timeUs2);

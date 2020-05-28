@@ -1,5 +1,6 @@
 #pragma once
 #include "testPins.h"
+
 /**
  */
 class DeltaADC
@@ -9,13 +10,13 @@ public:
     {
       
     }
-    bool setup(const adc_smp_rate rate, const  adc_prescaler scale,const  int nbSamples);
+    bool setup(const adc_smp_rate rate, const   DSOADC::Prescaler  scale,const  int nbSamples);
     bool get(int &nbSamples, uint16_t **ptr, float &period);
     
 protected:
-  TestPin &_pA,&_pB;
-  adc_smp_rate _rate;
-  adc_prescaler _scale;
-  int           _nb;
+  TestPin            &_pA,&_pB;
+  adc_smp_rate       _rate;
+  DSOADC::Prescaler  _scale;
+  int                _nb;
   
 };

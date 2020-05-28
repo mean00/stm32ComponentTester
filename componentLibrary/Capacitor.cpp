@@ -19,7 +19,7 @@ typedef struct CapScale
     float           capMin; // in PF
     float           capMax; // in pF
     adc_smp_rate    rate;
-    adc_prescaler   scale;
+    DSOADC::Prescaler   scale;
     float           tickUs;
     TestPin::PULL_STRENGTH strength;
     bool            doubled;
@@ -28,15 +28,15 @@ typedef struct CapScale
 
 const CapScale capScales[]=
 {
-    {  20     ,800,         ADC_SMPR_13_5,  ADC_PRE_PCLK2_DIV_6,  2.17,   TestPin::PULL_HI,     true},   // 20pf   -> 800pf
-    { 800     ,1.8*1000,    ADC_SMPR_13_5,  ADC_PRE_PCLK2_DIV_6,  2.17,   TestPin::PULL_HI,     false},  // 800 pf -> 1.8 nf
-    { 1.8*1000,5*1000,      ADC_SMPR_28_5,  ADC_PRE_PCLK2_DIV_6,  3.42,   TestPin::PULL_HI,     false},  // 1.8nf  -> 5nf
-    {   5*1000,20*1000,     ADC_SMPR_13_5,  ADC_PRE_PCLK2_DIV_6,  2.17,   TestPin::PULL_MED,    true},   // 5nf    -> 20 nf
-    {  20*1000,100*1000,    ADC_SMPR_41_5,  ADC_PRE_PCLK2_DIV_6,  4.5,    TestPin::PULL_MED,    false},  // 20 nf  -> 100 nf
-    { 100*1000,200*1000,    ADC_SMPR_71_5,  ADC_PRE_PCLK2_DIV_8,  9.33,   TestPin::PULL_MED,    false},  // 100 nf -> 200 nF
-    { 600*1000,1200*1000,   ADC_SMPR_13_5,  ADC_PRE_PCLK2_DIV_8,  2.89,   TestPin::PULL_LOW,    true},   // 600nf  -> 1.2uf
-    {1200*1000,5000*1000,   ADC_SMPR_41_5,  ADC_PRE_PCLK2_DIV_8,  6,      TestPin::PULL_LOW,    false},  // 1.2uF  -> 5uf
-    {5000*1000,20*1000*10000,ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_6,  21,     TestPin::PULL_LOW,    false},  // 5uF    -> 20uf
+    {  20     ,800,         ADC_SMPR_13_5,  DSOADC::ADC_PRESCALER_6  ,  2.17,   TestPin::PULL_HI,     true},   // 20pf   -> 800pf
+    { 800     ,1.8*1000,    ADC_SMPR_13_5,  DSOADC::ADC_PRESCALER_6  ,  2.17,   TestPin::PULL_HI,     false},  // 800 pf -> 1.8 nf
+    { 1.8*1000,5*1000,      ADC_SMPR_28_5,  DSOADC::ADC_PRESCALER_6  ,  3.42,   TestPin::PULL_HI,     false},  // 1.8nf  -> 5nf
+    {   5*1000,20*1000,     ADC_SMPR_13_5,  DSOADC::ADC_PRESCALER_6  ,  2.17,   TestPin::PULL_MED,    true},   // 5nf    -> 20 nf
+    {  20*1000,100*1000,    ADC_SMPR_41_5,  DSOADC::ADC_PRESCALER_6  ,  4.5,    TestPin::PULL_MED,    false},  // 20 nf  -> 100 nf
+    { 100*1000,200*1000,    ADC_SMPR_71_5,  DSOADC::ADC_PRESCALER_8  ,  9.33,   TestPin::PULL_MED,    false},  // 100 nf -> 200 nF
+    { 600*1000,1200*1000,   ADC_SMPR_13_5,  DSOADC::ADC_PRESCALER_8  ,  2.89,   TestPin::PULL_LOW,    true},   // 600nf  -> 1.2uf
+    {1200*1000,5000*1000,   ADC_SMPR_41_5,  DSOADC::ADC_PRESCALER_8  ,  6,      TestPin::PULL_LOW,    false},  // 1.2uF  -> 5uf
+    {5000*1000,20*1000*10000,ADC_SMPR_239_5,DSOADC::ADC_PRESCALER_6  ,  21,     TestPin::PULL_LOW,    false},  // 5uF    -> 20uf
 };
 
 #define LAST_SCALE ((sizeof(capScales)/sizeof(CapScale))-1)

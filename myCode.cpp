@@ -19,7 +19,7 @@ extern void menuSystem(void);
 uint32_t  deviceId;
 
 uint32_t  memDensity=0;
-
+float L;
 //
 int result[20];
 int z,zz;
@@ -54,6 +54,45 @@ void dummyTask(void *b)
         xDelay(100);
     }
 }
+
+float scanCoil( TestPin &pin)
+{
+    float L;
+    int nbSamples;
+    uint16_t *samples;
+    
+    // Maximum speed
+    if(!pin.prepareDmaSample(  ADC_SMPR_1_5,   DSOADC::ADC_PRESCALER_6, 1024)) 
+        xAssert(0);
+    if(!pin.finishDmaSample(nbSamples,&samples)) 
+    {
+        xAssert(0);
+    }
+    // Search the maximum, that gives us the peak
+    int mx=0;
+    for(int i=0;i<nbSamples;i++)
+        if(samples[i]>mx) mx=samples[i];
+
+    if(mx<10) // too small, we are in the noise
+        return 0;
+
+    // mx is the ratio between the resistor and the coil 
+    float z1=pin.getCurrentRes();
+    float den=4095./(float)mx;
+    den-=1.;
+
+    float z2=z1/den;
+    //
+    z2-=pin.getRes(TestPin::VCC); // take parasitic resistance into account
+    if(z2<0) return 0;
+    // Z2=jWL = j * 2*PI*F*L => L=Z2/2Pif
+    L=z2/(2.*M_PI);
+    // divide by frequency
+    L/=51000.;
+    return L;
+}
+        
+
 /**
  */
 void MainTask::run()
@@ -65,14 +104,46 @@ void MainTask::run()
     
     TestPin::initADC(PA0);
     
-    
     pin1.init();
     pin2.init();
     pin3.init();
+   
+ 
     
     
     xDelay(100);
     TesterControl::init();
+#if 1     
+    pin1.setMode(TestPin::PULLUP_PWM);
+    pin2.setMode(TestPin::GND);
+    xDelay(10); // let it stabilize
+
+    while(1)
+    {
+        float coil=0;
+        for(int i=0;i<8;i++)
+            coil+=scanCoil(pin1);
+        coil/=8.;
+        
+        char outPrint[100];
+        Component::prettyPrint(coil,"H",outPrint);
+        TesterGfx::clear();
+         TesterGfx::print(10,60,outPrint);
+         xDelay(200);
+        
+        
+    }
+#endif    
+    
+#if 0    
+    // 
+     pin2.setToGround();
+     pin1.pwm(TestPin::PULL_LOW,1000);
+     while(1)
+     {
+         
+     }
+#endif
     
 #if 0
     //TesterGfx::drawDiode(0,"5pf",1,2);
