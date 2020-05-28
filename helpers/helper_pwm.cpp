@@ -22,7 +22,7 @@ bool setPWMPinFrequency(int pin, int frequency)
             if(dev==&timer3)    timer=&Timer3;
             else
                 xAssert(0);
-    
+    timer->pause();
     timer->setPrescaleFactor(F_CPU/4000000); // we aim at 4 Mhz base clock
     int v=(4000000/frequency) &~1;
     timer->setCount(0);
