@@ -295,6 +295,20 @@ AutoDisconnect::~AutoDisconnect()
 }
 /**
  * 
+ * @param frequency
+ * @return 
+ */
+bool     TestPin::prepareTimer(int frequency,int nbSamples)
+{
+    adc->setADCPin(_pin);    
+    adc->setupTimerSampling();
+    adc->prepareTimerSampling(frequency,false,ADC_SMPR_1_5,DSOADC::ADC_PRESCALER_2);
+    adc->clearSemaphore();
+    return adc->startTimerSampling(nbSamples);
+}
+
+/**
+ * 
  * @param nbSamples
  * @return 
  */
@@ -302,6 +316,7 @@ bool    TestPin::prepareDmaSample(adc_smp_rate rate,  DSOADC::Prescaler scale,in
 {
     
     adc->setADCPin(_pin);    
+    adc->setupDmaSampling();
     adc->prepareDMASampling(rate,scale);     
     adc->clearSemaphore();
     adc->startDMASampling(nbSamples);
@@ -318,6 +333,11 @@ bool    TestPin::finishDmaSample(int &nbSamples, uint16_t **xsamples)
     xAssert(true==adc->getSamples(xsamples,nbSamples));
     return true;    
 }
+bool    TestPin::finishTimer(int &nbSamples, uint16_t **xsamples)
+{
+    return finishDmaSample(nbSamples,xsamples); 
+}
+
 /**
  * 
  * @param nbSamples

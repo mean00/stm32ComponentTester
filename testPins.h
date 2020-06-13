@@ -54,6 +54,8 @@ static  void    initADC(int pin);
         void    setToGround();
         void    disconnect();
         bool    slowDmaSample(int &adcSum, int &nbSamples);
+        bool    prepareTimer(int frequency,int nbSamples);
+        bool    finishTimer(int &nbSamples, uint16_t **xsamples);
         bool    finishDmaSample(int &nbSamples, uint16_t **xsamples);
         bool    prepareDmaSample(adc_smp_rate rate,  DSOADC::Prescaler scale,int nbSamples);
         

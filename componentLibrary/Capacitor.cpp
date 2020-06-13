@@ -18,28 +18,12 @@ typedef struct CapScale
 {
     float           capMin; // in PF
     float           capMax; // in pF
-    adc_smp_rate    rate;
-    DSOADC::Prescaler   scale;
-    float           tickUs;
+    int             frequency;
     TestPin::PULL_STRENGTH strength;
     bool            doubled;
 
 };
 
-const CapScale capScales[]=
-{
-    {  20     ,800,         ADC_SMPR_13_5,  DSOADC::ADC_PRESCALER_6  ,  2.17,   TestPin::PULL_HI,     true},   // 20pf   -> 800pf
-    { 800     ,1.8*1000,    ADC_SMPR_13_5,  DSOADC::ADC_PRESCALER_6  ,  2.17,   TestPin::PULL_HI,     false},  // 800 pf -> 1.8 nf
-    { 1.8*1000,5*1000,      ADC_SMPR_28_5,  DSOADC::ADC_PRESCALER_6  ,  3.42,   TestPin::PULL_HI,     false},  // 1.8nf  -> 5nf
-    {   5*1000,20*1000,     ADC_SMPR_13_5,  DSOADC::ADC_PRESCALER_6  ,  2.17,   TestPin::PULL_MED,    true},   // 5nf    -> 20 nf
-    {  20*1000,100*1000,    ADC_SMPR_41_5,  DSOADC::ADC_PRESCALER_6  ,  4.5,    TestPin::PULL_MED,    false},  // 20 nf  -> 100 nf
-    { 100*1000,200*1000,    ADC_SMPR_71_5,  DSOADC::ADC_PRESCALER_8  ,  9.33,   TestPin::PULL_MED,    false},  // 100 nf -> 200 nF
-    { 600*1000,1200*1000,   ADC_SMPR_13_5,  DSOADC::ADC_PRESCALER_8  ,  2.89,   TestPin::PULL_LOW,    true},   // 600nf  -> 1.2uf
-    {1200*1000,5000*1000,   ADC_SMPR_41_5,  DSOADC::ADC_PRESCALER_8  ,  6,      TestPin::PULL_LOW,    false},  // 1.2uF  -> 5uf
-    {5000*1000,20*1000*10000,ADC_SMPR_239_5,DSOADC::ADC_PRESCALER_6  ,  21,     TestPin::PULL_LOW,    false},  // 5uF    -> 20uf
-};
-
-#define LAST_SCALE ((sizeof(capScales)/sizeof(CapScale))-1)
 
 /**
  * 
@@ -59,30 +43,26 @@ bool Capacitor::draw(int yOffset)
  * @return 
  */
 
-bool Capacitor::doOne(float target,int dex, float &cap)
+bool Capacitor::doOne(float target,int frequency, const TestPin::PULL_STRENGTH strength,float &cap)
 {
     int resistance;
     zeroAllPins();
     // go
-    bool doubled=(capScales[dex].doubled);
-    TestPin::PULL_STRENGTH strength=capScales[dex].strength;
-    if(doubled)
-        _pB.pullDown(strength);
-    else    
-        _pB.setToGround();
+    _pA.pullDown(strength);
 
     // start the DMA
     // max duration ~ 512 us
     uint16_t *samples;
     int nbSamples;
-    DeltaADC delta(_pA,_pB);
-    float period;
-    
-    if(!delta.setup(capScales[dex].rate,capScales[dex].scale,512)) return false;
+
+    if(!_pA.prepareTimer(frequency,512))
+    {
+        return false;
+    }
     
     _pA.pullUp(strength);   
     resistance=_pA.getCurrentRes()+_pB.getCurrentRes();
-    bool r=delta.get(nbSamples,&samples,period);
+    bool r=_pA.finishTimer(nbSamples,&samples);
     _pA.pullDown(TestPin::PULL_LOW);   
     if(!r) return false;    
     
@@ -123,7 +103,7 @@ bool Capacitor::doOne(float target,int dex, float &cap)
     
     // Compute
     float timeElapsed=(pointB-pointA);
-    timeElapsed*=period;
+    timeElapsed/=(float)frequency;
 
     float valueA=samples[pointA];
     float valueB=samples[pointB];
@@ -153,26 +133,23 @@ bool Capacitor::getRange(int dex, int &range)
     int resistance;
     zeroAllPins();
     // go
-    bool doubled=(capScales[dex].doubled);
-    TestPin::PULL_STRENGTH strength=capScales[dex].strength;
-    if(doubled)
-            _pB.pullDown(strength);
-    else    
-            _pB.setToGround();
+
+    _pB.setToGround();
 
     // start the DMA
     // max duration ~ 512 us
     uint16_t *samples;
     int nbSamples;
     
-    DeltaADC delta(_pA,_pB);
     float period;
     
-    if(!delta.setup(capScales[dex].rate,capScales[dex].scale,512)) return false;
+    if(!_pA.prepareTimer(1000,512)) return false;
+    
+    TestPin::PULL_STRENGTH strength=TestPin::PULL_HI;
     
     _pA.pullUp(strength);   
     resistance=_pA.getCurrentRes()+_pB.getCurrentRes();
-    bool r=delta.get(nbSamples,&samples,period);
+    bool r=_pA.finishTimer(nbSamples,&samples);
     _pA.pullDown(TestPin::PULL_LOW);   
     if(!r) return false;
     
@@ -209,7 +186,7 @@ bool Capacitor::computeMediumCap(int dex,int overSampling,float &Cest)
     Cest=0;
     for(int i=0;i<overSampling;i++)
     {
-         if(!doOne(0.63,dex,cap))
+         if(!doOne(0.63,1000,TestPin::PULL_HI,cap))
              return false;        
          Cest+=cap;
     }
@@ -247,7 +224,7 @@ bool Capacitor::calibrationValue(float &c)
     for(int i=0;i<overSampling;i++)
     {
         float cap;
-         if(!doOne(0.9,0,cap))
+         if(!doOne(0.9,0,TestPin::PULL_HI,cap))
              return false;        
          Cest+=cap;
     }
@@ -298,7 +275,7 @@ bool Capacitor::computeWrapper()
     //getEsr(est);
     
     // check for big cap
-    if(getRange(LAST_SCALE,range))
+    if(getRange(0,range))
     {
         if(range>95) // out of scale, it is high cap..
         {
@@ -315,7 +292,7 @@ bool Capacitor::computeWrapper()
     }
     
     // Search the best range...
-    int n=LAST_SCALE;    
+    int n=1;    
     int gotit=-1;
     for(int i=0;i<n;i++)
     {
