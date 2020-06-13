@@ -3,9 +3,19 @@
 //
 #pragma once
 
-#define ADC_TIMER Timer2
-#define ADC_TIMER_CHANNEL TIMER_CH1
-#define ADC_TIMER_COUNT   1
+
+#define OVERSAMPLING_FACTOR  4 // Used with gd32 chip
+
+#if 0
+    #define ADC_TIMER         Timer3 // Timer3
+    #define ADC_TIMER_CHANNEL TIMER_CH2
+    #define ADC_SOURCE_TIMER  ADC_SOURCE_TIMER_3_TRGO //ADC_SOURCE_TIMER_2_CHANNEL2
+#else
+    #define ADC_TIMER         Timer4 // Timer2
+    #define ADC_TIMER_CHANNEL TIMER_CH4
+    #define ADC_SOURCE_TIMER  ADC_SOURCE_TIMER_4_CHANNEL4 //ADC_SOURCE_TIMER_2_CHANNEL2 //ADC_SOURCE_TIMER_2_CHANNEL2
+#endif
+
 #ifndef ADC_CR1_FASTINT
     #define ADC_CR1_FASTINT (7<<16)
 #endif ADC_CR1_FASTINT
@@ -95,3 +105,5 @@ extern FancySemaphore      *dmaSemaphore;
 
 extern void  SPURIOUS_INTERRUPT();
 extern voidFuncPtr adcIrqHandler;
+
+#define ADC_MAX 0xfff // 12 bits

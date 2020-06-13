@@ -23,6 +23,7 @@ Adafruit Libraries released under their specific licenses Copyright (c) 2013 Ada
 #include "fancyLock.h"
 #include "dma.h"
 #include "adc.h"
+#include "dso_adc_priv.h"
 /**
  */
 
@@ -64,7 +65,8 @@ DSOADC::DSOADC(int pin)
   
   setTriggerMode(DSOADC::Trigger_Run);
   attachWatchdogInterrupt(NULL);
-  
+ 
+  _oldTimerFq=0;
 }
   
 /**
@@ -101,16 +103,16 @@ bool    DSOADC::setADCPin(int pin)
 
 bool DSOADC::startDMA()
 {    
-    
-  cr2=ADC1->regs->CR2;
+  
+  
+  cr2=ADC1->regs->CR2;  
   cr2&= ~ADC_CR2_SWSTART;   
   ADC1->regs->CR2=cr2;
-  cr2|=ADC_CR2_CONT+ADC_CR2_DMA;
-  ADC1->regs->CR2=cr2;
+  cr2|=ADC_CR2_CONT+ADC_CR2_DMA;    
+  ADC1->regs->CR2=cr2;    
   cr2|= ADC_CR2_SWSTART;   
-  ADC1->regs->CR2=cr2;
-  return true;
-  
+  ADC1->regs->CR2=cr2;    
+  return true;  
 }
 /**
  * 
@@ -151,7 +153,7 @@ bool DSOADC::startDMASampling (const int count)
   requestedSamples=XMIN(count,ADC_INTERNAL_BUFFER_SIZE);    
   enableDisableIrqSource(false,ADC_AWD);
   enableDisableIrq(true);  
-  setupAdcDmaTransfer( requestedSamples,adcInternalBuffer, DMA1_CH1_Event );
+  setupAdcDmaTransfer( requestedSamples,adcInternalBuffer, DMA1_CH1_Event,false );
   startDMA();
   return true;
 }
@@ -165,7 +167,7 @@ bool DSOADC::startDualDMASampling (const int otherPin, const int count)
   requestedSamples=XMIN(count,ADC_INTERNAL_BUFFER_SIZE);    
   enableDisableIrqSource(false,ADC_AWD);
   enableDisableIrq(true);
-  setupAdcDualDmaTransfer( otherPin, requestedSamples,(uint32_t *)adcInternalBuffer, DMA1_CH1_Event );
+  setupAdcDualDmaTransfer( otherPin, requestedSamples,(uint32_t *)adcInternalBuffer, DMA1_CH1_Event,false );
 #if 1
   startDualDMA();
 #else
@@ -187,11 +189,13 @@ void SPURIOUS_INTERRUPT()
 void DSOADC::stopDmaCapture(void)
 {
     // disable interrupts
-    ADC1->regs->CR2 &= ~(ADC_CR2_SWSTART|ADC_CR2_CONT|ADC_CR2_DMA);   
+    cr2=  ADC1->regs->CR2 ;
+    cr2 &= ~(ADC_CR2_SWSTART|ADC_CR2_CONT|ADC_CR2_DMA);   
+    ADC1->regs->CR2 =cr2;
     enableDisableIrq(false);
     enableDisableIrqSource(false,ADC_AWD);
     // Stop dma
-     adc_dma_disable(ADC1);
+    adc_dma_disable(ADC1);
 }
 
 
@@ -212,26 +216,10 @@ uint32_t DSOADC::getVCCmv()
  * 
  * @return 
  */
-int DSOADC::pollingRead()
-{
-  // deactivate DMA
-  adc_reg_map *regs=ADC1->regs;
-  
-  uint32_t oldCr2=regs->CR2;
-  
-  cr2=regs->CR2;
-  cr2&= ~(ADC_CR2_SWSTART+ADC_CR2_CONT+ADC_CR2_DMA);   
-  regs->CR2=cr2;
-  // then poll
-  cr2|=ADC_CR2_SWSTART;
-  regs->CR2=cr2;
-  // wait for end of sampling  
-  while (!(regs->SR & ADC_SR_EOC))
-  {
-      
-  }      
-  uint16_t val= (uint16)(regs->DR & ADC_DR_DATA);
-  regs->CR2=oldCr2;
-  return val;
+bool    DSOADC::setupDmaSampling()
+{   
+  setOverSamplingFactor(1);    
+  ADC_TIMER.pause();
+  setSource(ADC_SOURCE_SWSTART);  
+  return true;
 }
-
