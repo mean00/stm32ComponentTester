@@ -289,6 +289,27 @@ static  uint8_t *pgm_read_bitmap_ptr(const GFXfont *gfxFont) {  return gfxFont->
  * @param color
  * @param bg
  */
+void    Adafruit_ST7735Ex::putPixel(int x, int y, uint16_t c)
+{
+     setAddrWindow(x,y,x+1,  y+1);
+     writecommand(ST7735_RAMWR); // Row addr set
+     // Send data
+     SEND_DATA();
+     CS_ON();
+     SPI.setDataSize (SPI_CR1_DFF_16_BIT); // Set spi 16bit mode  
+     SPI.dmaSend(&c, 1, true);
+     CS_OFF();
+    
+}
+
+/**
+ * 
+ * @param x
+ * @param y
+ * @param c
+ * @param color
+ * @param bg
+ */
 void Adafruit_ST7735Ex::myDrawChar(int16_t x, int16_t y, unsigned char c,  uint16_t color, uint16_t bg) 
 {
     int cr=c;

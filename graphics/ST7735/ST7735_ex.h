@@ -36,6 +36,7 @@ public:
         void  setFontFamily(const GFXfont *small, const GFXfont *medium, const GFXfont *big);
         void  setFontSize(FontSize size);
         void  fillScreen(uint16_t color) ;
+        void    putPixel(int x,int y, uint16_t color);        
 protected:
         FontInfo          fontInfo[3];
         
@@ -45,4 +46,5 @@ protected:
         void    pushColors16(const uint16_t *data, int len, boolean first);
         size_t  write(uint8_t c);
         void    myDrawChar(int16_t x, int16_t y, unsigned char c,  uint16_t color, uint16_t bg) ;
+        
 };

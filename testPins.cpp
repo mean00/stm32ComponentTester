@@ -397,7 +397,7 @@ const RateTable rateTable[]=
     RATE_MK(239)
 };
 /**
- * 
+ * \brief compute rate & scale so that the ADC sampling fq is larger than timer frequency
  * @param frequency
  * @param prescaler
  * @param rate
@@ -460,16 +460,15 @@ bool  TestPin::pulseTime(int nbSamples, int samplingFrequency, TestPin::PULL_STR
 {
     
     DSOADC::Prescaler  prescaler;
-    adc_smp_rate   rate;
-    
+    adc_smp_rate   rate;    
   
     if(!  findRateScale(samplingFrequency, prescaler,rate))
     {
         return false;
-    }
-    
+    }    
     
     pullDown(strength);
+    adc->setADCPin(this->_pin);
     adc->setupTimerSampling();
     if(!adc->prepareTimerSampling(samplingFrequency,false,rate,prescaler))
     {
@@ -480,11 +479,12 @@ bool  TestPin::pulseTime(int nbSamples, int samplingFrequency, TestPin::PULL_STR
     pullUp(strength);
     if(!adc->getSamples(xsamples,sampleOut))    
     {
+        xAssert(0);
         adc->stopTimeCapture();
         return false;
     }
     adc->stopTimeCapture();
-    pullDown(strength);
+   // pullDown(strength);
     return true;
 }
 

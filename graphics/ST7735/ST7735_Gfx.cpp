@@ -320,7 +320,22 @@ void TesterGfx::printStatus(const char *status)
 {
     Serial.println(status);
 }
-
+/**
+ * 
+ * @param nb
+ * @param data
+ */
+void TesterGfx::drawCurve(int nb, uint16_t *data)
+{
+    instance->fillScreen(0);
+    int n=nb/128; // multiplier
+    for(int i=0;i<128;i++)
+    {
+        float x=data[i*n];
+        x=x*128./4095.;
+        instance->putPixel(i,x,0xfffff);
+    }
+}
 /**
  * 
  */

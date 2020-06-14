@@ -113,6 +113,24 @@ void MainTask::run()
     
     xDelay(100);
     TesterControl::init();
+    
+#if 1
+    pin2.setMode(TestPin::GND);   
+    
+    int nbSample;
+    uint16_t *samples;
+    if(!pin1.pulseTime(512,1000,TestPin::PULL_MED,nbSample,&samples))
+    {
+        xAssert(0);
+    }
+    TesterGfx::drawCurve(nbSample, samples);
+    while(1)
+    {
+        
+    };
+
+#endif    
+    
 #if 0     
     pin1.setMode(TestPin::PULLUP_PWM);
     pin2.setMode(TestPin::GND);
