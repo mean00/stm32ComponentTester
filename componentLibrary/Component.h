@@ -37,7 +37,7 @@ public:
             static  float adcToVolt(float adc);
             static  int  evaluate(TestPin &pin);
             virtual int  likely()=0; // higher means detection is more reliable
-            virtual void  changePage(int count) {};
+            virtual void  changePage(int count) {};            
 protected:
             TestPin &_pA, &_pB, &_pC;
             const char    *_shortName;

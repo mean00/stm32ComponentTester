@@ -57,6 +57,9 @@ static  void    initADC(int pin);
         bool    prepareTimer(int frequency,int nbSamples);
         bool    finishTimer(int &nbSamples, uint16_t **xsamples);
         bool    finishDmaSample(int &nbSamples, uint16_t **xsamples);
+        
+        bool    pulseTime(int nbSamples,int samplingFrequency, TestPin::PULL_STRENGTH strength, int &sampleOut,  uint16_t **xsamples);
+        
         bool    prepareDmaSample(adc_smp_rate rate,  DSOADC::Prescaler scale,int nbSamples);
         
                 // For this one, we actually sample 2 pins alternatively : pin & otherPin

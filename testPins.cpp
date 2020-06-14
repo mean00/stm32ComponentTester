@@ -353,6 +353,143 @@ bool    TestPin::prepareDualDmaSample(TestPin &otherPin,adc_smp_rate rate,   DSO
 }
 /**
  * 
+ * @param samplingFrequency
+ * @param strength
+ * @param prescaler
+ * @param rate
+ * @param sampleOut
+ * @param xsamples
+ * @return 
+ */
+
+typedef struct ScalerTable
+{
+    float              div;
+    DSOADC::Prescaler  scaler;
+};
+
+typedef struct RateTable
+{
+    float              cycle;
+    adc_smp_rate       rate;
+};
+const ScalerTable scalerTable[]=
+{
+    {2.0, DSOADC::ADC_PRESCALER_2},
+    {4.0, DSOADC::ADC_PRESCALER_4},
+    {6.0, DSOADC::ADC_PRESCALER_6},
+    {8.0, DSOADC::ADC_PRESCALER_8}
+};
+
+
+         
+#define RATE_MK(x)          { 12+x##.5, ADC_SMPR_##x##_5},
+         
+const RateTable rateTable[]=
+{
+    RATE_MK(1)
+    RATE_MK(7)
+    RATE_MK(13)
+    RATE_MK(28)
+    RATE_MK(41)
+    RATE_MK(55)
+    RATE_MK(71)
+    RATE_MK(239)
+};
+/**
+ * 
+ * @param frequency
+ * @param prescaler
+ * @param rate
+ * @return 
+ */
+bool findRateScale(int frequency,  DSOADC::Prescaler  &prescaler,  adc_smp_rate   &rate)
+{
+    float alpha=(float)F_CPU;
+    alpha/=(float)(frequency+1);
+    
+    int dex=-1;
+    for(int i=sizeof(scalerTable)/sizeof(ScalerTable)-1;i>0 && dex==-1;i--)
+    {
+        float one=alpha/scalerTable[i].div;
+        if(one>(239.5+12))
+        {
+            dex=i;
+            break;
+        }
+    }
+    if(dex==-1)
+    {
+        // Take the biggest prescaler
+        dex=0; //sizeof(scalerTable)/sizeof(ScalerTable)-1;
+    }
+    prescaler=scalerTable[dex].scaler;
+    
+    // now rate
+    alpha=(float)F_CPU;
+    alpha/=(float)(frequency+1);
+    alpha/=scalerTable[dex].div;
+    dex=-1;
+    for(int i=sizeof(rateTable)/sizeof(RateTable)-1;i>0 && dex==-1;i--)
+    {
+        // Alpha > rate
+        if(alpha>rateTable[i].cycle)
+        {
+            dex=i;
+            break;
+        }
+    }
+    if(dex==-1)
+    {
+        dex=0;
+    }
+    rate=rateTable[dex].rate;
+    return true;
+}
+
+/**
+ * 
+ * @param nbSamples
+ * @param samplingFrequency
+ * @param strength
+ * @param sampleOut
+ * @param xsamples
+ * @return 
+ */
+bool  TestPin::pulseTime(int nbSamples, int samplingFrequency, TestPin::PULL_STRENGTH strength,   int &sampleOut,  uint16_t **xsamples)
+{
+    
+    DSOADC::Prescaler  prescaler;
+    adc_smp_rate   rate;
+    
+  
+    if(!  findRateScale(samplingFrequency, prescaler,rate))
+    {
+        return false;
+    }
+    
+    
+    pullDown(strength);
+    adc->setupTimerSampling();
+    if(!adc->prepareTimerSampling(samplingFrequency,false,rate,prescaler))
+    {
+        xAssert(0);
+        return false;
+    }
+    adc->startTimerSampling(nbSamples);
+    pullUp(strength);
+    if(!adc->getSamples(xsamples,sampleOut))    
+    {
+        adc->stopTimeCapture();
+        return false;
+    }
+    adc->stopTimeCapture();
+    pullDown(strength);
+    return true;
+}
+
+/**
+ * 
  * @param adc
  * @param voltage
  */

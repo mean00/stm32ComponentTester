@@ -18,7 +18,7 @@ public:
             
 protected:
             float capacitance;
-            bool  doOne(float target,int frequency, const TestPin::PULL_STRENGTH st,float &cap);
+            bool  doOne(float target,int dex, float &cap);
             float computeCapacitance(int time, int iresistance, int actualValue);
             bool  computeMediumCap(int dex,int overSampling,float &c);
             bool  computeHiCap();
