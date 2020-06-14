@@ -298,7 +298,7 @@ AutoDisconnect::~AutoDisconnect()
  * @param frequency
  * @return 
  */
-bool     TestPin::prepareTimer(int frequency,int nbSamples)
+bool     TestPin::prepareTimerSample(int frequency,int nbSamples)
 {
     adc->setADCPin(_pin);    
     adc->setupTimerSampling();
@@ -461,13 +461,15 @@ bool  TestPin::pulseTime(int nbSamples, int samplingFrequency, TestPin::PULL_STR
     
     DSOADC::Prescaler  prescaler;
     adc_smp_rate   rate;    
-  
+    pullDown(strength);
+#if 1    
     if(!  findRateScale(samplingFrequency, prescaler,rate))
     {
+        xAssert(0);
         return false;
     }    
     
-    pullDown(strength);
+    
     adc->setADCPin(this->_pin);
     adc->setupTimerSampling();
     if(!adc->prepareTimerSampling(samplingFrequency,false,rate,prescaler))
@@ -475,8 +477,14 @@ bool  TestPin::pulseTime(int nbSamples, int samplingFrequency, TestPin::PULL_STR
         xAssert(0);
         return false;
     }
+    adc->clearSemaphore();
     adc->startTimerSampling(nbSamples);
     pullUp(strength);
+#else
+    pullUp(strength);
+    prepareTimerSample(samplingFrequency,nbSamples);
+#endif    
+    
     if(!adc->getSamples(xsamples,sampleOut))    
     {
         xAssert(0);
@@ -484,10 +492,43 @@ bool  TestPin::pulseTime(int nbSamples, int samplingFrequency, TestPin::PULL_STR
         return false;
     }
     adc->stopTimeCapture();
-   // pullDown(strength);
+    pullDown(strength);
     return true;
 }
 
+/**
+ * 
+ * @param nbSamples
+ * @param samplingFrequency
+ * @param strength
+ * @param sampleOut
+ * @param xsamples
+ * @return 
+ */
+bool  TestPin::pulseDma(int nbSamples,  DSOADC::Prescaler prescaler, adc_smp_rate   rate, TestPin::PULL_STRENGTH strength,   int &sampleOut,  uint16_t **xsamples)
+{
+    
+    
+    pullDown(TestPin::PULL_LOW);
+    xDelay(10);
+    
+    adc->setADCPin(this->_pin);
+    adc->setupDmaSampling();
+    adc->prepareDMASampling(rate,prescaler);     
+    adc->clearSemaphore();
+    adc->startDMASampling(nbSamples);    
+    pullUp(strength);
+    if(!adc->getSamples(xsamples,sampleOut))    
+    {
+        xAssert(0);
+        adc->stopTimeCapture();
+        return false;
+    }
+    adc->stopDmaCapture();
+    pullDown(strength);
+    xDelay(10);
+    return true;
+}
 /**
  * 
  * @param adc
