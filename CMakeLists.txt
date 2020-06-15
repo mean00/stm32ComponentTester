@@ -47,7 +47,6 @@ ADD_DEFINITIONS("-g3")
 
 #print_board_list()
 set(ARDUINO_DEFAULT_PORT ttyACM0) # Default Port, when not specified
-SET(ARDUINO_UPLOAD_METHOD DFUUpload)
 set(ARDUINO_CPUMENU .menu.cpu.${ARDUINO_CPU})
 SET(libPrefix ${ARDUINO_DEFAULT_BOARD}_)
 #
