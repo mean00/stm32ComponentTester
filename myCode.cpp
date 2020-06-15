@@ -114,12 +114,12 @@ void MainTask::run()
     xDelay(100);
     TesterControl::init();
     
-#if 1
-    pin2.setMode(TestPin::GND);   
+#if 0
+    pin1.setMode(TestPin::GND);   
     
     int nbSample;
     uint16_t *samples;
-    if(!pin1.pulseDma(512,DSOADC::ADC_PRESCALER_8,ADC_SMPR_239_5 ,TestPin::PULL_LOW,nbSample,&samples))
+    if(!pin2.pulseDma(512,DSOADC::ADC_PRESCALER_8,ADC_SMPR_239_5 ,TestPin::PULL_LOW,nbSample,&samples))
     {
         xAssert(0);
     }
@@ -131,12 +131,13 @@ void MainTask::run()
 
 #endif            
     
-#if 0
-    pin2.setMode(TestPin::GND);   
+#if 1
+    pin1.setMode(TestPin::GND);   
     
     int nbSample;
     uint16_t *samples;
-    if(!pin1.pulseTime(512,3000,TestPin::PULL_LOW,nbSample,&samples))
+    // with a 47uf => T=10 ms for 512 samples => 20 us /sample => 50 khz
+    if(!pin2.pulseTime(512,10*1000,TestPin::PULL_LOW,nbSample,&samples))
     {
         xAssert(0);
     }

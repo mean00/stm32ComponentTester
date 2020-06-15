@@ -456,19 +456,19 @@ bool findRateScale(int frequency,  DSOADC::Prescaler  &prescaler,  adc_smp_rate 
  * @param xsamples
  * @return 
  */
+int timeToCapture=0;
 bool  TestPin::pulseTime(int nbSamples, int samplingFrequency, TestPin::PULL_STRENGTH strength,   int &sampleOut,  uint16_t **xsamples)
 {
     
     DSOADC::Prescaler  prescaler;
     adc_smp_rate   rate;    
     pullDown(strength);
-#if 1    
+    xDelay(10);
     if(!  findRateScale(samplingFrequency, prescaler,rate))
     {
         xAssert(0);
         return false;
     }    
-    
     
     adc->setADCPin(this->_pin);
     adc->setupTimerSampling();
@@ -478,12 +478,9 @@ bool  TestPin::pulseTime(int nbSamples, int samplingFrequency, TestPin::PULL_STR
         return false;
     }
     adc->clearSemaphore();
+    int before=millis();
     adc->startTimerSampling(nbSamples);
     pullUp(strength);
-#else
-    pullUp(strength);
-    prepareTimerSample(samplingFrequency,nbSamples);
-#endif    
     
     if(!adc->getSamples(xsamples,sampleOut))    
     {
@@ -491,8 +488,11 @@ bool  TestPin::pulseTime(int nbSamples, int samplingFrequency, TestPin::PULL_STR
         adc->stopTimeCapture();
         return false;
     }
+    int after=millis();
+    timeToCapture=after-before;
     adc->stopTimeCapture();
     pullDown(strength);
+    xDelay(10);
     return true;
 }
 

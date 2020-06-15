@@ -21,6 +21,8 @@ Adafruit Libraries released under their specific licenses Copyright (c) 2013 Ada
 #include "dma.h"
 #include "adc.h"
 
+uint32_t sqr3=0;
+
 DSOADC::ADC_CAPTURE_MODE           DSOADC::_dual=DSOADC::ADC_CAPTURE_MODE_NORMAL;
 
 
@@ -35,7 +37,7 @@ struct rcc_reg_map_extended {
     __IO uint32 APB1ENR;        /**< APB1 peripheral clock enable register */
     __IO uint32 BDCR;           /**< Backup domain control register 0x20*/
     __IO uint32 CSR;            /**< Control/status register        0x24*/
-    __IO uint32_t AHBRST;       /**< AHB Reset Register             0x28/
+    __IO uint32_t AHBRST;       /**< AHB Reset Register             0x28*/
 
 /* Below are GD32 specific registers */
                                   
@@ -47,8 +49,6 @@ struct rcc_reg_map_extended {
     // addition  : APB1 0xe4
 };
 
-
-HardwareTimer pwmtimer(4); // Vref PWM is Timer4 Channel3
 /**
  * 
  * @return 
@@ -97,6 +97,7 @@ static void initSeqs(adc_dev *dev)
 
 void DSOADC::setChannel(int channel)
 {    
+    sqr3=channel;
     adc_Register->SQR3 = channel;
 }
 /**
@@ -234,6 +235,8 @@ bool    DSOADC::prepareFastDualDMASampling (int otherPin, adc_smp_rate rate,DSOA
     ADC1->regs->CR1&=~ADC_CR1_DUALMASK;
     ADC1->regs->CR1|=ADC_CR1_FASTINT; // fast interleaved mode
     ADC2->regs->SQR3 = PIN_MAP[otherPin].adc_channel ;      
+    sqr3=ADC2->regs->SQR3;
+    
     ADC2->regs->CR2 |= ADC_CR2_CONT;
     ADC1->regs->CR2 |= ADC_CR2_CONT |ADC_CR2_DMA;
     adc_set_sample_rate(ADC2, rate); 
@@ -246,6 +249,7 @@ bool    DSOADC::prepareSlowDualDMASampling (int otherPin, adc_smp_rate rate,DSOA
     ADC1->regs->CR1&=~ADC_CR1_DUALMASK;
     ADC1->regs->CR1|=ADC_CR1_SLOWINT; // slow interleaved mode
     ADC2->regs->SQR3 = PIN_MAP[otherPin].adc_channel ;      
+    sqr3=ADC2->regs->SQR3;
     ADC2->regs->CR2 |= ADC_CR2_CONT;
     ADC1->regs->CR2 |= ADC_CR2_CONT |ADC_CR2_DMA;
     adc_set_sample_rate(ADC2, rate); 
@@ -349,6 +353,8 @@ void DSOADC::setupAdcDualDmaTransfer( int otherPin,  int count,uint32_t *buffer,
 
   xAssert(count<= ADC_INTERNAL_BUFFER_SIZE);
   ADC2->regs->SQR3=PIN_MAP[otherPin].adc_channel; // WTF ?
+  sqr3=ADC2->regs->SQR3;
+
   dma_init(DMA1);
   dma_attach_interrupt(DMA1, DMA_CH1, handler); 
   dma_setup_transfer(DMA1, DMA_CH1, &ADC1->regs->DR, DMA_SIZE_32BITS, buffer, DMA_SIZE_32BITS, (C | DMA_MINC_MODE | DMA_TRNS_CMPLT));// Receive buffer DMA
@@ -493,6 +499,7 @@ void DSOADC::setWatchdogTriggerValue(uint32_t high, uint32_t low)
     adc_set_reg_seqlen(ADC2, 1);
 
     regs->SQR3 = pin;
+    sqr3=regs->SQR3;
     regs->CR2 |= ADC_CR2_SWSTART;
     while (!(regs->SR & ADC_SR_EOC))
         ;
