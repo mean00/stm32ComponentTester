@@ -274,7 +274,7 @@ bool DSOADC::getSamples(FullSampleSet &fullSet)
 
 bool DSOADC::getSamples(uint16_t **samples, int  &nbSamples)
 {
-    if(!dmaSemaphore->take(1000)) // dont busy loop
+    if(!dmaSemaphore->take(5000)) // dont busy loop
     {                
         return false;   
     }

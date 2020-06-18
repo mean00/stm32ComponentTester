@@ -39,7 +39,8 @@ public:
         {
           PULL_LOW,
           PULL_MED,
-          PULL_HI
+          PULL_HI,
+          PULL_NONE=99
         };
         
   

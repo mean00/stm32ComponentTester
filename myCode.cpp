@@ -19,7 +19,7 @@ extern void rotaryTest();
 extern void calibration();
 extern void menuSystem(void);
 uint32_t  deviceId;
-
+extern void probeCap(TestPin &pin1, TestPin &pin2)    ;
 uint32_t  memDensity=0;
 float L;
 //
@@ -116,7 +116,7 @@ void MainTask::run()
     xDelay(100);
     TesterControl::init();
     
-#if 0
+#if 1 // do a dummy capture in self mode
     pin1.setMode(TestPin::GND);   
     
     int nbSample;
@@ -125,72 +125,12 @@ void MainTask::run()
     {
         xAssert(0);
     }
-    TesterGfx::drawCurve(nbSample, samples);
-    while(1)
-    {
-        
-    };
-
+   
 #endif            
-    
-#if 1
-    pin1.setMode(TestPin::GND);   
-    
-    int nbSample;
-    uint16_t *samples;
-    int fq=1000*1000;
-    char status[20];
-    while(1)
-    {
-        // with a 47uf => T=10 ms for 512 samples => 20 us /sample => 50 khz
-        if(!pin2.pulseTime(512,fq,TestPin::PULL_LOW,nbSample,&samples))
-        {
-            xAssert(0);
-        }
-        TesterGfx::drawCurve(nbSample, samples);
-        WaveForm wave(nbSample,samples);
-        int a,b,delta;
-        bool underflow,overflow;
-        wave.searchRampUp(0.7,delta,overflow,underflow,a,b);
-        if(overflow || delta <5 )
-        {
-            // Sampling too slow
-            fq/=10;            
-            sprintf(status,"OVER");
-        }
-        else if(underflow  )
-        {
-            // sampling too fast
-            fq*=10;
-            sprintf(status,"UNDER");
-        }else if(delta<200)
-        {
-            if(delta<10) fq*=10;
-            else if(delta<50) fq*=5;
-            else if(delta<100) fq*=2;
-        }
-        else        
-        {
-            float resistance=pin1.getCurrentRes()+pin2.getCurrentRes();
-            float timeElapsed=(b-a);
-            timeElapsed*=fq;
-            float den=(4095.-(float)samples[a])/(4095.-(float)samples[b]);    
-            if(fabs(den-2.718)<0.01) 
-                xAssert(0);
-            den=log(den);
-            float cap=timeElapsed/(resistance*den);
-            
-            Component::prettyPrint(cap,"F",status);
-            TesterGfx::print(10,40,status);
-            sprintf(status,"%d",delta);
-            
-            
-        }
-        TesterGfx::print(10,20,status);
-        TesterControl::waitForAnyEvent();
-    }
 
-#endif    
+#if 1
+ probeCap(pin1,pin2);
+#endif
     
 #if 0     
     pin1.setMode(TestPin::PULLUP_PWM);

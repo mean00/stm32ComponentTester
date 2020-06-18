@@ -9,6 +9,8 @@
 #include "math.h"
 #include "cycleClock.h"
 #include "MapleFreeRTOS1000_pp.h"
+#include "waveForm.h"
+#include "testerControl.h"
 //
 CycleClock clk;
 float capz;
@@ -450,5 +452,111 @@ bool Capacitor::doOneQuick(TestPin::PULL_STRENGTH strength, bool doubled, float 
 
 
 
+
+    
+    typedef struct CapCharge
+    {
+        int                     fq;
+        TestPin::PULL_STRENGTH  strength;
+    };
+    typedef enum ProbeResult
+    {
+        PROBE_OK=0,
+        PROBE_OVERFLOW=1,
+        PROBE_UNDERFLOW=2
+    };
+
+
+ProbeResult probeOneCap(TestPin &pin1, int fq,const TestPin::PULL_STRENGTH st,int &delta)    
+{
+    int nbSample;
+    uint16_t *samples;
+    
+        if(!pin1.pulseTime(512,fq,st,nbSample,&samples))
+        {
+            xAssert(0);
+        }
+        TesterGfx::drawCurve(nbSample, samples);
+        WaveForm wave(nbSample,samples);
+        int a,b;
+        bool underflow,overflow;
+        wave.searchRampUp(0.7,delta,overflow,underflow,a,b);
+        if(underflow  )
+        {
+            // sampling too fast
+            return PROBE_UNDERFLOW;
+        }
+        if(overflow )
+        {
+            return PROBE_OVERFLOW;
+        }
+        if( delta <10 ) 
+            return PROBE_OVERFLOW;
+        return PROBE_OK;
+}
+ProbeResult HiLeft,HiMed,HiRight,MedLeft,MedMed,MedRight,LowLeft,LowMed,LowRight;  
+
+#define PROBE(a,b,s) \
+ if(a==PROBE_OK && b>10) \
+    { \        
+        if(b>xclose) \
+        { \
+            st=s; \
+            xclose=b; \
+        } \
+    }
+/**
+ */
+TestPin::PULL_STRENGTH st=TestPin::PULL_NONE;
+int  xclose=0;
+int dL,dM,dH;
+/**
+ * 
+ * @param pin1
+ * @param pin2
+ */
+void probeCap(TestPin &pin1, TestPin &pin2)    
+{
+
+    pin2.setToGround();
+    
+    LowRight=probeOneCap(pin2,10*1000,TestPin::PULL_LOW,dL);
+    MedRight=probeOneCap(pin2,10*1000,TestPin::PULL_MED,dM);
+    HiRight=probeOneCap(pin2,10*1000,TestPin::PULL_HI,dH);
+    
+    if(HiRight==PROBE_OVERFLOW)    // small cap
+        return ;
+    
+    if(LowRight==PROBE_UNDERFLOW) // hi cap
+        return;
+    
+    
+    
+    PROBE(LowRight,dL,TestPin::PULL_LOW);
+    PROBE(MedRight,dM,TestPin::PULL_MED);
+    PROBE(HiRight,dH,TestPin::PULL_HI);
+    
+    
+    
+    
+    
+    
+#if 0    
+            float resistance=pin1.getCurrentRes()+pin2.getCurrentRes();
+            float timeElapsed=(b-a);
+            timeElapsed*=fq;
+            float den=(4095.-(float)samples[a])/(4095.-(float)samples[b]);    
+            if(fabs(den-2.718)<0.01) 
+                xAssert(0);
+            den=log(den);
+            float cap=timeElapsed/(resistance*den);
+            
+            Component::prettyPrint(cap,"F",status);
+            TesterGfx::print(10,40,status);
+            sprintf(status,"%d",delta);
+#endif            
+}
+
+    
 
 // EOF
