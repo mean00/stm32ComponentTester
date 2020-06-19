@@ -21,6 +21,7 @@ extern void menuSystem(void);
 uint32_t  deviceId;
 extern void probeCap(TestPin &pin1, TestPin &pin2)    ;
 uint32_t  memDensity=0;
+extern DSOADC *adc;
 float L;
 //
 int result[20];
@@ -116,17 +117,19 @@ void MainTask::run()
     xDelay(100);
     TesterControl::init();
     
-#if 1 // do a dummy capture in self mode
     pin1.setMode(TestPin::GND);   
-    
+    pin2.setMode(TestPin::GND);   
+    pin3.setMode(TestPin::GND);   
+    adc->setADCPin(PA0);
+    adc->setupDmaSampling();
+    adc->prepareDMASampling(ADC_SMPR_239_5,DSOADC::ADC_PRESCALER_8);     
+    adc->clearSemaphore();
+    adc->startDMASampling(128);    
     int nbSample;
     uint16_t *samples;
-    if(!pin2.pulseDma(512,DSOADC::ADC_PRESCALER_8,ADC_SMPR_239_5 ,TestPin::PULL_LOW,nbSample,&samples))
-    {
-        xAssert(0);
-    }
-   
-#endif            
+
+    adc->getSamples(&samples,nbSample);      
+    adc->stopDmaCapture();
 
 #if 1
  probeCap(pin1,pin2);

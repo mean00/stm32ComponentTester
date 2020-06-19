@@ -518,13 +518,13 @@ bool  TestPin::pulseDma(int nbSamples,  DSOADC::Prescaler prescaler, adc_smp_rat
     adc->clearSemaphore();
     adc->startDMASampling(nbSamples);    
     pullUp(strength);
-    if(!adc->getSamples(xsamples,sampleOut))    
+    bool r=adc->getSamples(xsamples,sampleOut);
+    adc->stopDmaCapture();
+    if(!r)
     {
         xAssert(0);
-        adc->stopTimeCapture();
         return false;
     }
-    adc->stopDmaCapture();
     pullDown(strength);
     xDelay(10);
     return true;
