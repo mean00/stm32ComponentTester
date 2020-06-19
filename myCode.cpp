@@ -117,6 +117,8 @@ void MainTask::run()
     xDelay(100);
     TesterControl::init();
     
+    // Do a dummy capture to make sure everything is fine
+    
     pin1.setMode(TestPin::GND);   
     pin2.setMode(TestPin::GND);   
     pin3.setMode(TestPin::GND);   

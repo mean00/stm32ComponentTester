@@ -518,6 +518,8 @@ int dL,dM,dH;
 void probeCap(TestPin &pin1, TestPin &pin2)    
 {
 
+    // Search till we dont get OVERFLOW
+    
     pin2.setToGround();
     
     LowRight=probeOneCap(pin2,10*1000,TestPin::PULL_LOW,dL);
