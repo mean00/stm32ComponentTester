@@ -120,17 +120,10 @@ void MainTask::run()
     // Do a dummy capture to make sure everything is fine
     
     pin1.setMode(TestPin::GND);   
-    pin2.setMode(TestPin::GND);   
-    pin3.setMode(TestPin::GND);   
     adc->setADCPin(PA0);
-    adc->setupDmaSampling();
-    adc->prepareDMASampling(ADC_SMPR_239_5,DSOADC::ADC_PRESCALER_8);     
-    adc->clearSemaphore();
-    adc->startDMASampling(128);    
-    int nbSample;
-    uint16_t *samples;
 
-    adc->getSamples(&samples,nbSample);      
+    adc->setupDmaSampling();
+    adc->prepareDMASampling(ADC_SMPR_239_5,DSOADC::ADC_PRESCALER_8);    
     adc->stopDmaCapture();
 
 #if 1

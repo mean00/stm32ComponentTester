@@ -466,11 +466,22 @@ bool Capacitor::doOneQuick(TestPin::PULL_STRENGTH strength, bool doubled, float 
         PROBE_UNDERFLOW=2
     };
 
+uint16_t *samples;
 
-ProbeResult probeOneCap(TestPin &pin1, int fq,const TestPin::PULL_STRENGTH st,int &delta)    
+
+struct Probe
+{
+    int pointA;
+    int pointB;
+    int valueA;
+    int valueB;
+    
+};
+
+ProbeResult probeOneCap(TestPin &pin1, int fq,const TestPin::PULL_STRENGTH st,int &delta,Probe &p)    
 {
     int nbSample;
-    uint16_t *samples;
+    int a,b;
     
         if(!pin1.pulseTime(512,fq,st,nbSample,&samples))
         {
@@ -478,7 +489,6 @@ ProbeResult probeOneCap(TestPin &pin1, int fq,const TestPin::PULL_STRENGTH st,in
         }
         TesterGfx::drawCurve(nbSample, samples);
         WaveForm wave(nbSample,samples);
-        int a,b;
         bool underflow,overflow;
         wave.searchRampUp(0.7,delta,overflow,underflow,a,b);
         if(underflow  )
@@ -492,6 +502,11 @@ ProbeResult probeOneCap(TestPin &pin1, int fq,const TestPin::PULL_STRENGTH st,in
         }
         if( delta <10 ) 
             return PROBE_OVERFLOW;
+        
+        p.pointA=a;
+        p.pointB=b;
+        p.valueA=samples[a];
+        p.valueB=samples[b];
         return PROBE_OK;
 }
 ProbeResult HiLeft,HiMed,HiRight,MedLeft,MedMed,MedRight,LowLeft,LowMed,LowRight;  
@@ -510,55 +525,123 @@ ProbeResult HiLeft,HiMed,HiRight,MedLeft,MedMed,MedRight,LowLeft,LowMed,LowRight
 TestPin::PULL_STRENGTH st=TestPin::PULL_NONE;
 int  xclose=0;
 int dL,dM,dH;
+float c;
 /**
  * 
  * @param pin1
  * @param pin2
  */
+
+const TestPin::PULL_STRENGTH CAP_STRENGTH[3]={TestPin::PULL_HI,TestPin::PULL_MED,TestPin::PULL_LOW};
+const TestPin::TESTPIN_STATE PULL_UP_STRENGTH[3]={TestPin::PULLUP_HI,TestPin::PULLUP_MED,TestPin::PULLUP_LOW};
+
+
 void probeCap(TestPin &pin1, TestPin &pin2)    
 {
-
-    // Search till we dont get OVERFLOW
-    
-    pin2.setToGround();
-    
-    LowRight=probeOneCap(pin2,10*1000,TestPin::PULL_LOW,dL);
-    MedRight=probeOneCap(pin2,10*1000,TestPin::PULL_MED,dM);
-    HiRight=probeOneCap(pin2,10*1000,TestPin::PULL_HI,dH);
-    
-    if(HiRight==PROBE_OVERFLOW)    // small cap
-        return ;
-    
-    if(LowRight==PROBE_UNDERFLOW) // hi cap
-        return;
-    
-    
-    
-    PROBE(LowRight,dL,TestPin::PULL_LOW);
-    PROBE(MedRight,dM,TestPin::PULL_MED);
-    PROBE(HiRight,dH,TestPin::PULL_HI);
-    
-    
-    
-    
-    
-    
-#if 0    
-            float resistance=pin1.getCurrentRes()+pin2.getCurrentRes();
-            float timeElapsed=(b-a);
-            timeElapsed*=fq;
-            float den=(4095.-(float)samples[a])/(4095.-(float)samples[b]);    
-            if(fabs(den-2.718)<0.01) 
+    int a,b;
+    int start=5;   
+    int distance;
+    ProbeResult r;
+    Probe       probe;
+    // Special case 1
+    pin1.setToGround();
+    r=probeOneCap(pin2,1000*1000,TestPin::PULL_HI,distance,probe);
+    if(r==PROBE_OVERFLOW || (r==PROBE_OK && distance<100))
+    {
+        // Do small caps
+        xAssert(0);
+    }
+    // Lookup the max cap value
+    r=probeOneCap(pin2,1000,TestPin::PULL_LOW,distance,probe);
+    if(r==PROBE_UNDERFLOW || (r==PROBE_OK && distance<100))
+    {
+        // Do large caps
+        xAssert(0);
+    }
+    // Dp them one at a time
+    bool found=false;
+    int fq=0;
+    int foundStrength=-1;
+    for(int i=0;i<3 && found==false;i++)
+    {        
+        // check max cap
+         r=probeOneCap(pin2,1000,CAP_STRENGTH[i],distance,probe);
+         if(r==PROBE_UNDERFLOW) // next range
+             continue;
+         if(r==PROBE_OK)
+         {
+             if( distance<100)
+                continue; // next range too
+             // gotcha !
+             found=true;
+             foundStrength=i;
+             fq=1000;
+             goto gotcha;
+         }
+         for(int f=1000;f<(1000*1000+1) && found==false;)
+         {
+                r=probeOneCap(pin2,f,CAP_STRENGTH[i],distance,probe);
+                if(r==PROBE_UNDERFLOW )
+                {
+                    f=f*10;
+                    continue;
+                }
+                if(r==PROBE_OK)
+                {
+                    if(distance>=100)
+                    {
+                        found=true;
+                        fq=f;
+                        foundStrength=i;
+                        goto gotcha;
+                    }
+                    if(distance<10) 
+                    {
+                        f=f*10;
+                        continue;
+                    }
+                    int t;
+                    if(distance<50) t=f*8; 
+#warning compute right value !
+                        else t=f*4;
+                     r=probeOneCap(pin2,f,CAP_STRENGTH[i],distance,probe);
+                     if(r==PROBE_OK && distance>=100)
+                     {
+                         found=true;
+                         foundStrength=i;
+                         fq=t;
+                         goto gotcha;
+                     }
+                     xAssert(0);
+                }
                 xAssert(0);
-            den=log(den);
-            float cap=timeElapsed/(resistance*den);
-            
-            Component::prettyPrint(cap,"F",status);
-            TesterGfx::print(10,40,status);
-            sprintf(status,"%d",delta);
-#endif            
+         }
+         xAssert(0);
+    }
+gotcha:    
+    
+    // compenste for internal resistance
+    float internalRes=pin2.getRes(PULL_UP_STRENGTH[foundStrength]);
+    
+      // compute C : V=1-e(-t/rc), so v1/v2=e( (-t2+t1)/rc) => ln(v1/v2)= t1-t2/rc => c=xx
+    float totalResistance=pin1.getRes(TestPin::GND)+internalRes;
+    float Vb=4095.-(float)probe.valueB;
+    float Va=4095.-(float)probe.valueA;
+    float den=log(Va/Vb);
+    float duration=(float)distance/(float)fq;
+    c=duration/(den*totalResistance);
+    
+    char str[20];
+    Component::prettyPrint(c, "F",str);
+    
+    TesterGfx::drawCapacitor(0, str,2,1);
+    while(1)
+    {
+    }
+        
+    
 }
-
+    
     
 
 // EOF

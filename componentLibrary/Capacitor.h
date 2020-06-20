@@ -19,7 +19,7 @@ public:
 protected:
             float capacitance;
             bool  doOne(float target,int dex, float &cap);
-            float computeCapacitance(int time, int iresistance, int actualValue);
+
             bool  computeMediumCap(int dex,int overSampling,float &c);
             bool  computeHiCap();
             bool  computeLowCap();
@@ -33,4 +33,5 @@ public:
             bool calibrationValue(float &c);
             bool quickEval(float &c);
             bool computed;
+static      float computeCapacitance(int time, int iresistance, int actualValue);
 };
