@@ -521,20 +521,6 @@ ProbeResult HiLeft,HiMed,HiRight,MedLeft,MedMed,MedRight,LowLeft,LowMed,LowRight
             xclose=b; \
         } \
     }
-/**
- */
-TestPin::PULL_STRENGTH st=TestPin::PULL_NONE;
-int  xclose=0;
-int dL,dM,dH;
-float c;
-/**
- * 
- * @param pin1
- * @param pin2
- */
-
-const TestPin::PULL_STRENGTH CAP_STRENGTH[3]={TestPin::PULL_HI,TestPin::PULL_MED,TestPin::PULL_LOW};
-const TestPin::TESTPIN_STATE PULL_UP_STRENGTH[3]={TestPin::PULLUP_HI,TestPin::PULLUP_MED,TestPin::PULLUP_LOW};
 
 #if 0
 void probeCap(TestPin &pin1, TestPin &pin2)    
@@ -654,7 +640,17 @@ void probeCap(TestPin &pin1, TestPin &pin2)
     Probe       probe;
     // Special case 1
     pin2.setToGround();    
-    pin1.pwm(TestPin::PULL_LOW,2000);
+    
+    
+    int nbSample;
+    uint16_t *samples;
+    
+    if(!pin1.pulseTime(1024,5000,TestPin::PULL_HI,nbSample,&samples))
+    {
+        xAssert(0);
+    }
+    
+    
     while(1)
     {
         

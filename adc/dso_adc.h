@@ -110,6 +110,7 @@ public:
             bool    prepareSlowDualDMASampling (int otherPin, adc_smp_rate rate,DSOADC::Prescaler  scale);
             bool    startDualDMASampling (const int otherPin, const int count);
             bool    prepareTimerSampling (int fq,bool overSampling,adc_smp_rate rate,DSOADC::Prescaler  scale );
+            bool    prepareTimerSampling (int timerScale, int ovf,bool overSampling,adc_smp_rate rate , DSOADC::Prescaler scale)  ;          
             int     pollingRead();
             bool    startDMA();
             bool    startDMATime();

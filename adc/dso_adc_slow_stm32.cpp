@@ -9,7 +9,7 @@
 #include "dso_adc.h"
 #include "dso_adc_priv.h"
 #include "fancyLock.h"
-
+#include "myPwm.h"
 
 
 /**
@@ -24,6 +24,27 @@ bool    DSOADC::setupTimerSampling()
   return true;
 }
 
+bool    DSOADC::prepareTimerSampling (int timerScale, int ovf,bool overSampling,adc_smp_rate rate , DSOADC::Prescaler scale)
+{   
+    
+    int fq;
+     pwmGetFrequency(  scale, ovf,fq);
+     if(fq!=_oldTimerFq)
+     {
+        ADC_TIMER.pause();
+       _oldTimerFq=fq;
+       _timerSamplingRate=rate;
+       _timerScale=scale;
+       _overSampling=false;
+
+       ADC_TIMER.pause();
+       ADC_TIMER.setPrescaleFactor(timerScale);
+       ADC_TIMER.setOverflow(ovf);
+       ADC_TIMER.setCompare(ADC_TIMER_CHANNEL,ovf-1);
+       timer_cc_enable(ADC_TIMER.c_dev(), ADC_TIMER_CHANNEL);
+     }  
+    return true;    
+}
 /**
  * 
  * @param fq
