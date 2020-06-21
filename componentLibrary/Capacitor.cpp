@@ -11,6 +11,7 @@
 #include "MapleFreeRTOS1000_pp.h"
 #include "waveForm.h"
 #include "testerControl.h"
+#include "myPwm.h"
 //
 CycleClock clk;
 float capz;
@@ -535,7 +536,7 @@ float c;
 const TestPin::PULL_STRENGTH CAP_STRENGTH[3]={TestPin::PULL_HI,TestPin::PULL_MED,TestPin::PULL_LOW};
 const TestPin::TESTPIN_STATE PULL_UP_STRENGTH[3]={TestPin::PULLUP_HI,TestPin::PULLUP_MED,TestPin::PULLUP_LOW};
 
-
+#if 0
 void probeCap(TestPin &pin1, TestPin &pin2)    
 {
     int a,b;
@@ -642,6 +643,23 @@ gotcha:
     
 }
     
-    
+#else
+
+void probeCap(TestPin &pin1, TestPin &pin2)    
+{
+    int a,b;
+    int start=5;   
+    int distance;
+    ProbeResult r;
+    Probe       probe;
+    // Special case 1
+    pin2.setToGround();    
+    pin1.pwm(TestPin::PULL_LOW,2000);
+    while(1)
+    {
+        
+    }
+}
+#endif
 
 // EOF

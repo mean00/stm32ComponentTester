@@ -116,8 +116,7 @@ public:
             bool    startDualDMA();
             bool    getSamples(FullSampleSet &fullSet)           ;
             bool    getSamples(uint16_t **samples, int  &nbSamples);
-            void    clearSemaphore() ;
-            bool     setSlowMode(int fqInHz);
+            void    clearSemaphore() ;            
             bool     readCalibrationValue();
     static  uint32_t getVCCmv(); // this one is cached
     static  float    readVCCmv();    

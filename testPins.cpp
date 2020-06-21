@@ -7,7 +7,7 @@
 #include "dso_adc.h"
 #include "MapleFreeRTOS1000_pp.h"
 #include "testerGfx.h"
-#include "helpers/helper_pwm.h"
+#include "myPwm.h"
 
  DSOADC *adc;
 uint32_t lastCR2=0;
@@ -124,9 +124,7 @@ void TestPin::init()
      pinMode(_pin,OUTPUT);     
      digitalWrite(_pin,0);
      
-     // Init PWM frequency for LOW RES
-     setPWMPinFrequency(_pinDriveLowRes,52127); // 50 khz should be fast enough (?) we want something with a bit of noise in it
-     
+    
      pinMode(_pin,INPUT_ANALOG);     
      pinMode(_pinVolt,INPUT_PULLDOWN);
      pinMode(_pinDriveHighRes,INPUT_PULLDOWN);
@@ -156,8 +154,8 @@ void    TestPin::setMode(TESTPIN_STATE mode)
 {
     switch(mode)
     {
-            case PULLUP_PWM:        pullUp(PULL_LOW);
-                                    pinMode(_pinDriveLowRes ,PWM);
+            case PULLUP_PWM:        pullUp(PULL_HI);
+                                    pinMode(_pinDriveHighRes ,PWM);
                                     _state=PULLUP_PWM;
                                     break;
             case PULLUP_LOW:        pullUp(PULL_LOW);break;
@@ -183,15 +181,18 @@ void    TestPin::setMode(TESTPIN_STATE mode)
  */
 void    TestPin::pwm(PULL_STRENGTH strength, int fq)
 {
+    int pin;
     // Assume it is low drive
-    int pinNo=_pinDriveLowRes;
-    
-    
-    digitalWrite(pinNo,1);
-    pinMode(pinNo,PWM);
-    digitalWrite(pinNo,1);
-    pwmWrite(pinNo, 65535/2); // 50% duty cycle
-    
+    switch(strength)
+    {
+        case  PULL_LOW:  pin=_pinDriveLowRes;break;
+        case  PULL_MED:  pin=_pinDriveMedRes;break;
+        case  PULL_HI:   pin=_pinDriveHighRes;break;
+        default:
+            break;
+    }
+    this->disconnectAll();
+    myPwm(pin,fq);
 }
 
 /**

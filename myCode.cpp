@@ -127,7 +127,7 @@ void MainTask::run()
     adc->stopDmaCapture();
 
 #if 1
- probeCap(pin1,pin2);
+ probeCap(pin2,pin1);
 #endif
     
 #if 0     
@@ -212,6 +212,10 @@ void mySetup(void)
   afio_cfg_debug_ports( AFIO_DEBUG_SW_ONLY); // get PB3 & PB4
   pinMode(LED,OUTPUT);
   digitalWrite(LED,LOW);
+  
+  // Remap Timer from PA6/7 tp PB4/5
+  afio_remap(AFIO_REMAP_TIM3_PARTIAL);
+  
   SPI.begin();
   SPI.setBitOrder(MSBFIRST); // Set the SPI bit order
   SPI.setDataMode(SPI_MODE0); //Set the  SPI data mode 0

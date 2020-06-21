@@ -9,7 +9,7 @@
 #include "dso_adc.h"
 #include "dso_adc_priv.h"
 #include "fancyLock.h"
-#include "helpers/helper_pwm.h"
+
 /**
  */
 uint32_t lastStartedCR2=0;
@@ -19,15 +19,6 @@ uint32_t lastStartedSR;
 
 CaptureState captureState=Capture_idle;
 
-/**
- * 
- * @param fqInHz
- * @return 
- */
-bool DSOADC::setSlowMode(int fqInHz)
-{    
-    return true;
-}
 
 /**
  * 
