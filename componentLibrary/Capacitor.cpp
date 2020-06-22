@@ -645,7 +645,7 @@ void probeCap(TestPin &pin1, TestPin &pin2)
     int nbSample;
     uint16_t *samples;
     
-    if(!pin1.pulseTime(1024,5000,TestPin::PULL_HI,nbSample,&samples))
+    if(!pin1.pulseTime(1024,4000,TestPin::PULL_HI,nbSample,&samples))
     {
         xAssert(0);
     }

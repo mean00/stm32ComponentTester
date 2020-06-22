@@ -493,7 +493,7 @@ bool  TestPin::pulseTime(int nbSamples, int samplingFrequency, TestPin::PULL_STR
     adc->setupTimerSampling();
     // ADC is running X cycles faster than repeat
     // Same thing as ~ adc running at  X Cycle
-    if(!adc->prepareTimerSampling(timerScaler,timerOvf-8,false,rate,prescaler))
+    if(!adc->prepareTimerSampling(timerScaler,timerOvf+6,false,rate,prescaler))
     {
         xAssert(0);
         return false;
@@ -506,7 +506,7 @@ bool  TestPin::pulseTime(int nbSamples, int samplingFrequency, TestPin::PULL_STR
     
     
     // 5k => 200 us
-    delayMicroseconds(80);
+    delayMicroseconds(100);
     pwmRestart(pin);
     if(!adc->getSamples(xsamples,sampleOut))    
     {

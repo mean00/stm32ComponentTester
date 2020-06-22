@@ -329,6 +329,14 @@ void TesterGfx::drawCurve(int nb, uint16_t *data)
 {
     instance->fillScreen(0);
     int n=nb/128; // multiplier
+    int x=0,inc=2;
+    while(x<128)
+    {
+        instance->putPixel(x,2,0xff<<8);
+        instance->putPixel(2,x,0xff<<8);
+        inc+=1;
+        x+=inc;
+    }
     for(int i=0;i<128;i++)
     {
         float x=data[i*n];
