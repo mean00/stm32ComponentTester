@@ -447,7 +447,69 @@ bool findRateScale(int frequency,  DSOADC::Prescaler  &prescaler,  adc_smp_rate 
     rate=rateTable[dex].rate;
     return true;
 }
+/**
+ * 
+ * @param adc
+ * @param timerScaler
+ * @param timerOvf
+ * @param prescaler
+ * @param rate
+ * @param offset
+ * @return 
+ */
+bool  lookupForRampUp(DSOADC *adc,int pin, int timerScaler, int timerOvf, DSOADC::Prescaler  prescaler,   adc_smp_rate   rate , int &offset   )
+{
+    int shift=0;
+    int nbSamples;
+    uint16_t  *samples;
+    while(1)
+    {
+        
+        // ADC is running X cycles faster than repeat
+        // Same thing as ~ adc running at  X Cycle
+        if(!adc->prepareTimerSampling(timerScaler,timerOvf+4,false,rate,prescaler))
+        {
+            xAssert(0);
+            return false;
+        }
+        adc->clearSemaphore();
+        int before=millis();
+        int nbSamples=1024;
 
+        adc->startTimerSampling(nbSamples);
+
+
+        // 5k => 200 us
+        delayMicroseconds(shift);
+        pwmRestart(pin);
+        if(!adc->getSamples(&samples,nbSamples))    
+        {
+            xAssert(0);
+            adc->stopTimeCapture();
+            return false;
+        }
+        adc->stopTimeCapture();
+        pwmPause(pin);
+        TesterGfx::drawCurve(nbSamples, samples);
+        
+        // Look for min/max
+        int xmin=4095;
+        int xmax=0;
+        
+        for(int i=0;i<nbSamples;i++)
+        {
+            int x=samples[i];
+            if(x<xmin) xmin=x;
+            if(x>xmax) xmax=x;
+        }
+        if(xmax-xmin<20)
+        {
+            shift+=10;
+            continue;
+        }
+    }
+    return false;
+}
 /**
  * 
  * @param nbSamples
@@ -460,7 +522,7 @@ bool findRateScale(int frequency,  DSOADC::Prescaler  &prescaler,  adc_smp_rate 
 int timeToCapture=0;
 bool  TestPin::pulseTime(int nbSamples, int samplingFrequency, TestPin::PULL_STRENGTH strength,   int &sampleOut,  uint16_t **xsamples)
 {
-    
+    disconnectAll();
     DSOADC::Prescaler  prescaler;
     adc_smp_rate   rate;    
     int pin;
@@ -491,38 +553,15 @@ bool  TestPin::pulseTime(int nbSamples, int samplingFrequency, TestPin::PULL_STR
     
     adc->setADCPin(this->_pin);
     adc->setupTimerSampling();
-    // ADC is running X cycles faster than repeat
-    // Same thing as ~ adc running at  X Cycle
-    if(!adc->prepareTimerSampling(timerScaler,timerOvf+6,false,rate,prescaler))
-    {
-        xAssert(0);
-        return false;
-    }
-    adc->clearSemaphore();
-    int before=millis();
     
-    
-    adc->startTimerSampling(nbSamples);
-    
-    
-    // 5k => 200 us
-    delayMicroseconds(100);
-    pwmRestart(pin);
-    if(!adc->getSamples(xsamples,sampleOut))    
-    {
-        xAssert(0);
-        adc->stopTimeCapture();
-        return false;
-    }
-    TesterGfx::drawCurve(sampleOut, *xsamples);
+    int offset;
+    lookupForRampUp(adc,pin,   timerScaler,   timerOvf,   prescaler,       rate , offset   );
+   
     while(1)
     {
         
     }
     
-    int after=millis();
-    timeToCapture=after-before;
-    adc->stopTimeCapture();
     pullDown(strength);
     xDelay(10);
     disconnectAll();

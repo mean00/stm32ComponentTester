@@ -89,7 +89,7 @@ void pwmRestart(int pin)
     timer_dev *tdev=PIN_MAP[pin].timer_device;
     HardwareTimer *t=pinToTimer(tdev);
     
-    t->refresh();
+    t->setCount(0);
     t->resume();
 }
 
