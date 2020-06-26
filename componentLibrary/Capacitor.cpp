@@ -483,8 +483,9 @@ ProbeResult probeOneCap(TestPin &pin1, int fq,const TestPin::PULL_STRENGTH st,in
 {
     int nbSample;
     int a,b;
+    int samplingTime;
     
-        if(!pin1.pulseTime(512,fq,st,nbSample,&samples))
+        if(!pin1.pulseTime(512,fq,st,nbSample,&samples,samplingTime))
         {
             xAssert(0);
         }
@@ -631,7 +632,7 @@ gotcha:
     
 #else
 
-void probeCap(TestPin &pin1, TestPin &pin2)    
+bool probeCap(TestPin &pin1, TestPin &pin2)    
 {
     int a,b;
     int start=5;   
@@ -644,11 +645,56 @@ void probeCap(TestPin &pin1, TestPin &pin2)
     
     int nbSample;
     uint16_t *samples;
+    int samplingTime;
     
-    if(!pin1.pulseTime(256,500,TestPin::PULL_HI,nbSample,&samples))
+    if(!pin1.pulseTime(1024,500,TestPin::PULL_HI,nbSample,&samples,samplingTime))
     {
         xAssert(0);
     }
+    // Search min/max
+    int xmin=4096+1,xmax=0;
+    int maxIndex,minIndex;
+    for(int i=0;i<nbSample;i++)
+    {
+        int s=samples[i];
+        if(s>xmax) 
+        {
+            xmax=s;
+            maxIndex=i;
+        }
+        if(s<xmin) 
+        {
+            xmin=s;
+            minIndex=i;
+        }
+    }
+    // Lookup for 10% above min and 30% below max
+    bool found=false;
+    int target=(xmin*35)>>5;
+    for(int i=minIndex;i<maxIndex && ! found;i++)
+    {
+        if(samples[i]>=target)
+        {
+            xmin=samples[i];
+            minIndex=i;
+            found=true;
+        }
+    }
+    if(!found) return false;
+    target=(xmax*3)/4;
+    found=false;
+    for(int i=minIndex;i<maxIndex && ! found;i++)
+    {
+        if(samples[i]>=target)
+        {
+            xmax=samples[i];
+            maxIndex=i;
+            found=true;
+        }
+    }
+    if(!found) return false;
+    
+        
     
     
     while(1)
