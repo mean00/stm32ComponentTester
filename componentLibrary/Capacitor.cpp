@@ -12,6 +12,7 @@
 #include "waveForm.h"
 #include "testerControl.h"
 #include "myPwm.h"
+#include "math.h"
 //
 CycleClock clk;
 float capz;
@@ -484,8 +485,9 @@ ProbeResult probeOneCap(TestPin &pin1, int fq,const TestPin::PULL_STRENGTH st,in
     int nbSample;
     int a,b;
     int samplingTime;
+    int r;
     
-        if(!pin1.pulseTime(512,fq,st,nbSample,&samples,samplingTime))
+        if(!pin1.pulseTime(512,fq,st,nbSample,&samples,samplingTime,r))
         {
             xAssert(0);
         }
@@ -631,7 +633,7 @@ gotcha:
 }
     
 #else
-
+float deltaT,v;
 bool probeCap(TestPin &pin1, TestPin &pin2)    
 {
     int a,b;
@@ -641,20 +643,20 @@ bool probeCap(TestPin &pin1, TestPin &pin2)
     Probe       probe;
     // Special case 1
     pin2.setToGround();    
-    
+    int res;
     
     int nbSample;
     uint16_t *samples;
     int samplingTime;
     
-    if(!pin1.pulseTime(1024,500,TestPin::PULL_HI,nbSample,&samples,samplingTime))
+    if(!pin1.pulseTime(1024,500,TestPin::PULL_HI,nbSample,&samples,samplingTime,res))
     {
         xAssert(0);
     }
     // Search min/max
     int xmin=4096+1,xmax=0;
     int maxIndex,minIndex;
-    for(int i=0;i<nbSample;i++)
+    for(int i=1;i<nbSample;i++)
     {
         int s=samples[i];
         if(s>xmax) 
@@ -670,7 +672,8 @@ bool probeCap(TestPin &pin1, TestPin &pin2)
     }
     // Lookup for 10% above min and 30% below max
     bool found=false;
-    int target=(xmin*35)>>5;
+    int target=xmin+4+(xmax-xmin)/10;
+    
     for(int i=minIndex;i<maxIndex && ! found;i++)
     {
         if(samples[i]>=target)
@@ -695,7 +698,16 @@ bool probeCap(TestPin &pin1, TestPin &pin2)
     if(!found) return false;
     
         
+    // C=delta t/(ln(vb*/va* * r)
+    deltaT=(float(maxIndex-minIndex))/(float)res;
+    deltaT=(deltaT*(float)samplingTime)/((float)F_CPU);
+    v=(4095.-float(xmax))/(4095.-(float)xmin);
+    v=log(v);
+    deltaT=deltaT/v;
     
+    char st[20];
+    Component::prettyPrint(deltaT,"F",st);
+    TesterGfx::print(20,20,st);
     
     while(1)
     {

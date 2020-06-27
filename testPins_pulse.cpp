@@ -58,205 +58,249 @@ const RateTable rateTable[]=
     RATE_MK(239)
 };
 /**
- * \brief compute rate & scale so that the ADC sampling fq is larger than timer frequency
- * @param frequency
- * @param prescaler
- * @param rate
- * @return 
  */
-bool findRateScale(int frequency,  DSOADC::Prescaler  &prescaler,  adc_smp_rate   &rate)
+class PulseSetting
 {
-    float alpha=(float)F_CPU;
-    alpha/=(float)(frequency+1);
-    
-    int dex=-1;
-    for(int i=sizeof(scalerTable)/sizeof(ScalerTable)-1;i>0 && dex==-1;i--)
-    {
-        float one=alpha/scalerTable[i].div;
-        if(one>(239.5+12))
-        {
-            dex=i;
-            break;
-        }
-    }
-    if(dex==-1)
-    {
-        // Take the biggest prescaler
-        dex=0; //sizeof(scalerTable)/sizeof(ScalerTable)-1;
-    }
-    prescaler=scalerTable[dex].scaler;
-    
-    // now rate
-    alpha=(float)F_CPU;
-    alpha/=(float)(frequency+1);
-    alpha/=scalerTable[dex].div;
-    dex=-1;
-    for(int i=sizeof(rateTable)/sizeof(RateTable)-1;i>0 && dex==-1;i--)
-    {
-        // Alpha > rate
-        if(alpha>rateTable[i].cycle)
-        {
-            dex=i;
-            break;
-        }
-    }
-    if(dex==-1)
-    {
-        dex=0;
-    }
-    rate=rateTable[dex].rate;
-    return true;
-}
-/**
- * 
- * @param adc
- * @param timerScaler
- * @param timerOvf
- * @param prescaler
- * @param rate
- * @param offset
- * @return 
- */
-bool  lookupForRampUp(DSOADC *adc,int pin, int timerScaler, int timerOvf, DSOADC::Prescaler  prescaler,   adc_smp_rate   rate , int &offset   )
-{
-    int shift=1;
-    int nbSamples;
-    uint16_t  *samples;
-    while(1)
-    {
+public:
+    PulseSetting( TestPin &xtestPin, TestPin::PULL_STRENGTH strength) : testPin(xtestPin)
+    {        
         
-        // ADC is running X cycles faster than repeat
-        // Same thing as ~ adc running at  X Cycle
-        if(!adc->prepareTimerSampling(timerScaler,timerOvf+4,false,rate,prescaler))
+        switch(strength)
+        {
+            case  TestPin::PULL_LOW:  pin=testPin._pinDriveLowRes;pinState=TestPin::PULLUP_LOW;break;
+            case  TestPin::PULL_MED:  pin=testPin._pinDriveMedRes;pinState=TestPin::PULLUP_MED;break;
+            case  TestPin::PULL_HI:   pin=testPin._pinDriveHighRes;pinState=TestPin::PULLUP_HI;break;
+            default:
+                break;
+        }
+        res=testPin.getRes(pinState)+testPin.getRes(TestPin::GND);
+    }
+    bool init(int samplingFrequency)
+    {
+        if(!  findRateScale(samplingFrequency, prescaler,rate))
         {
             xAssert(0);
             return false;
-        }
-        adc->clearSemaphore();
-        int before=millis();
-        int nbSamples=128;
+        }   
+        pwmGetScaleOverFlow(samplingFrequency,timerScaler,timerOvf);
+        return false;
+    }
 
-        adc->startTimerSampling(nbSamples);
+    /**
+     * \brief compute rate & scale so that the ADC sampling fq is larger than timer frequency
+     * @param frequency
+     * @param prescaler
+     * @param rate
+     * @return 
+     */
+    bool findRateScale(int frequency,  DSOADC::Prescaler  &prescaler,  adc_smp_rate   &rate)
+    {
+        float alpha=(float)F_CPU;
+        alpha/=(float)(frequency+1);
 
-
-        // 5k => 200 us
-        delayMicroseconds(shift);
-        pwmRestart(pin);
-        if(!adc->getSamples(&samples,nbSamples))    
+        int dex=-1;
+        for(int i=sizeof(scalerTable)/sizeof(ScalerTable)-1;i>0 && dex==-1;i--)
         {
-            xAssert(0);
-            adc->stopTimeCapture();
-            return false;
-        }
-        adc->stopTimeCapture();
-        pwmPause(pin);
-        TesterGfx::drawCurve(nbSamples, samples);
-        
-        // Look for min/max
-        int xmin=4095;
-        int xmax=0;
-        int minIndx;
-        for(int i=0;i<nbSamples;i++)
-        {
-            int x=samples[i];
-            if(x<xmin)
+            float one=alpha/scalerTable[i].div;
+            if(one>(239.5+12))
             {
-                xmin=x;
-                minIndx=i;
-            }
-            if(x>xmax) xmax=x;
-        }
-        //TesterControl::waitForAnyEvent();
-        if(xmax-xmin<20) // just noise
-        {
-            shift++;
-            continue;
-        }
-        if(xmin<20)
-        { // gotcha
-            offset=shift;
-            return true;
-        }
-    }
-    return false;
-}
-/**
- * 
- * @param adc
- * @param pin
- * @param timerScaler
- * @param timerOvf
- * @param prescaler
- * @param rate
- * @param offset
- * @return 
- */
-bool  lookupForTime(DSOADC *adc,int pin, int timerScaler, int timerOvf, DSOADC::Prescaler  prescaler,   adc_smp_rate   rate , int offset ,uint16_t **samples, int &nbSamples ,int &sampling )
-{
-    sampling=1;
-    while(1)
-    {
-        
-        // ADC is running X cycles faster than repeat
-        // Same thing as ~ adc running at  X Cycle
-        if(!adc->prepareTimerSampling(timerScaler,timerOvf+sampling,false,rate,prescaler))
-        {
-            xAssert(0);
-            return false;
-        }
-        adc->clearSemaphore();
-        int before=millis();
-        int nbSamples=1024;
-
-        adc->startTimerSampling(nbSamples);
-
-
-        // 5k => 200 us
-        delayMicroseconds(offset);
-        pwmRestart(pin);
-        if(!adc->getSamples(samples,nbSamples))    
-        {
-            xAssert(0);
-            adc->stopTimeCapture();
-            return false;
-        }
-        adc->stopTimeCapture();
-        pwmPause(pin);
-        TesterGfx::drawCurve(nbSamples, *samples);
-        
-        // Look for min/max
-        int xmin=4095;
-        int xmax=0;
-        int minIndx,maxIndx;
-        for(int i=1;i<nbSamples;i++)
-        {
-            int x=(*samples)[i];
-            if(x<xmin)
-            {
-                xmin=x;
-                minIndx=i;
-            }
-            if(x>xmax) 
-            {
-                xmax=x;
-                maxIndx=i;
+                dex=i;
+                break;
             }
         }
-        //TesterControl::waitForAnyEvent();
-        if((xmax-xmin)<20) // just noise
+        if(dex==-1)
         {
-            sampling++;
-            continue;
+            // Take the biggest prescaler
+            dex=0; //sizeof(scalerTable)/sizeof(ScalerTable)-1;
         }
-        if((maxIndx-minIndx)<20)
-        { // gotcha
-            sampling++;
-            continue;
+        prescaler=scalerTable[dex].scaler;
+
+        // now rate
+        alpha=(float)F_CPU;
+        alpha/=(float)(frequency+1);
+        alpha/=scalerTable[dex].div;
+        dex=-1;
+        for(int i=sizeof(rateTable)/sizeof(RateTable)-1;i>0 && dex==-1;i--)
+        {
+            // Alpha > rate
+            if(alpha>rateTable[i].cycle)
+            {
+                dex=i;
+                break;
+            }
         }
+        if(dex==-1)
+        {
+            dex=0;
+        }
+        rate=rateTable[dex].rate;
         return true;
     }
-    return false;
-}
+    
+
+    /**
+     * 
+     * @param adc
+     * @param timerScaler
+     * @param timerOvf
+     * @param prescaler
+     * @param rate
+     * @param offset
+     * @return 
+     */
+    bool  lookupForRampUp(  )
+    {
+        int shift=1;
+        int nbSamples;
+        uint16_t  *samples;
+        while(1)
+        {
+
+            // ADC is running X cycles faster than repeat
+            // Same thing as ~ adc running at  X Cycle
+            if(!adc->prepareTimerSampling(timerScaler,timerOvf+4,false,rate,prescaler))
+            {
+                xAssert(0);
+                return false;
+            }
+            adc->clearSemaphore();
+            int before=millis();
+            int nbSamples=128;
+
+            adc->startTimerSampling(nbSamples);
+
+
+            // 5k => 200 us
+            delayMicroseconds(shift);
+            pwmRestart(pin);
+            if(!adc->getSamples(&samples,nbSamples))    
+            {
+                xAssert(0);
+                adc->stopTimeCapture();
+                return false;
+            }
+            adc->stopTimeCapture();
+            pwmPause(pin);
+            TesterGfx::drawCurve(nbSamples, samples);
+
+            // Look for min/max
+            int xmin=4095;
+            int xmax=0;
+            int minIndx;
+            for(int i=0;i<nbSamples;i++)
+            {
+                int x=samples[i];
+                if(x<xmin)
+                {
+                    xmin=x;
+                    minIndx=i;
+                }
+                if(x>xmax) xmax=x;
+            }
+            //TesterControl::waitForAnyEvent();
+            if(xmax-xmin<20) // just noise
+            {
+                shift++;
+                continue;
+            }
+            if(xmin<20)
+            { // gotcha
+                offset=shift;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 
+     * @param adc
+     * @param pin
+     * @param timerScaler
+     * @param timerOvf
+     * @param prescaler
+     * @param rate
+     * @param offset
+     * @return 
+     */
+    bool  lookupForTime(uint16_t **samples, int &nbSamples  )
+    {
+        stroboscopeSampling=1;
+        while(1)
+        {
+
+            // ADC is running X cycles faster than repeat
+            // Same thing as ~ adc running at  X Cycle
+            if(!adc->prepareTimerSampling( timerScaler,timerOvf+stroboscopeSampling,false,rate,prescaler))
+            {
+                xAssert(0);
+                return false;
+            }
+            adc->clearSemaphore();
+            int before=millis();        
+
+            adc->startTimerSampling(nbSamples);
+
+
+            // 5k => 200 us
+            delayMicroseconds(offset);
+            pwmRestart(pin);
+            if(!adc->getSamples(samples,nbSamples))    
+            {
+                xAssert(0);
+                adc->stopTimeCapture();
+                return false;
+            }
+            adc->stopTimeCapture();
+            pwmPause(pin);
+            TesterGfx::drawCurve(nbSamples, *samples);
+
+            // Look for min/max
+            int xmin=4095;
+            int xmax=0;
+            int minIndx,maxIndx;
+            for(int i=1;i<nbSamples;i++)
+            {
+                int x=(*samples)[i];
+                if(x<xmin)
+                {
+                    xmin=x;
+                    minIndx=i;
+                }
+                if(x>xmax) 
+                {
+                    xmax=x;
+                    maxIndx=i;
+                }
+            }
+            //TesterControl::waitForAnyEvent();
+            if((xmax-xmin)<20) // just noise
+            {
+                stroboscopeSampling++;
+                continue;
+            }
+            if((maxIndx-minIndx)<20)
+            { // gotcha
+                stroboscopeSampling++;
+                continue;
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    int             pin;
+    int             timerScaler;
+    int             timerOvf;
+    DSOADC::Prescaler  prescaler;   
+    adc_smp_rate    rate ;
+    int             offset;
+    int             stroboscopeSampling;
+    TestPin::TESTPIN_STATE        pinState;
+    int             res;
+    TestPin         &testPin;
+};
+
 
 /**
  * 
@@ -268,47 +312,30 @@ bool  lookupForTime(DSOADC *adc,int pin, int timerScaler, int timerOvf, DSOADC::
  * @return 
  */
 int timeToCapture=0;
-bool  TestPin::pulseTime(int nbSamples, int samplingFrequency, TestPin::PULL_STRENGTH strength,   int &sampleOut,  uint16_t **xsamples,int &samplingTime)
+bool  TestPin::pulseTime(int nbSamples, int samplingFrequency, TestPin::PULL_STRENGTH strength,   int &nbSample,  uint16_t **xsamples,int &samplingTime,int &res)
 {
     disconnectAll();
-    DSOADC::Prescaler  prescaler;
-    adc_smp_rate   rate;    
-    int pin;
-    switch(strength)
-    {
-        case  PULL_LOW:  pin=_pinDriveLowRes;break;
-        case  PULL_MED:  pin=_pinDriveMedRes;break;
-        case  PULL_HI:   pin=_pinDriveHighRes;break;
-        default:
-            break;
-    }
+    
+    PulseSetting settings(*this,strength);
     
     pullDown(TestPin::PULL_LOW);
     xDelay(10);
-    if(!  findRateScale(samplingFrequency, prescaler,rate))
-    {
-        xAssert(0);
-        return false;
-    }    
+    
+    settings.init(samplingFrequency);    
     
     pwm(strength,samplingFrequency);
-    pwmPause(pin);
- 
-    int timerScaler;
-    int timerOvf;
-    
-    pwmGetScaleOverFlow(samplingFrequency,timerScaler,timerOvf);
+    pwmPause(settings.pin);
+     
     
     adc->setADCPin(this->_pin);
     adc->setupTimerSampling();
     //
-    int offset;
-    if(!lookupForRampUp(adc,pin,   timerScaler,   timerOvf,   prescaler,       rate , offset  ))
+    if(!settings.lookupForRampUp(  ))
     {
         return false;
     }
    
-    if(!lookupForTime(adc,pin,   timerScaler,   timerOvf,   prescaler,       rate , offset ,xsamples,sampleOut,samplingTime ))
+    if(!settings.lookupForTime(xsamples,nbSample ))
     {
         return false;
     }
