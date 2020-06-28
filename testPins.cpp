@@ -333,6 +333,9 @@ bool    TestPin::prepareDmaSample(adc_smp_rate rate,  DSOADC::Prescaler scale,in
 bool    TestPin::finishDmaSample(int &nbSamples, uint16_t **xsamples)
 {
     xAssert(true==adc->getSamples(xsamples,nbSamples));
+    // Skip the 2 first samples, they are often wrong
+    nbSamples-=2;
+    *xsamples+=2;
     return true;    
 }
 bool    TestPin::finishTimer(int &nbSamples, uint16_t **xsamples)
