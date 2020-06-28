@@ -19,7 +19,6 @@ extern void rotaryTest();
 extern void calibration();
 extern void menuSystem(void);
 uint32_t  deviceId;
-extern void probeCap(TestPin &pin1, TestPin &pin2)    ;
 uint32_t  memDensity=0;
 extern DSOADC *adc;
 float L;
@@ -126,7 +125,7 @@ void MainTask::run()
     adc->prepareDMASampling(ADC_SMPR_239_5,DSOADC::ADC_PRESCALER_8);    
     adc->stopDmaCapture();
 
-#if 1
+#if 0
  probeCap(pin2,pin1);
 #endif
     

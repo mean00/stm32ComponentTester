@@ -1,7 +1,7 @@
 #include "Arduino.h"
 #include "myPwm.h"
 
-static HardwareTimer *pinToTimer(timer_dev *tdev)
+HardwareTimer *pinToTimer(timer_dev *tdev)
 {    
     HardwareTimer *t=NULL;
     if(!tdev) xAssert(0);
@@ -92,4 +92,5 @@ void pwmRestart(int pin)
     t->setCount(0);
     t->resume();
 }
+
 

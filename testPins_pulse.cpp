@@ -57,6 +57,7 @@ const RateTable rateTable[]=
     RATE_MK(71)
     RATE_MK(239)
 };
+#define INCREMENT 1
 /**
  */
 class PulseSetting
@@ -139,7 +140,8 @@ public:
     
 
     /**
-     * 
+     * \brief compute the offset so that the ramp up is near the beginning
+     * increasing the shift makes the curve  later
      * @param adc
      * @param timerScaler
      * @param timerOvf
@@ -148,32 +150,32 @@ public:
      * @param offset
      * @return 
      */
-    bool  lookupForRampUp(  )
+    bool  lookupForRampUp(         int &nbSamples,    uint16_t  **samples)
     {
-        int shift=1;
-        int nbSamples;
-        uint16_t  *samples;
+        int round=0;
+        int shift=0;
         while(1)
         {
-
+next:
             // ADC is running X cycles faster than repeat
             // Same thing as ~ adc running at  X Cycle
-            if(!adc->prepareTimerSampling(timerScaler,timerOvf+4,false,rate,prescaler))
+            if(!adc->prepareTimerSampling(timerScaler,timerOvf+2,false,rate,prescaler))
             {
                 xAssert(0);
                 return false;
             }
             adc->clearSemaphore();
             int before=millis();
-            int nbSamples=128;
+            nbSamples=1024;
 
+            pwmQuickRestart quick(pin);
             adc->startTimerSampling(nbSamples);
 
 
             // 5k => 200 us
             delayMicroseconds(shift);
-            pwmRestart(pin);
-            if(!adc->getSamples(&samples,nbSamples))    
+            quick.go();
+            if(!adc->getSamples(samples,nbSamples))    
             {
                 xAssert(0);
                 adc->stopTimeCapture();
@@ -181,33 +183,55 @@ public:
             }
             adc->stopTimeCapture();
             pwmPause(pin);
-            TesterGfx::drawCurve(nbSamples, samples);
-
+            round++;
+            if(round==1) continue;
+            TesterGfx::drawCurve(nbSamples, *samples);
+            while(1)
+            {
+            }
+            
+            {
+            offset=round;
+            return true;
+            }
             // Look for min/max
             int xmin=4095;
             int xmax=0;
             int minIndx;
-            for(int i=0;i<nbSamples;i++)
+            for(int i=1;i<nbSamples;i++)
             {
-                int x=samples[i];
+                int x=(*samples)[i];
                 if(x<xmin)
                 {
                     xmin=x;
                     minIndx=i;
                 }
                 if(x>xmax) xmax=x;
-            }
-            //TesterControl::waitForAnyEvent();
-            if(xmax-xmin<20) // just noise
+            }            
+            if(xmax-xmin<20 || xmin >1500) // just noise
             {
-                shift++;
+                shift+=INCREMENT;
                 continue;
             }
-            if(xmin<20)
-            { // gotcha
-                offset=shift;
-                return true;
-            }
+            
+            for(int i=xmin;i<xmax;i++)
+            {
+                int x=(*samples)[i];
+                if(x>xmin+(xmax-xmin)/6)
+                {
+                    if(x>20) // too far
+                    {
+                        shift+=INCREMENT;
+                        goto next;
+                    }
+                }
+            }         
+            
+           
+            // gotcha
+            offset=shift;
+            return true;
+
         }
         return false;
     }
@@ -330,19 +354,23 @@ bool  TestPin::pulseTime(int nbSamples, int samplingFrequency, TestPin::PULL_STR
     adc->setADCPin(this->_pin);
     adc->setupTimerSampling();
     //
-    if(!settings.lookupForRampUp(  ))
+    if(!settings.lookupForRampUp(nbSample,xsamples  ))
     {
         return false;
     }
-   
+#if 0   
     if(!settings.lookupForTime(xsamples,nbSample ))
     {
         return false;
     }
-   
+#endif   
    
     pullDown(strength);
     xDelay(10);
+    
+    samplingTime=settings.stroboscopeSampling*settings.timerScaler;
+    res=settings.res;
+    
     disconnectAll();
     return true;
 }
