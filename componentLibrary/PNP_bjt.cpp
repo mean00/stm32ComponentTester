@@ -58,8 +58,8 @@ bool PNPBjt::computeHfe(float &hfe)
     float sumCollector=0;
     for(int i=0;i<nb;i++)
     {
-        sumBase=sumBase+samples[nb*2+i*2];
-        sumCollector=sumCollector+samples[nb*2+i*2+1];        
+        sumBase=sumBase+samples[i*2];
+        sumCollector=sumCollector+samples[i*2+1];        
     }
     sumBase/=(float)nb;
     sumCollector/=(float)nb;
