@@ -235,9 +235,117 @@ bool Capacitor::computeLowCap()
     }
     if(capacitance<MINIMUM_DETECTED_CAP/pPICO) 
     {
+        return computeVeryLowCap();
         capacitance=0.;
         return false;
     }
+    return true;
+}
+
+
+/**
+ * 
+ * @return 
+ */
+int vA,vB,iA,iB;
+bool Capacitor::computeVeryLowCap()
+{   
+    TestPin *p1,*p2;
+    if(_pB.pinNumber()==2)
+    {
+        p1=&_pB;
+        p2=&_pA;
+    }else if(_pA.pinNumber()==2)
+    {
+        p1=&_pA;
+        p2=&_pB;        
+    }
+    else
+    {
+        return false;      
+    }
+    p2->setToGround();
+    p1->pullDown(TestPin::PULL_LOW);
+    xDelay(10);
+    //bool  TestPin::pulseTime(int nbSamples, int samplingFrequency, TestPin::PULL_STRENGTH strength,   int &nbSample,  uint16_t **xsamples,int &samplingTime,int &res)
+    int resistance;
+    int samplingTime;
+    int nbSamples;
+    uint16_t *samples;
+    if(!p1->pulseTime(1024,500,TestPin::PULL_HI,nbSamples,&samples,samplingTime,resistance))
+    {
+        return false;
+    }
+    if(!p1->pulseTime(1024,500,TestPin::PULL_HI,nbSamples,&samples,samplingTime,resistance))
+    {
+        return false;
+    }
+    TesterGfx::drawCurve(nbSamples, samples);
+    // Search for min & max
+    int mn=4095;
+    int mx=0;
+    int mnIndex=0,mxIndex=0;
+    for(int i=1;i<nbSamples;i++)
+    {
+        int x=samples[i];
+        if(x>mx)
+        {
+            mx=x;
+            mxIndex=i;
+            continue;
+        }
+        if(x<mn)
+        {
+            mn=x;
+            mnIndex=i;
+            continue;
+        }
+    }
+    int mnTarget=mn+(mx-mn)/8;
+    int mxTarget=mx-(mx-mn)/8;
+    bool found=false;
+    
+    for(int i=mnIndex;i<nbSamples && found==false;i++)
+    {
+        int x=samples[i];
+        if(x>mnTarget)
+        {
+            vA=x;
+            iA=i;
+            found=true;
+        }
+    }
+    found=false;
+    for(int i=iA;i<nbSamples && found==false;i++)
+    {
+        int x=samples[i];
+        if(x>mxTarget)
+        {
+            vB=x;
+            iB=i;
+            found=true;
+        }
+    }
+    //
+    float c=(iB-iA);
+    c/=(float)resistance;
+    c=c/log( (float)vB/(float)vA);
+    c=c*(float)samplingTime/(float)F_CPU;
+    
+    
+    char st[25];
+    Component::prettyPrint(c,"F",st);
+    TesterGfx::drawCapacitor(0,st,p1->pinNumber(),p2->pinNumber());
+    
+    //
+    while(1)
+    {
+        
+    }
+    
+    
+    
+    
     return true;
 }
 /**

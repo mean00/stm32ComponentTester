@@ -1,2 +1,2 @@
-#define TESTER_VERSION 0.1
+#define TESTER_VERSION 0.2
 

@@ -96,6 +96,13 @@ public:
      */
     bool findRateScale(int frequency,  DSOADC::Prescaler  &prescaler,  adc_smp_rate   &rate)
     {
+#if 0        
+        // The parasitic cap varies depending on the rate/scale
+        // hardcode it to the one we know
+        prescaler= DSOADC::ADC_PRESCALER_2;
+        rate=ADC_SMPR_1_5;
+        return true;
+#endif        
         float alpha=(float)F_CPU;
         alpha/=(float)(frequency+1);
 
@@ -181,8 +188,17 @@ next:
                 adc->stopTimeCapture();
                 return false;
             }
+            // skip 1st sample
+            nbSamples-=1;
+            (*samples)+=1;
+            
             adc->stopTimeCapture();
             pwmPause(pin);
+            offset=shift;
+            this->stroboscopeSampling=2;            
+            return true;
+        }
+#if 0            
             round++;
             if(round==1) continue;
             TesterGfx::drawCurve(nbSamples, *samples);
@@ -311,6 +327,7 @@ next:
             return true;
         }
         return false;
+#endif        
     }
     
     int             pin;

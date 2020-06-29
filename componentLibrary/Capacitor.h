@@ -23,6 +23,7 @@ protected:
             bool  computeMediumCap(int dex,int overSampling,float &c);
             bool  computeHiCap();
             bool  computeLowCap();
+            bool  computeVeryLowCap();
             
             bool doOneQuick(TestPin::PULL_STRENGTH strength, bool doubled, float percent,int &timeUs, int &resistance,int &value);
             bool getRange(int dex, int &range);
