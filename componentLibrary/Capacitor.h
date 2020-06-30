@@ -35,4 +35,5 @@ public:
             bool quickEval(float &c);
             bool computed;
 static      float computeCapacitance(int time, int iresistance, int actualValue);
+static      float computeCapacitance(int nbSample, uint16_t *samples, int resistance, float period);
 };

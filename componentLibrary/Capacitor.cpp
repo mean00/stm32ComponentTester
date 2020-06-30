@@ -272,66 +272,21 @@ bool Capacitor::computeVeryLowCap()
     int samplingTime;
     int nbSamples;
     uint16_t *samples;
-    if(!p1->pulseTime(1024,500,TestPin::PULL_HI,nbSamples,&samples,samplingTime,resistance))
+    
+    int fq=2000;
+
+    if(!p1->pulseTime(50,fq,TestPin::PULL_HI,nbSamples,&samples,samplingTime,resistance))
     {
         return false;
     }
-    if(!p1->pulseTime(1024,500,TestPin::PULL_HI,nbSamples,&samples,samplingTime,resistance))
+    if(!p1->pulseTime(1024,fq,TestPin::PULL_HI,nbSamples,&samples,samplingTime,resistance))
     {
         return false;
     }
-    TesterGfx::drawCurve(nbSamples, samples);
-    // Search for min & max
-    int mn=4095;
-    int mx=0;
-    int mnIndex=0,mxIndex=0;
-    for(int i=1;i<nbSamples;i++)
-    {
-        int x=samples[i];
-        if(x>mx)
-        {
-            mx=x;
-            mxIndex=i;
-            continue;
-        }
-        if(x<mn)
-        {
-            mn=x;
-            mnIndex=i;
-            continue;
-        }
-    }
-    int mnTarget=mn+(mx-mn)/8;
-    int mxTarget=mx-(mx-mn)/8;
-    bool found=false;
     
-    for(int i=mnIndex;i<nbSamples && found==false;i++)
-    {
-        int x=samples[i];
-        if(x>mnTarget)
-        {
-            vA=x;
-            iA=i;
-            found=true;
-        }
-    }
-    found=false;
-    for(int i=iA;i<nbSamples && found==false;i++)
-    {
-        int x=samples[i];
-        if(x>mxTarget)
-        {
-            vB=x;
-            iB=i;
-            found=true;
-        }
-    }
-    //
-    float c=(iB-iA);
-    c/=(float)resistance;
-    c=c/log( (float)vB/(float)vA);
-    c=c*(float)samplingTime/(float)F_CPU;
-    
+    float period=F_CPU;
+    period=(float)(samplingTime)/period;
+    float c=computeCapacitance(  nbSamples,  samples, resistance,period);
     if(c>(float)p1->_calibration.capOffsetHighInPf/pPICO)
         c-=(float)p1->_calibration.capOffsetHighInPf/pPICO;
     
@@ -437,6 +392,70 @@ bool Capacitor::computeWrapper()
     if(capacitance<0.) capacitance=0.;    
     return true;
 }
+/**
+ * 
+ * @param nbSample
+ * @param samples
+ * @param resistance
+ * @param period
+ * @return 
+ */
+float Capacitor::computeCapacitance(int nbSamples, uint16_t *samples, int resistance, float period)
+{    
+    // Search for min & max
+    int mn=4095;
+    int mx=0;
+    int mnIndex=0,mxIndex=0;
+    for(int i=1;i<nbSamples;i++)
+    {
+        int x=samples[i];
+        if(x>mx)
+        {
+            mx=x;
+            mxIndex=i;
+            continue;
+        }
+        if(x<mn)
+        {
+            mn=x;
+            mnIndex=i;
+            continue;
+        }
+    }
+    int mnTarget=mn+(mx-mn)/8;
+    int mxTarget=mx-(mx-mn)/8;
+    bool found=false;
+    
+    for(int i=mnIndex;i<nbSamples && found==false;i++)
+    {
+        int x=samples[i];
+        if(x>mnTarget)
+        {
+            vA=x;
+            iA=i;
+            found=true;
+        }
+    }
+    found=false;
+    for(int i=iA;i<nbSamples && found==false;i++)
+    {
+        int x=samples[i];
+        if(x>mxTarget)
+        {
+            vB=x;
+            iB=i;
+            found=true;
+        }
+    }
+    //
+    float c=(iB-iA);
+    c/=(float)resistance;
+    c=c/log( (float)vB/(float)vA);
+    c=c*period;
+        
+    return c;
+}
+
 /**
  * This is for high value cap. They need a lot of time to charge so we can't use a dma filled buffer
  * instead we'll poll their voltage

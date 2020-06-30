@@ -8,6 +8,7 @@
 #include "MapleFreeRTOS1000_pp.h"
 #include "testerGfx.h"
 #include "myPwm.h"
+#include "testerControl.h"
 
 extern DSOADC *adc;
 void xFail(const char *message);
@@ -157,30 +158,28 @@ public:
      * @param offset
      * @return 
      */
-    bool  lookupForRampUp(         int &nbSamples,    uint16_t  **samples)
+    bool  createWaveForm(     int sampleAsked,    int &nbSamples,    uint16_t  **samples)
     {
-        int round=0;
-        int shift=0;
-        while(1)
-        {
-next:
+        // The apparent sampling frequency is F_CPU/(timerScaler*apprentDivider)
+        // make it so timerSCaler*apparentDivier=8
+        // so we end up with a know sampling frequency of F_CPU/8 => 9 Mhz with CPU@72 Mhz whatever timerScale is
+        // as long as it is 1 2 or 4, from 500 Hz to ~ 10 khz
+        
+        int apparentDivider=8/timerScaler;
+        if(!apparentDivider) xAssert(0);
             // ADC is running X cycles faster than repeat
             // Same thing as ~ adc running at  X Cycle
-            if(!adc->prepareTimerSampling(timerScaler,timerOvf+2,false,rate,prescaler))
+            if(!adc->prepareTimerSampling(timerScaler,timerOvf+apparentDivider,false,rate,prescaler))
             {
                 xAssert(0);
                 return false;
             }
             adc->clearSemaphore();
             int before=millis();
-            nbSamples=1024;
+            nbSamples=0;
 
             pwmQuickRestart quick(pin);
-            adc->startTimerSampling(nbSamples);
-
-
-            // 5k => 200 us
-            delayMicroseconds(shift);
+            adc->startTimerSampling(sampleAsked);
             quick.go();
             if(!adc->getSamples(samples,nbSamples))    
             {
@@ -194,140 +193,9 @@ next:
             
             adc->stopTimeCapture();
             pwmPause(pin);
-            offset=shift;
-            this->stroboscopeSampling=2;            
-            return true;
-        }
-#if 0            
-            round++;
-            if(round==1) continue;
-            TesterGfx::drawCurve(nbSamples, *samples);
-            while(1)
-            {
-            }
-            
-            {
-            offset=round;
-            return true;
-            }
-            // Look for min/max
-            int xmin=4095;
-            int xmax=0;
-            int minIndx;
-            for(int i=1;i<nbSamples;i++)
-            {
-                int x=(*samples)[i];
-                if(x<xmin)
-                {
-                    xmin=x;
-                    minIndx=i;
-                }
-                if(x>xmax) xmax=x;
-            }            
-            if(xmax-xmin<20 || xmin >1500) // just noise
-            {
-                shift+=INCREMENT;
-                continue;
-            }
-            
-            for(int i=xmin;i<xmax;i++)
-            {
-                int x=(*samples)[i];
-                if(x>xmin+(xmax-xmin)/6)
-                {
-                    if(x>20) // too far
-                    {
-                        shift+=INCREMENT;
-                        goto next;
-                    }
-                }
-            }         
-            
-           
-            // gotcha
-            offset=shift;
-            return true;
-
-        }
-        return false;
-    }
-
-    /**
-     * 
-     * @param adc
-     * @param pin
-     * @param timerScaler
-     * @param timerOvf
-     * @param prescaler
-     * @param rate
-     * @param offset
-     * @return 
-     */
-    bool  lookupForTime(uint16_t **samples, int &nbSamples  )
-    {
-        stroboscopeSampling=1;
-        while(1)
-        {
-
-            // ADC is running X cycles faster than repeat
-            // Same thing as ~ adc running at  X Cycle
-            if(!adc->prepareTimerSampling( timerScaler,timerOvf+stroboscopeSampling,false,rate,prescaler))
-            {
-                xAssert(0);
-                return false;
-            }
-            adc->clearSemaphore();
-            int before=millis();        
-
-            adc->startTimerSampling(nbSamples);
-
-
-            // 5k => 200 us
-            delayMicroseconds(offset);
-            pwmRestart(pin);
-            if(!adc->getSamples(samples,nbSamples))    
-            {
-                xAssert(0);
-                adc->stopTimeCapture();
-                return false;
-            }
-            adc->stopTimeCapture();
-            pwmPause(pin);
-            TesterGfx::drawCurve(nbSamples, *samples);
-
-            // Look for min/max
-            int xmin=4095;
-            int xmax=0;
-            int minIndx,maxIndx;
-            for(int i=1;i<nbSamples;i++)
-            {
-                int x=(*samples)[i];
-                if(x<xmin)
-                {
-                    xmin=x;
-                    minIndx=i;
-                }
-                if(x>xmax) 
-                {
-                    xmax=x;
-                    maxIndx=i;
-                }
-            }
-            //TesterControl::waitForAnyEvent();
-            if((xmax-xmin)<20) // just noise
-            {
-                stroboscopeSampling++;
-                continue;
-            }
-            if((maxIndx-minIndx)<20)
-            { // gotcha
-                stroboscopeSampling++;
-                continue;
-            }
-            return true;
-        }
-        return false;
-#endif        
+            offset=0;
+            this->stroboscopeSampling=apparentDivider;            
+            return true;  
     }
     
     int             pin;
@@ -342,18 +210,18 @@ next:
     TestPin         &testPin;
 };
 
-
 /**
  * 
- * @param nbSamples
- * @param samplingFrequency
- * @param strength
- * @param sampleOut
+ * @param nbSampleAsked
+ * @param samplingFrequency : The input signal is repeated every samplingFrequency
+ * @param strength          : Pull up strength
+ * @param nbSample
  * @param xsamples
+ * @param samplingTime      : The "Apparent" sampling frequency is F_CPU/samplingTime
+ * @param res               : Load Resistance
  * @return 
  */
-int timeToCapture=0;
-bool  TestPin::pulseTime(int nbSamples, int samplingFrequency, TestPin::PULL_STRENGTH strength,   int &nbSample,  uint16_t **xsamples,int &samplingTime,int &res)
+bool  TestPin::pulseTime(int nbSampleAsked, int samplingFrequency, TestPin::PULL_STRENGTH strength,   int &nbSample,  uint16_t **xsamples,int &samplingTime,int &res)
 {
     disconnectAll();
     
@@ -371,23 +239,17 @@ bool  TestPin::pulseTime(int nbSamples, int samplingFrequency, TestPin::PULL_STR
     adc->setADCPin(this->_pin);
     adc->setupTimerSampling();
     //
-    if(!settings.lookupForRampUp(nbSample,xsamples  ))
+    if(!settings.createWaveForm(nbSampleAsked,nbSample,xsamples  ))
     {
         return false;
     }
-#if 0   
-    if(!settings.lookupForTime(xsamples,nbSample ))
-    {
-        return false;
-    }
-#endif   
    
     pullDown(strength);
     xDelay(10);
     
+    // Apparent divider compared to F_CPU
     samplingTime=settings.stroboscopeSampling*settings.timerScaler;
-    res=settings.res;
-    
+    res=settings.res;   
     disconnectAll();
     return true;
 }
