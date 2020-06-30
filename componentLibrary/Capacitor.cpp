@@ -332,20 +332,10 @@ bool Capacitor::computeVeryLowCap()
     c=c/log( (float)vB/(float)vA);
     c=c*(float)samplingTime/(float)F_CPU;
     
+    if(c>(float)p1->_calibration.capOffsetHighInPf/pPICO)
+        c-=(float)p1->_calibration.capOffsetHighInPf/pPICO;
     
-    char st[25];
-    Component::prettyPrint(c,"F",st);
-    TesterGfx::drawCapacitor(0,st,p1->pinNumber(),p2->pinNumber());
-    
-    //
-    while(1)
-    {
-        
-    }
-    
-    
-    
-    
+    capacitance=c;
     return true;
 }
 /**

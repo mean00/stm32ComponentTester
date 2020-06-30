@@ -23,9 +23,12 @@ int easySample(TestPin &M);
 static bool singlePinTest(TestPin &A, TestPin &MeasurePin, const char **failure)
 {
     int sum;
+    {
+        AutoDisconnect ad2;
+    }
     AutoDisconnect ad;
     {
-         pinMode(MeasurePin.pinADC(),INPUT_ANALOG);
+        pinMode(MeasurePin.pinADC(),INPUT_ANALOG);
         A.setToGround();        
         sum=easySample(MeasurePin);       
         if(sum>LOW_FLOOR)

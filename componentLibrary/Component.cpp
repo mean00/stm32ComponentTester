@@ -37,7 +37,7 @@ void Component::prettyPrint(float value, const char *unit,  char *output)
         scale=small;
     }
     int dex=0;
-    while(1)
+    while(dex<=3)
     {
         if(value>1 && value<1000)
             break;
