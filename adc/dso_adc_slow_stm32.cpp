@@ -24,23 +24,25 @@ bool    DSOADC::setupTimerSampling()
   return true;
 }
 
-bool    DSOADC::prepareTimerSampling (int timerScale, int ovf,bool overSampling,adc_smp_rate rate , DSOADC::Prescaler scale)
+bool    DSOADC::prepareTimerSampling (int timerScale, int timerOvf,bool overSampling,adc_smp_rate adcRate , DSOADC::Prescaler adcScale)
 {   
     
     int fq;
-     pwmGetFrequency(  scale, ovf,fq);
+     pwmGetFrequency(  timerScale, timerOvf,fq);
      if(fq!=_oldTimerFq)
      {
         ADC_TIMER.pause();
        _oldTimerFq=fq;
-       _timerSamplingRate=rate;
-       _timerScale=scale;
+       _timerSamplingRate=adcRate;
+       _timerScale=adcScale;
+       
+       
        _overSampling=false;
 
        ADC_TIMER.pause();
        ADC_TIMER.setPrescaleFactor(timerScale);
-       ADC_TIMER.setOverflow(ovf);
-       ADC_TIMER.setCompare(ADC_TIMER_CHANNEL,ovf-1);
+       ADC_TIMER.setOverflow(timerOvf);
+       ADC_TIMER.setCompare(ADC_TIMER_CHANNEL,timerOvf/2);
        timer_cc_enable(ADC_TIMER.c_dev(), ADC_TIMER_CHANNEL);
      }  
     return true;    
