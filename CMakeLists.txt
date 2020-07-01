@@ -42,7 +42,7 @@ ELSEIF(USE_GD32F303)
     set(ARDUINO_DEFAULT_BOARD genericGD32F303C)        # Default Board ID, when not specified
     set(ARDUINO_CPU           GD32F303C8)
     ADD_DEFINITIONS("-DHIGH_SPEED_ADC")
-    # Use plain boot loader, we have plenty of flash on the GD32F3
+    SET(ARDUINO_UPLOAD_METHOD BMP) # Use blackmagic link, if you comment it out you'll use DFU => 8kB flash
 ELSE()
     SET(EXTENSION             "_STM32F103")
     set(ARDUINO_DEFAULT_BOARD genericSTM32F103C)        # Default Board ID, when not specified
@@ -101,7 +101,9 @@ target_link_libraries(componentTester${EXTENSION} ${libPrefix}fonts)
 #dump_all()
 if(USE_GD32F103)
     MESSAGE(STATUS "\tUsing GD32F103 MCU ")
-else(USE_GD32F103)
+elseif(USE_GD32F303)
+    MESSAGE(STATUS "\tUsing GD32F303 MCU ")
+else()
     MESSAGE(STATUS "\tUsing STM32F103 MCU ")
 endif(USE_GD32F103)
 
