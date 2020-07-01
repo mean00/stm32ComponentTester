@@ -4,7 +4,7 @@
 #include "nvm_default.h"
 #include "cpuID.h"
 
-#define HASH 0x456C
+#define HASH 0x456B
 
 
 /**
@@ -57,8 +57,7 @@ bool    NVM::loadTestPin(int pin, TestPinCalibration &calibration)
     calibration.resDown=        eep.read(10*pin+1+1);;
     calibration.capOffsetInPf=  eep.read(10*pin+1+2)+1;; // there is a ~ 3/4 pf Error
     calibration.inductanceInUF= eep.read(10*pin+1+3);;
-    calibration.capOffsetHighInPf= eep.read(10*pin+1+4);;
-    calibration.capOffsetHighInPf =INTERNAL_CAPACITANCE_IN_PF_HIGH;        
+    calibration.capOffsetHighInPf= eep.read(10*pin+1+4);;    
     return true;
 }
 /**

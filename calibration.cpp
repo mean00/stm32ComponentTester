@@ -9,6 +9,7 @@
 #include "allComponents.h"
 #include "testerGfx.h"
 #include "nvm_default.h"
+#include "testerControl.h"
 extern TestPin pin1,pin2,pin3;
 extern void pinTest();
 #define Y_OFFSET 20
@@ -17,11 +18,13 @@ extern void pinTest();
  */
 void calibration()
 {    
-    
+#define INTER 26        
     //--------------------------------------
     // Check pins are correctly connected
     //--------------------------------------
      pinTest();
+     TesterGfx::clear();
+     TesterGfx::print(5,0,"Basic ");
     
      //---------------------------------------     
      // Eval internal up & down resistances
@@ -57,39 +60,56 @@ void calibration()
     ALLCAP(2,pin2,pin1,pin3);
     ALLCAP(3,pin3,pin2,pin1);
     
+
     // Stroboscopic calibration, only on pin2
+    TesterGfx::print(5,INTER,"Fine cal");
+    TesterGfx::print(5,INTER*2,"(30sec)");
     pin1.setToGround();
     pin3.setToGround();
     // Only pin2 is able to do stroboscopic
     calibration1.capOffsetHighInPf=INTERNAL_CAPACITANCE_IN_PF_HIGH;
+    calibration2.capOffsetHighInPf=INTERNAL_CAPACITANCE_IN_PF_HIGH;
     calibration3.capOffsetHighInPf=INTERNAL_CAPACITANCE_IN_PF_HIGH;
     int fq=2000; // 2Khz
     int resistance;
     int samplingTime;
     int nbSamples;
     uint16_t *samples;
-    
-     if(!pin2.pulseTime(50,fq,TestPin::PULL_HI,nbSamples,&samples,samplingTime,resistance))
+    float c=0;
+    // Dummy first one
+    if(!pin2.pulseTime(50,fq,TestPin::PULL_HI,nbSamples,&samples,samplingTime,resistance))
     {
        
     }
-    if(!pin2.pulseTime(1024,fq,TestPin::PULL_HI,nbSamples,&samples,samplingTime,resistance))
+    else
     {
-        calibration2.capOffsetHighInPf=INTERNAL_CAPACITANCE_IN_PF_HIGH;
-    }else
-    {
-        // compute C
-        float period=F_CPU;
-        period=(float)(samplingTime)/period;
-        float c=Capacitor::computeCapacitance(  nbSamples,  samples, resistance,period);
-        c=c*pPICO+0.49;
-        calibration2.capOffsetHighInPf=c;
+    #define AVG 8
+        c=0;
+        for(int i=0;i<AVG;i++)
+        {
+            pin2.pulseTime(1024,fq,TestPin::PULL_HI,nbSamples,&samples,samplingTime,resistance);
+            // compute C
+            float period=F_CPU;
+            period=(float)(samplingTime)/period;
+            c+=Capacitor::computeCapacitance(  nbSamples,  samples, resistance,period);
+        }
+        
+        c=c/(float)AVG;
+        calibration2.capOffsetHighInPf=(uint16_t)(c*pPICO);;
     }
+    TesterGfx::clear();
+    char str[50];
+    sprintf(str,"C=%d pF",calibration2.capOffsetHighInPf);
+    TesterGfx::print(5,INTER*1,str);
+    sprintf(str,"C=%f pF",c);
+    TesterGfx::print(2,INTER*3,str);
+    
     // and save
     NVM::reset();
     NVM::saveTestPin(1,calibration1);
     NVM::saveTestPin(2,calibration2);
     NVM::saveTestPin(3,calibration3);
     NVM::doneWriting();    
+    TesterControl::waitForAnyEvent();
     
 }

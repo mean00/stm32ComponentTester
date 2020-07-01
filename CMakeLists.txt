@@ -1,4 +1,5 @@
 OPTION(USE_GD32F103   "Use GD32F103 MCU" FALSE) 
+OPTION(USE_GD32F303   "Use GD32F303 MCU" FALSE) 
 # Select platform and installation for extra arduino files AND toolchain (compiler...)
 SET(PLATFORM_ARCHITECTURE "STM32F1")
 # Do we have patch around ?
@@ -29,11 +30,18 @@ IF(USE_GD32F103)
     set(ARDUINO_DEFAULT_BOARD genericGD32F103C)        # Default Board ID, when not specified
     set(ARDUINO_CPU           GD32F103C8)
     ADD_DEFINITIONS("-DHIGH_SPEED_ADC")
-
-ELSE(USE_GD32F103)
+    SET(ARDUINO_UPLOAD_METHOD BMP) # Use blackmagic link, if you comment it out you'll use DFU => 8kB flash
+ELSEIF(USE_GD32F303)
+    SET(EXTENSION             "_GD32F303")
+    set(ARDUINO_DEFAULT_BOARD genericGD32F303C)        # Default Board ID, when not specified
+    set(ARDUINO_CPU           GD32F303C8)
+    ADD_DEFINITIONS("-DHIGH_SPEED_ADC")
+    # Use plain boot loader, we have plenty of flash on the GD32F3
+ELSE()
     SET(EXTENSION             "_STM32F103")
     set(ARDUINO_DEFAULT_BOARD genericSTM32F103C)        # Default Board ID, when not specified
     set(ARDUINO_CPU           STM32F103C8)
+    SET(ARDUINO_UPLOAD_METHOD BMP) # Use blackmagic link, if you comment it out you'll use DFU => 8kB flash
 ENDIF(USE_GD32F103)
 
 IF(NOT DEFINED CONFIGURATION)

@@ -9,7 +9,7 @@
 #include "dso_adc.h"
 #include "dso_adc_priv.h"
 #include "fancyLock.h"
-#include "helpers/helper_pwm.h"
+#include "myPwm.h"
 
 #define GD_OVERSAMPLING_ENABLED 1*1
 #define GD_OVERSAMPLING_OVSR(x) (x<<2)
@@ -30,6 +30,30 @@ bool    DSOADC::setupTimerSampling()
 // 239_5 =>This gives < 30 us sampling period, we are above 40 us  at 1ms/div
   _oldTimerFq=0;
   return true;
+}
+#warning OVERSAMPLING NOT SUPPORTED HERE
+bool    DSOADC::prepareTimerSampling (int timerScale, int timerOvf,bool overSampling,adc_smp_rate adcRate , DSOADC::Prescaler adcScale)
+{   
+    
+    int fq;
+     pwmGetFrequency(  timerScale, timerOvf,fq);
+     if(fq!=_oldTimerFq)
+     {
+        ADC_TIMER.pause();
+       _oldTimerFq=fq;
+       _timerSamplingRate=adcRate;
+       _timerScale=adcScale;
+       
+       
+       _overSampling=false;
+
+       ADC_TIMER.pause();
+       ADC_TIMER.setPrescaleFactor(timerScale);
+       ADC_TIMER.setOverflow(timerOvf);
+       ADC_TIMER.setCompare(ADC_TIMER_CHANNEL,timerOvf/2);
+       timer_cc_enable(ADC_TIMER.c_dev(), ADC_TIMER_CHANNEL);
+     }  
+    return true;    
 }
 
 /**
