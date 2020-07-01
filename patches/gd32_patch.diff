@@ -2754,8 +2754,8 @@ index 0000000..2e01979
 +
 +MEMORY
 +{
-+  ram (rwx) : ORIGIN = 0x20000000, LENGTH = 20K
-+  rom (rx)  : ORIGIN = 0x08000000, LENGTH = 64K
++  ram (rwx) : ORIGIN = 0x20000000, LENGTH = 48K
++  rom (rx)  : ORIGIN = 0x08000000, LENGTH = 256K
 +}
 +
 +/* Provide memory region aliases for common.inc */
