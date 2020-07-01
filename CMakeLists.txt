@@ -12,6 +12,12 @@ IF(NOT EXISTS "${PLATFORM_PATH}/patched")
     file(WRITE "${PLATFORM_PATH}/patched" "patched")
 ENDIF(NOT EXISTS "${PLATFORM_PATH}/patched")
 
+IF(NOT EXISTS "${PLATFORM_PATH}/patched2")
+    MESSAGE(STATUS "Patching file in ${PLATFORM_PATH} to change timer/pin mapping")
+    patch_file_p(2 "${PLATFORM_PATH}" "${CMAKE_SOURCE_DIR}/patches/remap_pin_timer2.diff")
+    file(WRITE "${PLATFORM_PATH}/patched2" "patched")
+ENDIF(NOT EXISTS "${PLATFORM_PATH}/patched2")
+
 cmake_minimum_required(VERSION 3.0)
 
 IF(USE_GD32F103)

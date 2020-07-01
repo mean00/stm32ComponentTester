@@ -1,0 +1,32 @@
+diff --git a/STM32F1/variants/generic_stm32f103c/board.cpp b/STM32F1/variants/generic_stm32f103c/board.cpp
+index 900e118..fe0ca3d 100644
+--- a/STM32F1/variants/generic_stm32f103c/board.cpp
++++ b/STM32F1/variants/generic_stm32f103c/board.cpp
+@@ -61,8 +61,13 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
+     {&gpioa, &timer2, &adc1,  3, 4,    3}, /* PA3 */
+     {&gpioa,   NULL, &adc1,  4, 0,    4}, /* PA4 */
+     {&gpioa,   NULL, &adc1,  5, 0,    5}, /* PA5 */
++#if 0 // FX REMAP TO PB4/PB5
+     {&gpioa, &timer3, &adc1,  6, 1,    6}, /* PA6 */
+     {&gpioa, &timer3, &adc1,  7, 2,    7}, /* PA7 */
++#else
++    {&gpioa, NULL, &adc1,  6, 0,    6}, /* PA6 */
++    {&gpioa, NULL, &adc1,  7, 0,    7}, /* PA7 */
++#endif
+     {&gpioa, &timer1, NULL,  8, 1, ADCx}, /* PA8 */	
+     {&gpioa, &timer1, NULL,  9, 2, ADCx}, /* PA9 */	
+     {&gpioa, &timer1, NULL, 10, 3, ADCx}, /* PA10 */
+@@ -76,8 +81,13 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
+     {&gpiob, &timer3, &adc1,  1, 4,    9}, /* PB1 */
+     {&gpiob,   NULL, NULL,  2, 0, ADCx}, /* PB2 */
+     {&gpiob,   NULL, NULL,  3, 0, ADCx}, /* PB3 */
++#if 0   // FX REMAP TO PB4/PB5 
+     {&gpiob,   NULL, NULL,  4, 0, ADCx}, /* PB4 */
+     {&gpiob,   NULL, NULL,  5, 0, ADCx}, /* PB5 */
++#else
++    {&gpiob,    &timer3, NULL,  4, 1, ADCx}, /* PB4 */
++    {&gpiob,    &timer3, NULL,  5, 2, ADCx}, /* PB5 */
++#endif
+     {&gpiob, &timer4, NULL,  6, 1, ADCx}, /* PB6 */
+     {&gpiob, &timer4, NULL,  7, 2, ADCx}, /* PB7 */	
+     {&gpiob, &timer4, NULL,  8, 3, ADCx}, /* PB8 */	
