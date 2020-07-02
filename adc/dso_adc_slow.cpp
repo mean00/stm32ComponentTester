@@ -18,7 +18,7 @@ uint32_t lastStartedSR;
 //
 
 CaptureState captureState=Capture_idle;
-
+void dumpAdcRegs();
 
 /**
  * 
@@ -28,6 +28,33 @@ void DSOADC::stopTimeCapture(void)
      ADC_TIMER.pause();
      adc_dma_disable(ADC1);
 }
+/**
+ * 
+ * @return 
+ */
+bool DSOADC::startDualTime()
+{
+    
+  dumpAdcRegs(); 
+    
+  cr2=ADC1->regs->CR2;  
+  cr2&= ~(ADC_CR2_SWSTART+ADC_CR2_CONT);   
+  ADC1->regs->CR2=cr2;
+  setSourceInternal();     
+  cr2=  ADC1->regs->CR2;
+  cr2|=ADC_CR2_DMA;   
+  
+  uint32_t   cr2=ADC2->regs->CR2;  
+   cr2 &=~ ADC_CR2_EXTSEL_SWSTART;
+   ADC2->regs->CR2=cr2;
+   cr2 |= ((int)_source) << 17;
+   ADC2->regs->CR2=cr2;         
+
+   dumpAdcRegs(); 
+
+  return true;  
+}
+
 /**
  * 
  * @return 
@@ -109,7 +136,7 @@ void dumpAdcRegs()
  * @param count
  * @return 
  */
-bool DSOADC::startDualTimeSampling (int count)
+bool DSOADC::startDualTimeSampling (const int otherPin,int count)
 {
     
     if(count>ADC_INTERNAL_BUFFER_SIZE)
@@ -121,9 +148,8 @@ bool DSOADC::startDualTimeSampling (int count)
     
     dumpAdcRegs();   
     
-    setupAdcDmaTransfer( requestedSamples,adcInternalBuffer, DMA1_CH1_Event,false );
-  
-    startDMATime();
+    setupAdcDualDmaTransfer( otherPin, requestedSamples,(uint32_t *)adcInternalBuffer, DMA1_CH1_Event,false );
+    startDualTime();
     volatile uint32_t s =ADC1->regs->DR;
     s =ADC2->regs->DR;
 
@@ -149,7 +175,7 @@ bool    DSOADC::prepareDualTimeSampling (int fq,int otherPin, adc_smp_rate rate,
     _dual=DSOADC::ADC_CAPTURE_DUAL_SIMULTANEOUS;
     ADC1->regs->CR1&=~ADC_CR1_DUALMASK;  
     ADC1->regs->CR1|=ADC_CR1_DUAL_REGULAR_SIMULTANEOUS;
-    ADC2->regs->CR1&=~ADC_CR1_DUALMASK;  
+    ADC2->regs->CR1&=~ADC_CR1_DUALMASK;      
     ADC2->regs->CR1|=ADC_CR1_DUAL_REGULAR_SIMULTANEOUS;
     
     dumpAdcRegs();   
@@ -164,15 +190,7 @@ bool    DSOADC::prepareDualTimeSampling (int fq,int otherPin, adc_smp_rate rate,
     adc_set_sample_rate(ADC2, rate); 
     adc_set_sample_rate(ADC1, rate);      
     setTimeScale(rate,scale);        
-    setSourceInternal();
-    
-    uint32_t cr2=ADC2->regs->CR2;  
-    cr2 &=~ ADC_CR2_EXTSEL_SWSTART;
-    ADC2->regs->CR2=cr2;
-    cr2 |= ((int)_source) << 17;
-    ADC2->regs->CR2=cr2;         
-    
-    dumpAdcRegs();   
+     
     
     return true;
 }

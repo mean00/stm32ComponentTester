@@ -24,7 +24,7 @@ Adafruit Libraries released under their specific licenses Copyright (c) 2013 Ada
 uint32_t sqr3=0;
 
 DSOADC::ADC_CAPTURE_MODE           DSOADC::_dual=DSOADC::ADC_CAPTURE_MODE_NORMAL;
-
+extern void dumpAdcRegs();
 
 struct rcc_reg_map_extended {
     __IO uint32 CR;             /**< Clock control register */
@@ -273,6 +273,7 @@ bool DSOADC::getSamples(FullSampleSet &fullSet)
 
 bool DSOADC::getSamples(uint16_t **samples, int  &nbSamples)
 {
+    dumpAdcRegs();
     if(!dmaSemaphore->take(5000)) // dont busy loop
     {                
         return false;   

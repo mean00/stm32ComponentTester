@@ -43,6 +43,40 @@ protected:
 /**
  * 
  */
+void testMonoTime()
+{
+    int resistance;
+    uint16_t *samples;
+    int nbSamples;
+    float period;
+    
+    TesterGfx::clear();
+    TesterGfx::print(5,30,"MonoT");
+    zeroAllPins();
+    
+    // go
+    TestPin::PULL_STRENGTH strength=TestPin::PULL_HI;
+    pin1.setToGround();
+    pin2.pullDown(strength);
+
+    pin2.prepareTimerSample(2000,1024);
+    pin2.pullUp(strength);       
+    resistance=pin2.getCurrentRes()+pin1.getCurrentRes();
+    pin2.finishTimer(nbSamples,&samples);
+    pin2.pullDown(TestPin::PULL_LOW);   
+
+    TesterGfx::drawCurve(nbSamples,samples);
+    float c=Capacitor::computeCapacitance(nbSamples, samples,   resistance,   period);
+    
+    char st[20];
+    Component::prettyPrint(c,"F",st);
+    TesterGfx::print(10,10,st);
+    TesterControl::waitForAnyEvent();
+    while(1)
+    {
+        
+    }
+}
 void testDualTime()
 {
     int resistance;
@@ -150,6 +184,7 @@ void MainTask::run()
     adc->prepareDMASampling(ADC_SMPR_239_5,DSOADC::ADC_PRESCALER_8);    
     adc->stopDmaCapture();
     
+    //testMonoTime();
     //testDualDma();
     testDualTime();
     

@@ -369,7 +369,7 @@ bool    TestPin::prepareDualTimeSample(int fq,TestPin &otherPin,adc_smp_rate rat
     adc->setADCPin(_pin);     
     adc->prepareDualTimeSampling(fq,otherPin._pin,rate,scale);     
     adc->clearSemaphore();
-    adc->startDualTimeSampling(nbSamples);
+    adc->startDualTimeSampling(otherPin._pin,nbSamples);
     return true;    
 }
 /**

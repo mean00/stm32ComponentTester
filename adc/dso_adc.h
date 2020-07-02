@@ -117,6 +117,7 @@ public:
             bool    startDMA();
             bool    startDMATime();
             bool    startDualDMA();
+            bool    startDualTime();
             bool    getSamples(FullSampleSet &fullSet)           ;
             bool    getSamples(uint16_t **samples, int  &nbSamples);
             void    clearSemaphore() ;            
@@ -139,7 +140,7 @@ public:
             bool startDMATriggeredSampling (const int count, int ADCTriggerValue);
             bool commonTrigger (int count,uint32_t triggerValueADC);
             bool startTimerSampling (int count);
-            bool startDualTimeSampling (int count);
+            bool startDualTimeSampling (const int otherPin,int count);
             
             bool startTriggeredTimerSampling (int count,uint32_t triggerADC);
     static  void clearSamples();
