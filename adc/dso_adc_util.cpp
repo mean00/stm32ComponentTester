@@ -49,6 +49,20 @@ struct rcc_reg_map_extended {
     // addition  : APB1 0xe4
 };
 
+void onOff(bool on)
+{
+    if(!on)
+    {
+        ADC1->regs->CR2&=~ADC_CR2_ADON;
+        ADC2->regs->CR2&=~ADC_CR2_ADON;
+    }else
+    {
+        ADC1->regs->CR2|=ADC_CR2_ADON;
+        ADC2->regs->CR2|=ADC_CR2_ADON;
+        
+    }
+}
+
 /**
  * 
  * @return 
@@ -213,6 +227,7 @@ void DSOADC::setupADCs ()
   */
 bool    DSOADC::prepareDMASampling (adc_smp_rate rate,DSOADC::Prescaler scale)
 {    
+    onOff(false);
     _dual=DSOADC::ADC_CAPTURE_MODE_NORMAL;
     ADC1->regs->CR1&=~ADC_CR1_DUALMASK;
     cr2= ADC1->regs->CR2;
@@ -221,6 +236,7 @@ bool    DSOADC::prepareDMASampling (adc_smp_rate rate,DSOADC::Prescaler scale)
     cr2&= ~(ADC_CR2_CONT |ADC_CR2_DMA);
     ADC2->regs->CR2=cr2;
     setTimeScale(rate,scale);
+    onOff(true);
     return true;
 }
 
@@ -232,6 +248,7 @@ bool    DSOADC::prepareDMASampling (adc_smp_rate rate,DSOADC::Prescaler scale)
 bool    DSOADC::prepareFastDualDMASampling (int otherPin, adc_smp_rate rate,DSOADC::Prescaler  scale)
 {  
     _dual=DSOADC::ADC_CAPTURE_FAST_INTERLEAVED;
+    onOff(false);
     ADC1->regs->CR1&=~ADC_CR1_DUALMASK;
     ADC1->regs->CR1|=ADC_CR1_FASTINT; // fast interleaved mode
     ADC2->regs->SQR3 = PIN_MAP[otherPin].adc_channel ;      
@@ -241,11 +258,13 @@ bool    DSOADC::prepareFastDualDMASampling (int otherPin, adc_smp_rate rate,DSOA
     ADC1->regs->CR2 |= ADC_CR2_CONT |ADC_CR2_DMA;
     adc_set_sample_rate(ADC2, rate); 
     setTimeScale(rate,scale);    
+    onOff(true);
     return true;
 }
 bool    DSOADC::prepareSlowDualDMASampling (int otherPin, adc_smp_rate rate,DSOADC::Prescaler  scale)
 {  
     _dual=DSOADC::ADC_CAPTURE_DUAL_SIMULTANEOUS;
+    onOff(false);
     ADC1->regs->CR1&=~ADC_CR1_DUALMASK;
     ADC1->regs->CR1|=ADC_CR1_DUAL_REGULAR_SIMULTANEOUS; // slow interleaved mode
     ADC2->regs->SQR3 = PIN_MAP[otherPin].adc_channel ;      
@@ -254,6 +273,7 @@ bool    DSOADC::prepareSlowDualDMASampling (int otherPin, adc_smp_rate rate,DSOA
     ADC1->regs->CR2 |= ADC_CR2_CONT |ADC_CR2_DMA;
     adc_set_sample_rate(ADC2, rate); 
     setTimeScale(rate,scale);    
+    onOff(true);
     return true;
 }
 

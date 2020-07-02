@@ -93,7 +93,7 @@ void testDualTime()
     // start the DMA
     // max duration ~ 512 us
     DeltaADCTime delta(pin2,pin1);
-    if(!delta.setup(500*1000,1024)) 
+    if(!delta.setup(600*1000,1024)) 
         xAssert(0);
     
     pin2.pullUp(strength);   
@@ -174,16 +174,18 @@ void MainTask::run()
     adc->prepareDMASampling(ADC_SMPR_239_5,DSOADC::ADC_PRESCALER_8);    
     adc->stopDmaCapture();
     
-    TesterGfx::clear();
-    testDualDma();
-    testMonoTime();
-    testDualTime();
-    testDualTime();
+#if 0    
+    TesterGfx::clear();    
+    
+    //testDualDma();
+    //testMonoTime();
+    //testDualTime();
+    //testDualTime();
     while(1)
     {
         
     }
-            
+#endif            
   // 
     if(!NVM::hasCalibration())
         calibration();
