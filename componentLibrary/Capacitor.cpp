@@ -24,7 +24,7 @@ typedef struct CapScale
     float           capMax; // in pF
     adc_smp_rate    rate;
     DSOADC::Prescaler   scale;
-    float           tickUs;
+    float           tick_for_into_at_72M;
     TestPin::PULL_STRENGTH strength;
     bool            doubled;
 
@@ -82,68 +82,26 @@ bool Capacitor::doOne(float target,int dex, float &cap)
     DeltaADC delta(_pA,_pB);
     float period;
     
-    if(!delta.setup(capScales[dex].rate,capScales[dex].scale,512)) return false;
+    if(!delta.setup(capScales[dex].rate,capScales[dex].scale,1024)) return false;
     
     _pA.pullUp(strength);   
+    
     resistance=_pA.getCurrentRes()+_pB.getCurrentRes();
     bool r=delta.get(nbSamples,&samples,period);
     _pA.pullDown(TestPin::PULL_LOW);   
     if(!r) return false;    
     
+#if 1    
+    TesterGfx::drawCurve(nbSamples,samples);
+    TesterControl::waitForAnyEvent();
+#endif    
     
-    int limitA,limitB;
-
     
-    limitA=4095.*0.1;
-    limitB=4095.*target;
-
-   
-  
+    float c=Capacitor::computeCapacitance(nbSamples, samples,   resistance,   period);
+    if(c<=0) return false;
     
-    // We need 2 points...
-    // Lookup up 5% and 1-1/e
-    int pointA=-1,pointB=-1;
-    for(int i=1;i<nbSamples-2;i++)
-    {
-        if(samples[i]>limitA && samples[i]<=samples[i+1] && samples[i+1]<=samples[i+2]) // make sure it is not a glitch
-        {
-            pointA=i;
-            i=4095;
-        }
-    }
-    if(pointA==-1 || pointA >512) 
-        return false;
-    for(int i=pointA+1;i<nbSamples;i++)
-    {
-        if(samples[i]>limitB) // 68%
-        {
-            pointB=i;
-            i=4095;
-        }
-    }
-    if(pointB==-1) pointB=nbSamples-1;
-    
-    if((pointB-pointA)<1) return false; // not enough points, need at least one
-    
-    // Compute
-    float timeElapsed=(pointB-pointA);
-    timeElapsed*=period;
-
-    float valueA=samples[pointA];
-    float valueB=samples[pointB];
-
- 
-    
-    if(fabs(valueA-4095.)<2) return false;
-    if(fabs(valueB-4095.)<2) return false;
-    
-    float den=(4095.-(float)valueA)/(4095.-(float)valueB);
-    
-    if(fabs(den-2.718)<0.01) 
-        return false;
-    den=log(den);
-    cap=timeElapsed/(resistance*den);
-    return true;
+    cap=c;
+    return true;    
 }
 /**
  *  comput the fullness of the DMA buffer for a given sampling freq
@@ -229,16 +187,15 @@ bool Capacitor::computeMediumCap(int dex,int overSampling,float &Cest)
 bool Capacitor::computeLowCap()
 {    
     calibrationValue(capacitance);
+    if(capacitance<(MINIMUM_DETECTED_CAP+_pA._calibration.capOffsetInPf)/pPICO) 
+    {
+   //     return computeVeryLowCap();
+    }
     if(capacitance<300./pPICO)
     {
         capacitance=capacitance-_pA._calibration.capOffsetInPf/pPICO;
     }
-    if(capacitance<MINIMUM_DETECTED_CAP/pPICO) 
-    {
-        return computeVeryLowCap();
-        capacitance=0.;
-        return false;
-    }
+  
     return true;
 }
 
@@ -428,8 +385,8 @@ float Capacitor::computeCapacitance(int nbSamples, uint16_t *samples, int resist
             continue;
         }
     }
-    int mnTarget=mn+(mx-mn)/8;
-    int mxTarget=mx-(mx-mn)/8;
+    int mnTarget=mn+10; 
+    int mxTarget=mx-(mx-mn)/4;
     bool found=false;
     
     for(int i=mnIndex;i<nbSamples && found==false;i++)

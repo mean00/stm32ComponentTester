@@ -36,7 +36,7 @@ bool DeltaADC::get(int &nbSamples, uint16_t **samples, float &period)
     if(_rate==ADC_SMPR_1_5 && _scale== DSOADC::ADC_PRESCALER_6)
     {
         _pA.dualInterleavedDelta(nbSamples,*samples); // skip first samples
-        period=0.5/1000000.; // 0.5 us
+        period=(7.*6.)/(float)F_CPU; // prescaler 6, 7 cycles per sample
         return true;
     }
     _pA.dualSimulatenousDelta(nbSamples,*samples);
@@ -67,8 +67,7 @@ bool DeltaADC::get(int &nbSamples, uint16_t **samples, float &period)
             xAssert(0);
             break;
     }
-    period=period/(r+12.5);
- 
+    period=period/(r+12.5); 
     period=1/period;
     return true;
 }
