@@ -2,7 +2,7 @@
 #include "fancyLock.h"
 #include "testPins.h"
 #include "deltaADC.h"
-
+#include "myPwm.h"
 /**
  * 
  * @param rate
@@ -104,15 +104,17 @@ bool DeltaADCTime::setup(int frequency,const  int nbSamples)
 #include "testerGfx.h"
 bool DeltaADCTime::get(int &nbSamples, uint16_t **ptr, float &period)
 {
-  if(!_pA.finishDmaSample(nbSamples,ptr)) 
+    int timerScaler;
+    int timerOvf;
+    pwmGetScaleOverFlow(_fq,timerScaler, timerOvf);    
+    if(!_pA.finishDmaSample(nbSamples,ptr)) 
     {
             return false;
     }  
-  TesterGfx::drawCurve(nbSamples,*ptr);
-  while(1)
-  {
-      
-  }
+    nbSamples/=2; // we deal with pairs
+    _pA.dualSimulatenousDelta(nbSamples,*ptr);
+    period=1./_fq;
+    return true;
 }
 // EOF
     

@@ -43,9 +43,10 @@ bool DSOADC::startDualTime()
   setSourceInternal();     
   cr2=  ADC1->regs->CR2;
   cr2|=ADC_CR2_DMA;   
+  ADC1->regs->CR2=cr2;
   
   uint32_t   cr2=ADC2->regs->CR2;  
-   cr2 &=~ ADC_CR2_EXTSEL_SWSTART;
+   cr2 &=~ (ADC_CR2_EXTSEL_SWSTART+ADC_CR2_CONT);
    ADC2->regs->CR2=cr2;
    cr2 |= ((int)_source) << 17;
    ADC2->regs->CR2=cr2;         
@@ -147,11 +148,12 @@ bool DSOADC::startDualTimeSampling (const int otherPin,int count)
     captureState=Capture_armed;   
     
     dumpAdcRegs();   
+
+    volatile uint32_t s =ADC1->regs->DR;
+    s =ADC2->regs->DR;
     
     setupAdcDualDmaTransfer( otherPin, requestedSamples,(uint32_t *)adcInternalBuffer, DMA1_CH1_Event,false );
     startDualTime();
-    volatile uint32_t s =ADC1->regs->DR;
-    s =ADC2->regs->DR;
 
     dumpAdcRegs();   
     
@@ -176,7 +178,7 @@ bool    DSOADC::prepareDualTimeSampling (int fq,int otherPin, adc_smp_rate rate,
     ADC1->regs->CR1&=~ADC_CR1_DUALMASK;  
     ADC1->regs->CR1|=ADC_CR1_DUAL_REGULAR_SIMULTANEOUS;
     ADC2->regs->CR1&=~ADC_CR1_DUALMASK;      
-    ADC2->regs->CR1|=ADC_CR1_DUAL_REGULAR_SIMULTANEOUS;
+    // not needed ADC2->regs->CR1|=ADC_CR1_DUAL_REGULAR_SIMULTANEOUS;
     
     dumpAdcRegs();   
     
@@ -188,11 +190,9 @@ bool    DSOADC::prepareDualTimeSampling (int fq,int otherPin, adc_smp_rate rate,
     dumpAdcRegs();   
     
     adc_set_sample_rate(ADC2, rate); 
-    adc_set_sample_rate(ADC1, rate);      
-    setTimeScale(rate,scale);        
-     
-    
-    return true;
+
+    // now set frequency
+    return prepareTimerSampling(fq,false,rate,scale);
 }
 
 // EOF

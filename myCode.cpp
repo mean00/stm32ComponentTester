@@ -50,7 +50,7 @@ void testMonoTime()
     int nbSamples;
     float period;
     
-    TesterGfx::clear();
+    
     TesterGfx::print(5,30,"MonoT");
     zeroAllPins();
     
@@ -65,17 +65,14 @@ void testMonoTime()
     pin2.finishTimer(nbSamples,&samples);
     pin2.pullDown(TestPin::PULL_LOW);   
 
+    TesterGfx::clear();
     TesterGfx::drawCurve(nbSamples,samples);
     float c=Capacitor::computeCapacitance(nbSamples, samples,   resistance,   period);
     
     char st[20];
     Component::prettyPrint(c,"F",st);
     TesterGfx::print(10,10,st);
-    TesterControl::waitForAnyEvent();
-    while(1)
-    {
-        
-    }
+   
 }
 void testDualTime()
 {
@@ -84,7 +81,7 @@ void testDualTime()
     int nbSamples;
     float period;
     
-    TesterGfx::clear();
+    
     TesterGfx::print(5,30,"DualTime");
     zeroAllPins();
     
@@ -107,17 +104,14 @@ void testDualTime()
     if(!r) 
         xAssert(0);
     
+    TesterGfx::clear();
     TesterGfx::drawCurve(nbSamples,samples);
     float c=Capacitor::computeCapacitance(nbSamples, samples,   resistance,   period);
     
     char st[20];
     Component::prettyPrint(c,"F",st);
     TesterGfx::print(10,10,st);
-    TesterControl::waitForAnyEvent();
-    while(1)
-    {
-        
-    }
+    
 }
 void testDualDma()
 {
@@ -150,11 +144,7 @@ void testDualDma()
     char st[20];
     Component::prettyPrint(c,"F",st);
     TesterGfx::print(10,10,st);
-    TesterControl::waitForAnyEvent();
-    while(1)
-    {
-        
-    }
+   
 }
         
 
@@ -184,10 +174,16 @@ void MainTask::run()
     adc->prepareDMASampling(ADC_SMPR_239_5,DSOADC::ADC_PRESCALER_8);    
     adc->stopDmaCapture();
     
-    //testMonoTime();
-    //testDualDma();
+    TesterGfx::clear();
+    testDualDma();
+    testMonoTime();
     testDualTime();
-    
+    testDualTime();
+    while(1)
+    {
+        
+    }
+            
   // 
     if(!NVM::hasCalibration())
         calibration();

@@ -63,7 +63,7 @@ bool    DSOADC::prepareTimerSampling (int timerScale, int timerOvf,bool overSamp
  * @return 
  */
 bool    DSOADC::prepareDualTimerSampling (int timerScale, int timerOvf,bool overSampling,adc_smp_rate adcRate , DSOADC::Prescaler adcScale)
-{   
+{       
    return   prepareTimerSampling(timerScale,timerOvf,overSampling,adcRate,adcScale);
 }
 
