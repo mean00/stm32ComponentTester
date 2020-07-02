@@ -32,13 +32,7 @@ bool DeltaADC::get(int &nbSamples, uint16_t **samples, float &period)
     nbSamples/=2; // we deal with pairs from here on
     _pA.disconnect();
     _pB.disconnect();
-    // convert to delta
-    if(_rate==ADC_SMPR_1_5 && _scale== DSOADC::ADC_PRESCALER_6)
-    {
-        _pA.dualInterleavedDelta(nbSamples,*samples); // skip first samples
-        period=(7.*6.)/(float)F_CPU; // prescaler 6, 7 cycles per sample
-        return true;
-    }
+    
     _pA.dualSimulatenousDelta(nbSamples,*samples);
     switch(_scale)
     {
@@ -71,3 +65,54 @@ bool DeltaADC::get(int &nbSamples, uint16_t **samples, float &period)
     period=1/period;
     return true;
 }
+/**
+ * 
+ * @param A
+ * @param B
+ */
+ DeltaADCTime::DeltaADCTime(TestPin &A, TestPin &B)  :DeltaADC(A,B)
+{
+      
+}
+/**
+ * 
+ */
+DeltaADCTime::~DeltaADCTime()
+{
+
+}
+/**
+ * 
+ * @param frequency
+ * @param nbSamples
+ * @return 
+ */
+bool DeltaADCTime::setup(int frequency,const  int nbSamples)
+{
+    _fq=frequency;
+    return _pA.prepareDualTimeSample(_fq,_pB,ADC_SMPR_1_5,DSOADC::ADC_PRESCALER_6,nbSamples);
+    
+}
+
+/**
+ * 
+ * @param nbSamples
+ * @param ptr
+ * @param period
+ * @return 
+ */
+#include "testerGfx.h"
+bool DeltaADCTime::get(int &nbSamples, uint16_t **ptr, float &period)
+{
+  if(!_pA.finishDmaSample(nbSamples,ptr)) 
+    {
+            return false;
+    }  
+  TesterGfx::drawCurve(nbSamples,*ptr);
+  while(1)
+  {
+      
+  }
+}
+// EOF
+    

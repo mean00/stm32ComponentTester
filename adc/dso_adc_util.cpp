@@ -245,9 +245,9 @@ bool    DSOADC::prepareFastDualDMASampling (int otherPin, adc_smp_rate rate,DSOA
 }
 bool    DSOADC::prepareSlowDualDMASampling (int otherPin, adc_smp_rate rate,DSOADC::Prescaler  scale)
 {  
-    _dual=DSOADC::ADC_CAPTURE_SLOW_INTERLEAVED;
+    _dual=DSOADC::ADC_CAPTURE_DUAL_SIMULTANEOUS;
     ADC1->regs->CR1&=~ADC_CR1_DUALMASK;
-    ADC1->regs->CR1|=ADC_CR1_SLOWINT; // slow interleaved mode
+    ADC1->regs->CR1|=ADC_CR1_DUAL_REGULAR_SIMULTANEOUS; // slow interleaved mode
     ADC2->regs->SQR3 = PIN_MAP[otherPin].adc_channel ;      
     sqr3=ADC2->regs->SQR3;
     ADC2->regs->CR2 |= ADC_CR2_CONT;
@@ -256,7 +256,6 @@ bool    DSOADC::prepareSlowDualDMASampling (int otherPin, adc_smp_rate rate,DSOA
     setTimeScale(rate,scale);    
     return true;
 }
-
 
 /**
  * 

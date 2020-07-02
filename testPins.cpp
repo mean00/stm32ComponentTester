@@ -350,10 +350,26 @@ bool    TestPin::finishTimer(int &nbSamples, uint16_t **xsamples)
  */
 bool    TestPin::prepareDualDmaSample(TestPin &otherPin,adc_smp_rate rate,   DSOADC::Prescaler scale ,int nbSamples)
 {    
+    adc->setupDmaSampling();
     adc->setADCPin(_pin); 
-    adc->prepareFastDualDMASampling(otherPin._pin,rate,scale);     
+    adc->prepareSlowDualDMASampling(otherPin._pin,rate,scale);     
     adc->clearSemaphore();
     adc->startDualDMASampling(otherPin._pin,nbSamples);
+    return true;    
+}
+
+/**
+ * 
+ * @param nbSamples
+ * @return 
+ */
+bool    TestPin::prepareDualTimeSample(int fq,TestPin &otherPin,adc_smp_rate rate,   DSOADC::Prescaler scale ,int nbSamples)
+{   
+    adc->setupDualTimerSampling();
+    adc->setADCPin(_pin);     
+    adc->prepareDualTimeSampling(fq,otherPin._pin,rate,scale);     
+    adc->clearSemaphore();
+    adc->startDualTimeSampling(nbSamples);
     return true;    
 }
 /**

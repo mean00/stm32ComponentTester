@@ -10,8 +10,9 @@ public:
     {
       
     }
+    virtual ~DeltaADC() {};
     bool setup(const adc_smp_rate rate, const   DSOADC::Prescaler  scale,const  int nbSamples);
-    bool get(int &nbSamples, uint16_t **ptr, float &period);
+    virtual bool get(int &nbSamples, uint16_t **ptr, float &period);
     
 protected:
   TestPin            &_pA,&_pB;
@@ -19,4 +20,19 @@ protected:
   DSOADC::Prescaler  _scale;
   int                _nb;
   
+};
+/**
+ * 
+ * @param A
+ * @param B
+ */
+class DeltaADCTime : public DeltaADC
+{
+public:  
+                DeltaADCTime(TestPin &A, TestPin &B);
+    virtual     ~DeltaADCTime();
+    bool        setup(int frequency,const  int nbSamples);
+    virtual bool get(int &nbSamples, uint16_t **ptr, float &period);    
+protected:  
+  int                _fq;
 };

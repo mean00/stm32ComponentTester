@@ -46,9 +46,85 @@ public:
     void    run(void);
 protected:
 };
+/**
+ * 
+ */
+void testDualTime()
+{
+     int resistance;
+    zeroAllPins();
+    // go
+    TestPin::PULL_STRENGTH strength=TestPin::PULL_HI;
+    pin1.setToGround();
+    pin2.pullDown(strength);
 
+    // start the DMA
+    // max duration ~ 512 us
+    uint16_t *samples;
+    int nbSamples;
+    DeltaADCTime delta(pin2,pin1);
+    float period;
+    
+    if(!delta.setup(500*1000,1024)) xAssert(0);
+    
+    pin2.pullUp(strength);   
+    
+    resistance=pin2.getCurrentRes()+pin1.getCurrentRes();
+    bool r=delta.get(nbSamples,&samples,period);
+    pin2.pullDown(TestPin::PULL_LOW);   
+    if(!r) 
+        xAssert(0);
+    
+#if 1    
+    TesterGfx::drawCurve(nbSamples,samples);
+    TesterControl::waitForAnyEvent();
+#endif    
+    
+    
+    float c=Capacitor::computeCapacitance(nbSamples, samples,   resistance,   period);
+    while(1)
+    {
+        
+    }
+}
+void testDualDma()
+{
+     int resistance;
+    zeroAllPins();
+    // go
+    TestPin::PULL_STRENGTH strength=TestPin::PULL_HI;
+    pin1.setToGround();
+    pin2.pullDown(strength);
 
-
+    // start the DMA
+    // max duration ~ 512 us
+    uint16_t *samples;
+    int nbSamples;
+    DeltaADC delta(pin2,pin1);
+    float period;
+    
+    if(!delta.setup(ADC_SMPR_1_5,DSOADC::ADC_PRESCALER_8,1024)) xAssert(0);
+    
+    pin2.pullUp(strength);   
+    
+    resistance=pin2.getCurrentRes()+pin1.getCurrentRes();
+    bool r=delta.get(nbSamples,&samples,period);
+    pin2.pullDown(TestPin::PULL_LOW);   
+    if(!r) 
+        xAssert(0);
+    
+    TesterGfx::drawCurve(nbSamples,samples);
+    float c=Capacitor::computeCapacitance(nbSamples, samples,   resistance,   period);
+    
+    char st[20];
+    Component::prettyPrint(c,"F",st);
+    TesterGfx::print(10,10,st);
+    TesterControl::waitForAnyEvent();
+    while(1)
+    {
+        
+    }
+}
 void dummyTask(void *b)
 {
     while(1)
@@ -125,6 +201,10 @@ void MainTask::run()
     adc->prepareDMASampling(ADC_SMPR_239_5,DSOADC::ADC_PRESCALER_8);    
     adc->stopDmaCapture();
 
+    
+    testDualDma();
+    //testDualTime();
+    
 #if 0
  probeCap(pin2,pin1);
 #endif

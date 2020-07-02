@@ -168,11 +168,7 @@ bool DSOADC::startDualDMASampling (const int otherPin, const int count)
   enableDisableIrqSource(false,ADC_AWD);
   enableDisableIrq(true);
   setupAdcDualDmaTransfer( otherPin, requestedSamples,(uint32_t *)adcInternalBuffer, DMA1_CH1_Event,false );
-#if 1
   startDualDMA();
-#else
-  ADC1->regs->CR2 |= ADC_CR2_SWSTART;   
-#endif
   return true;
 }
 

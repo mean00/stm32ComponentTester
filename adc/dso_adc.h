@@ -69,8 +69,8 @@ public:
   enum ADC_CAPTURE_MODE
   {
       ADC_CAPTURE_MODE_NORMAL=0,
-      ADC_CAPTURE_FAST_INTERLEAVED=1,
-      ADC_CAPTURE_SLOW_INTERLEAVED=2
+      ADC_CAPTURE_FAST_INTERLEAVED=1,      
+      ADC_CAPTURE_DUAL_SIMULTANEOUS=3
   };
   enum ADC_TRIGGER_SOURCE
   {
@@ -108,9 +108,11 @@ public:
             bool    prepareDMASampling (adc_smp_rate rate,DSOADC::Prescaler scale);
             bool    prepareFastDualDMASampling (int otherPin, adc_smp_rate rate,DSOADC::Prescaler  scale);
             bool    prepareSlowDualDMASampling (int otherPin, adc_smp_rate rate,DSOADC::Prescaler  scale);
+            bool    prepareDualTimeSampling (int fq,int otherPin, adc_smp_rate rate,DSOADC::Prescaler  scale);
             bool    startDualDMASampling (const int otherPin, const int count);
             bool    prepareTimerSampling (int fq,bool overSampling,adc_smp_rate rate,DSOADC::Prescaler  scale );
             bool    prepareTimerSampling (int timerScale, int ovf,bool overSampling,adc_smp_rate rate , DSOADC::Prescaler scale)  ;          
+            bool    prepareDualTimerSampling(int timerScale, int timerOvf,bool overSampling,adc_smp_rate adcRate , DSOADC::Prescaler adcScale);
             int     pollingRead();
             bool    startDMA();
             bool    startDMATime();
@@ -137,6 +139,8 @@ public:
             bool startDMATriggeredSampling (const int count, int ADCTriggerValue);
             bool commonTrigger (int count,uint32_t triggerValueADC);
             bool startTimerSampling (int count);
+            bool startDualTimeSampling (int count);
+            
             bool startTriggeredTimerSampling (int count,uint32_t triggerADC);
     static  void clearSamples();
     static  void adc_dma_disable(const adc_dev * dev) ;            
@@ -173,6 +177,7 @@ public:
     static  void getRegisters();
             void resetStats();
             bool setupTimerSampling(); // this is to be called once when switching from DMA to timer
+            bool setupDualTimerSampling();
             bool setupDmaSampling();   // same when switching back
 protected:
             int             _pin;

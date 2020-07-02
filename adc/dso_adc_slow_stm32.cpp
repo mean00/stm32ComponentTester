@@ -23,7 +23,20 @@ bool    DSOADC::setupTimerSampling()
   _oldTimerFq=0;
   return true;
 }
-
+bool DSOADC::setupDualTimerSampling()
+{
+   ADC_TIMER.pause();
+   setSource(ADC_SOURCE_TIMER);    
+   _oldTimerFq=0;
+  // Set the same source for ADC2
+   uint32_t cr2=ADC2->regs->CR2;  
+   cr2 &=~ ADC_CR2_EXTSEL_SWSTART;
+   ADC2->regs->CR2=cr2;
+   cr2 |= ((int)_source) << 17;
+   ADC2->regs->CR2=cr2;         
+   cr2=ADC2->regs->CR2;   
+   return true;
+}
 bool    DSOADC::prepareTimerSampling (int timerScale, int timerOvf,bool overSampling,adc_smp_rate adcRate , DSOADC::Prescaler adcScale)
 {   
     
@@ -47,6 +60,20 @@ bool    DSOADC::prepareTimerSampling (int timerScale, int timerOvf,bool overSamp
      }  
     return true;    
 }
+/**
+ * 
+ * @param timerScale
+ * @param timerOvf
+ * @param overSampling
+ * @param adcRate
+ * @param adcScale
+ * @return 
+ */
+bool    DSOADC::prepareDualTimerSampling (int timerScale, int timerOvf,bool overSampling,adc_smp_rate adcRate , DSOADC::Prescaler adcScale)
+{   
+   return   prepareTimerSampling(timerScale,timerOvf,overSampling,adcRate,adcScale);
+}
+
 /**
  * 
  * @param fq
