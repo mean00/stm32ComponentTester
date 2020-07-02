@@ -25,9 +25,12 @@ IF(USE_GD32F103)
 ENDIF(USE_GD32F103)
 include(./platformConfig.cmake)
 
+IF(USE_GD32F103 OR USE_GD32F303)
+    SET(MCU_SPEED             96000000)  
+ENDIF()
+
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 SET(CMAKE_TOOLCHAIN_FILE cmake/ArduinoToolchain.cmake)
-
 Project("componentTester" C CXX ASM)
 
 # Board setup
@@ -53,7 +56,6 @@ ENDIF(USE_GD32F103)
 IF(NOT DEFINED CONFIGURATION)
     SET(CONFIGURATION default)
 ENDIF(NOT DEFINED CONFIGURATION)
-
 
 
 MESSAGE(STATUS "Starting Component Tester")

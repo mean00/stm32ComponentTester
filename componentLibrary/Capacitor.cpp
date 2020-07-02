@@ -287,9 +287,15 @@ bool Capacitor::computeVeryLowCap()
     float period=F_CPU;
     period=(float)(samplingTime)/period;
     float c=computeCapacitance(  nbSamples,  samples, resistance,period);
-    if(c>(float)p1->_calibration.capOffsetHighInPf/pPICO)
-        c-=(float)p1->_calibration.capOffsetHighInPf/pPICO;
-    
+    float mn=(float)p1->_calibration.capOffsetHighInPfMu16;
+    mn/=(pPICO*16);
+    if(c>mn)
+        c-=mn;
+    else
+    {
+        capacitance=0;
+        return false;
+    }
     capacitance=c;
     return true;
 }

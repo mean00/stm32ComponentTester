@@ -67,9 +67,9 @@ void calibration()
     pin1.setToGround();
     pin3.setToGround();
     // Only pin2 is able to do stroboscopic
-    calibration1.capOffsetHighInPf=INTERNAL_CAPACITANCE_IN_PF_HIGH;
-    calibration2.capOffsetHighInPf=INTERNAL_CAPACITANCE_IN_PF_HIGH;
-    calibration3.capOffsetHighInPf=INTERNAL_CAPACITANCE_IN_PF_HIGH;
+    calibration1.capOffsetHighInPfMu16=INTERNAL_CAPACITANCE_IN_PF_HIGH*16;
+    calibration2.capOffsetHighInPfMu16=INTERNAL_CAPACITANCE_IN_PF_HIGH*16;
+    calibration3.capOffsetHighInPfMu16=INTERNAL_CAPACITANCE_IN_PF_HIGH*16;
     int fq=2000; // 2Khz
     int resistance;
     int samplingTime;
@@ -95,11 +95,11 @@ void calibration()
         }
         
         c=c/(float)AVG;
-        calibration2.capOffsetHighInPf=(uint16_t)(c*pPICO);;
+        calibration2.capOffsetHighInPfMu16=(uint16_t)(c*pPICO*16);;
     }
     TesterGfx::clear();
     char str[50];
-    sprintf(str,"C=%d pF",calibration2.capOffsetHighInPf);
+    sprintf(str,"C=%d pF",calibration2.capOffsetHighInPfMu16);
     TesterGfx::print(5,INTER*1,str);
     sprintf(str,"C=%f pF",c);
     TesterGfx::print(2,INTER*3,str);

@@ -4,7 +4,7 @@ public:
         uint16_t  resDown;
         uint16_t  resUp;
         uint16_t  capOffsetInPf; // when using fast ADC
-        uint16_t  capOffsetHighInPf; // when using slow adc
+        uint16_t  capOffsetHighInPfMu16; // when using slow adc
         uint16_t  inductanceInUF;
         TestPinCalibration()
         {
@@ -12,7 +12,7 @@ public:
           resUp=0;
           capOffsetInPf=0;
           inductanceInUF=0;
-          capOffsetHighInPf=0;
+          capOffsetHighInPfMu16=0;
         }
 };
 

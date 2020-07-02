@@ -4,7 +4,7 @@
 #include "nvm_default.h"
 #include "cpuID.h"
 
-#define HASH 0x456B
+#define HASH 0x456C
 
 
 /**
@@ -49,7 +49,7 @@ bool    NVM::loadTestPin(int pin, TestPinCalibration &calibration)
         calibration.resUp             =WIRE_RESISTANCE_AND_INTERNAL;
         calibration.resDown           =WIRE_RESISTANCE_AND_INTERNAL;
         calibration.capOffsetInPf     =INTERNAL_CAPACITANCE_IN_PF;
-        calibration.capOffsetHighInPf =INTERNAL_CAPACITANCE_IN_PF_HIGH;        
+        calibration.capOffsetHighInPfMu16 =INTERNAL_CAPACITANCE_IN_PF_HIGH*16;        
         calibration.inductanceInUF    =INTERNAL_INDUCTANCE_IN_UF;
         return true; // default value
     }
@@ -57,7 +57,7 @@ bool    NVM::loadTestPin(int pin, TestPinCalibration &calibration)
     calibration.resDown=        eep.read(10*pin+1+1);;
     calibration.capOffsetInPf=  eep.read(10*pin+1+2)+1;; // there is a ~ 3/4 pf Error
     calibration.inductanceInUF= eep.read(10*pin+1+3);;
-    calibration.capOffsetHighInPf= eep.read(10*pin+1+4);;    
+    calibration.capOffsetHighInPfMu16= eep.read(10*pin+1+4);;    
     return true;
 }
 /**
@@ -73,7 +73,7 @@ bool    NVM::saveTestPin(int pin, const TestPinCalibration &calibration)
       eep.write(10*pin+1+1, calibration.resDown);;
       eep.write(10*pin+1+2,calibration.capOffsetInPf);;
       eep.write(10*pin+1+3,calibration.inductanceInUF);;
-      eep.write(10*pin+1+4,calibration.capOffsetHighInPf);;
+      eep.write(10*pin+1+4,calibration.capOffsetHighInPfMu16);;
       return true;
 }
 

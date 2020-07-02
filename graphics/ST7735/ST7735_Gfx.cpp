@@ -93,6 +93,13 @@ void TesterGfx::splash()
     instance->setCursor(0,LINE(4)-4);        
     instance->print( TESTER_CONFIGURATION );
     
+    instance->setCursor(64,LINE(4)-4);        
+    int fq=F_CPU/1000000;
+    char st[10];
+    sprintf(st,"%2d M",fq);
+    instance->print(st);
+    
+    
     instance->setCursor(0,LINE(4)+12);
     instance->print(cpuID::getIdAsString());
     instance->setFontSize(Adafruit_ST7735Ex::MediumFont);    
