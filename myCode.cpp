@@ -75,13 +75,13 @@ void testDualTime()
     if(!r) 
         xAssert(0);
     
-#if 1    
     TesterGfx::drawCurve(nbSamples,samples);
-    TesterControl::waitForAnyEvent();
-#endif    
-    
-    
     float c=Capacitor::computeCapacitance(nbSamples, samples,   resistance,   period);
+    
+    char st[20];
+    Component::prettyPrint(c,"F",st);
+    TesterGfx::print(10,10,st);
+    TesterControl::waitForAnyEvent();
     while(1)
     {
         
@@ -103,7 +103,7 @@ void testDualDma()
     DeltaADC delta(pin2,pin1);
     float period;
     
-    if(!delta.setup(ADC_SMPR_1_5,DSOADC::ADC_PRESCALER_8,1024)) xAssert(0);
+    if(!delta.setup(ADC_SMPR_1_5,DSOADC::ADC_PRESCALER_4,1024)) xAssert(0);
     
     pin2.pullUp(strength);   
     

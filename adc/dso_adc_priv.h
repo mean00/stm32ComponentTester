@@ -21,7 +21,7 @@
 #endif ADC_CR1_FASTINT
 
 #ifndef ADC_CR1_SLOWINT
-   // #define ADC_CR1_SLOWINT (8<<16)
+    #define ADC_CR1_SLOWINT (8<<16)
 #endif ADC_CR1_FASTINT
 
 

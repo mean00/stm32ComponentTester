@@ -1,3 +1,10 @@
+/**
+    DeltaADC     is using both ADC simultaneously to capture the voltage across a dipole
+    DeltaADCTime is the same thing but using a timer as a source of ADC conversion
+ 
+ 
+ */
+
 #pragma once
 #include "testPins.h"
 
