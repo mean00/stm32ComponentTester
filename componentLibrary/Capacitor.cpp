@@ -91,7 +91,7 @@ bool Capacitor::doOne(float target,int dex, float &cap)
     _pA.pullDown(TestPin::PULL_LOW);   
     if(!r) return false;    
     
-#if 1    
+#if 0    
     TesterGfx::drawCurve(nbSamples,samples);
     TesterControl::waitForAnyEvent();
 #endif    

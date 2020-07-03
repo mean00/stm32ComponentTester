@@ -152,7 +152,7 @@ public:
             bool fastSampleUp(int threshold1,int threshold2,int &value1,int &value2, int &timeUs1,int &timeUs2)  ;
             
 protected:            
-            bool setSourceInternal();
+            bool setSourceInternal(adc_dev *dev=ADC1);
     static  void DMA1_CH1_Event();
     static  void DMA1_CH1_TriggerEvent() ;
             void captureComplete(SampleSet &one, SampleSet &two);
@@ -161,10 +161,11 @@ protected:
             bool startInternalDmaSampling ();
             
             bool validateAverageSample(uint32_t &avg);    
+            bool programTimer(int overFlow, int scaler);
 public:        
     static void setupAdcDmaTransfer(   int count,uint16_t *buffer, void (*handler)(void),bool circular );
     static void nextAdcDmaTransfer( int count,uint16_t *buffer);
-
+    static void allAdcsOnOff(bool onOff);
     static void enableDisableIrqSource(bool onoff, int interruptMask);
     static void enableDisableIrq(bool onoff);
     static void defaultAdcIrqHandler();

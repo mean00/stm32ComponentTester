@@ -27,6 +27,8 @@ void DSOADC::stopTimeCapture(void)
 {
      ADC_TIMER.pause();
      adc_dma_disable(ADC1);
+     allAdcsOnOff(false);
+     timer_cc_disable(ADC_TIMER.c_dev(), ADC_TIMER_CHANNEL);
 }
 /**
  * 
@@ -38,21 +40,18 @@ bool DSOADC::startDualTime()
   dumpAdcRegs(); 
     
   cr2=ADC1->regs->CR2;  
+  cr2|=ADC_CR2_DMA;
   cr2&= ~(ADC_CR2_SWSTART+ADC_CR2_CONT);   
   ADC1->regs->CR2=cr2;
-  setSourceInternal();     
-  cr2=  ADC1->regs->CR2;
-  cr2|=ADC_CR2_DMA;   
-  ADC1->regs->CR2=cr2;
+  setSourceInternal();   
   
   uint32_t   cr2=ADC2->regs->CR2;  
-   cr2 &=~ (ADC_CR2_EXTSEL_SWSTART+ADC_CR2_CONT);
-   ADC2->regs->CR2=cr2;
-   cr2 |= ((int)_source) << 17;
-   ADC2->regs->CR2=cr2;         
-
-   dumpAdcRegs(); 
-
+  cr2 &=~ (ADC_CR2_EXTSEL_SWSTART+ADC_CR2_CONT);
+  ADC2->regs->CR2=cr2;
+  
+  setSourceInternal(ADC2)  ;
+    
+  dumpAdcRegs(); 
   return true;  
 }
 
@@ -62,17 +61,12 @@ bool DSOADC::startDualTime()
  */
 bool DSOADC::startDMATime()
 {    
-#define USE_CONT 0
   cr2=ADC1->regs->CR2;  
   cr2&= ~(ADC_CR2_SWSTART+ADC_CR2_CONT);   
   ADC1->regs->CR2=cr2;
   setSourceInternal();   
-  cr2|=ADC_CR2_CONT*USE_CONT+ADC_CR2_DMA;    
+  cr2|=ADC_CR2_DMA;    
   ADC1->regs->CR2=cr2;    
-#if 0  
-  cr2|= ADC_CR2_SWSTART;   
-  ADC1->regs->CR2=cr2;    
-#endif  
   return true;  
 }
 /**
@@ -83,15 +77,15 @@ bool DSOADC::startDMATime()
  */
 bool DSOADC::startInternalDmaSampling ()
 {
-  //  slow is always single channel
-  ADC1->regs->CR1&=~ADC_CR1_DUALMASK;
   setupAdcDmaTransfer( requestedSamples,adcInternalBuffer, DMA1_CH1_Event,false );
   
   startDMATime();
   volatile uint32_t s =ADC1->regs->DR;
-  s =ADC2->regs->DR;
-  ADC_TIMER.resume();  
+  s =ADC2->regs->DR;  
   lastStartedCR2=ADC1->regs->CR2;
+  dumpAdcRegs();  
+  ADC_TIMER.setCount(0);
+  ADC_TIMER.resume();  
   return true;
 }
 
@@ -109,8 +103,9 @@ bool DSOADC::startTimerSampling (int count)
     requestedSamples=count;
 
     FancyInterrupts::disable();    
-    captureState=Capture_armed;   
-    startInternalDmaSampling();           
+    captureState=Capture_armed;       
+    startInternalDmaSampling();   
+    allAdcsOnOff(true);
     FancyInterrupts::enable();
     return true;
 } 
@@ -157,6 +152,7 @@ bool DSOADC::startDualTimeSampling (const int otherPin,int count)
 
     dumpAdcRegs();   
     
+    ADC_TIMER.setCount(0); 
     ADC_TIMER.resume();  
     lastStartedCR2=ADC1->regs->CR2;
     FancyInterrupts::enable();
@@ -202,5 +198,19 @@ bool DSOADC::setupDualTimerSampling()
    _oldTimerFq=0;  
    return true;
 }
+/**
+ * 
+ * @param overFlow
+ * @param scaler
+ * @return 
+ */
+bool DSOADC::programTimer(int overFlow, int scaler)
+{
+    ADC_TIMER.setPrescaleFactor(scaler);
+    ADC_TIMER.setOverflow(overFlow);
+    ADC_TIMER.setCompare(ADC_TIMER_CHANNEL,overFlow-1);
+    timer_cc_enable(ADC_TIMER.c_dev(), ADC_TIMER_CHANNEL);
+}
+
 // EOF
 

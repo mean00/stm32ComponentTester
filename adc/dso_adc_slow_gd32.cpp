@@ -34,24 +34,18 @@ bool    DSOADC::setupTimerSampling()
 #warning OVERSAMPLING NOT SUPPORTED HERE
 bool    DSOADC::prepareTimerSampling (int timerScale, int timerOvf,bool overSampling,adc_smp_rate adcRate , DSOADC::Prescaler adcScale)
 {   
-    
+    ADC_TIMER.pause();
     int fq;
      pwmGetFrequency(  timerScale, timerOvf,fq);
      if(fq!=_oldTimerFq)
      {
-        ADC_TIMER.pause();
+        
        _oldTimerFq=fq;
        _timerSamplingRate=adcRate;
        _timerScale=adcScale;
-       
-       
        _overSampling=false;
-
-       ADC_TIMER.pause();
-       ADC_TIMER.setPrescaleFactor(timerScale);
-       ADC_TIMER.setOverflow(timerOvf);
-       ADC_TIMER.setCompare(ADC_TIMER_CHANNEL,timerOvf/2);
-       timer_cc_enable(ADC_TIMER.c_dev(), ADC_TIMER_CHANNEL);
+       
+       programTimer(  timerOvf,   timerScale);
      }  
     return true;    
 }
@@ -84,12 +78,7 @@ bool    DSOADC::prepareTimerSampling (int fq,bool overSampling,adc_smp_rate rate
     int high=F_CPU/scaler;
     int overFlow=(high+fq/2)/fq;
 
-    ADC_TIMER.pause();
-    ADC_TIMER.setPrescaleFactor(scaler);
-    ADC_TIMER.setOverflow(overFlow);
-    ADC_TIMER.setCompare(ADC_TIMER_CHANNEL,overFlow-1);
-    timer_cc_enable(ADC_TIMER.c_dev(), ADC_TIMER_CHANNEL);
-        
+    programTimer(  overFlow,   scaler);
   }
   return true;    
 }

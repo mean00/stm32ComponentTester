@@ -154,6 +154,7 @@ bool DSOADC::startDMASampling (const int count)
   enableDisableIrqSource(false,ADC_AWD);
   enableDisableIrq(true);  
   setupAdcDmaTransfer( requestedSamples,adcInternalBuffer, DMA1_CH1_Event,false );
+  allAdcsOnOff(true);
   startDMA();
   return true;
 }
@@ -192,6 +193,7 @@ void DSOADC::stopDmaCapture(void)
     enableDisableIrqSource(false,ADC_AWD);
     // Stop dma
     adc_dma_disable(ADC1);
+    allAdcsOnOff(false);
 }
 
 
