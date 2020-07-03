@@ -195,5 +195,12 @@ bool    DSOADC::prepareDualTimeSampling (int fq,int otherPin, adc_smp_rate rate,
     return prepareTimerSampling(fq,false,rate,scale);
 }
 
+bool DSOADC::setupDualTimerSampling()
+{
+   ADC_TIMER.pause();
+   setSource(ADC_SOURCE_TIMER);    
+   _oldTimerFq=0;  
+   return true;
+}
 // EOF
 
