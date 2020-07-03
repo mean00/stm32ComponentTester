@@ -23,13 +23,6 @@ bool    DSOADC::setupTimerSampling()
   _oldTimerFq=0;
   return true;
 }
-bool DSOADC::setupDualTimerSampling()
-{
-   ADC_TIMER.pause();
-   setSource(ADC_SOURCE_TIMER);    
-   _oldTimerFq=0;  
-   return true;
-}
 bool    DSOADC::prepareTimerSampling (int timerScale, int timerOvf,bool overSampling,adc_smp_rate adcRate , DSOADC::Prescaler adcScale)
 {   
     
