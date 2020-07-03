@@ -139,6 +139,18 @@ void MainTask::run()
     xDelay(100);
     TesterControl::init();
    
+    // The fist Time based sampling is always wrong
+    // do a dummy one
+    {
+    uint16_t *samples;
+    int nbSamples;    
+    pin2.prepareTimerSample(100*1000,10);      
+    pin2.finishTimer(nbSamples,&samples);
+    }
+    
+    
+    
+    
 #if 0
     adc->setupDmaSampling();
     adc->prepareDMASampling(ADC_SMPR_239_5,DSOADC::ADC_PRESCALER_8);    
