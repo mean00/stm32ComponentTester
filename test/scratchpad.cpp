@@ -242,3 +242,127 @@ next:
         digitalWrite(LED,LOW);
         xDelay(200);
     }
+    
+    
+    
+    
+    
+#if 0
+    adc->setupDmaSampling();
+    adc->prepareDMASampling(ADC_SMPR_239_5,DSOADC::ADC_PRESCALER_8);    
+    adc->stopDmaCapture();
+#endif    
+#if 1    
+    TesterGfx::clear();    
+#if 0    
+    testDualDma();
+    TesterControl::waitForAnyEvent();
+#endif
+#if 1       
+    testMonoDma();
+    TesterControl::waitForAnyEvent();
+    testMonoTime();
+    TesterControl::waitForAnyEvent();
+    testMonoTime();
+    TesterControl::waitForAnyEvent();
+    testMonoTime();
+    testDualDma();
+    TesterControl::waitForAnyEvent();
+    testMonoTime();
+    TesterControl::waitForAnyEvent();
+    testMonoTime();
+    TesterControl::waitForAnyEvent();
+    
+#endif
+#if 0
+    
+    testDualTime();
+    TesterControl::waitForAnyEvent();
+    testDualTime();
+#endif    
+    while(1)
+    {
+        
+    }
+#endif        
+    
+    
+    
+TestPin::PULL_STRENGTH strength=TestPin::PULL_HI;
+int resistance;
+uint16_t *samples;
+int nbSamples;
+float period;
+
+void Preamble()
+{
+    zeroAllPins();
+    
+    // go
+    
+    pin1.setToGround();
+    pin2.pullDown(strength);
+}
+void PostAmble(const char *title)
+{
+    TesterGfx::clear();
+    TesterGfx::drawCurve(nbSamples,samples);
+    float c=Capacitor::computeCapacitance(nbSamples, samples,   resistance,   period);
+    
+    char st[20];
+    Component::prettyPrint(c,"F",st);
+    TesterGfx::print(10,10,st);
+    TesterGfx::print(10,50,title);
+}
+void testMonoTime()
+{
+    Preamble();
+
+    pin2.prepareTimerSample(600*1000,1024);
+    pin2.pullUp(strength);       
+    resistance=pin2.getCurrentRes()+pin1.getCurrentRes();
+    pin2.finishTimer(nbSamples,&samples);
+    pin2.pullDown(TestPin::PULL_LOW);   
+    PostAmble("MonoTime");
+}
+void testDualTime()
+{
+    Preamble();
+    DeltaADCTime delta(pin2,pin1);
+    if(!delta.setup(600*1000,1024)) 
+        xAssert(0);
+    
+    pin2.pullUp(strength);   
+    
+    resistance=pin2.getCurrentRes()+pin1.getCurrentRes();
+    bool r=delta.get(nbSamples,&samples,period);
+    pin2.pullDown(TestPin::PULL_LOW);   
+    PostAmble("DualTime");    
+}
+void testDualDma()
+{
+    Preamble();
+    DeltaADC delta(pin2,pin1);
+    float period;
+    
+    if(!delta.setup(ADC_SMPR_41_5,DSOADC::ADC_PRESCALER_8,1024)) xAssert(0); // 0.5us
+    
+    pin2.pullUp(strength);   
+    
+    resistance=pin2.getCurrentRes()+pin1.getCurrentRes();
+    bool r=delta.get(nbSamples,&samples,period);
+    pin2.pullDown(TestPin::PULL_LOW);   
+    PostAmble("DualDMA");   
+}
+        
+void testMonoDma()
+{
+    Preamble();
+
+    pin2.prepareDmaSample(ADC_SMPR_41_5,DSOADC::ADC_PRESCALER_8,1024);
+    pin2.pullUp(strength);       
+    resistance=pin2.getCurrentRes()+pin1.getCurrentRes();
+    pin2.finishDmaSample(nbSamples,&samples);
+    pin2.pullDown(TestPin::PULL_LOW);   
+    PostAmble("MonoDMA");
+}
