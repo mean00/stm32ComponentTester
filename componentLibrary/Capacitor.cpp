@@ -33,24 +33,6 @@ bool Capacitor::draw(int yOffset)
 
 
 
-/**
- * 
- * @return 
- */
-bool Capacitor::computeLowCap()
-{    
-    calibrationValue(capacitance);
-    if(capacitance<(MINIMUM_DETECTED_CAP+_pA._calibration.capOffsetInPf)/pPICO) 
-    {
-        return computeVeryLowCap();
-    }
-    if(capacitance<300./pPICO)
-    {
-        capacitance=capacitance-_pA._calibration.capOffsetInPf/pPICO;
-    }
-  
-    return true;
-}
 
 
 /**
@@ -59,6 +41,7 @@ bool Capacitor::computeLowCap()
  */
 bool Capacitor::calibrationValue(float &c)
 {        
+#if 0
     float Cest=0;
     int overSampling=4;
     for(int i=0;i<overSampling;i++)
@@ -71,6 +54,7 @@ bool Capacitor::calibrationValue(float &c)
     Cest/=overSampling;
     c=Cest;
     return true;
+#endif    
 }
 /**
  * 

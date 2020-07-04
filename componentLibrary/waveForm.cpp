@@ -96,3 +96,44 @@ bool WaveForm::searchRampUp(float  target, int &delta,bool &overflow, bool &unde
     delta=b-a;
     return true;   
 }
+/**
+ * 
+ * @param mn
+ * @param mx
+ * @return 
+ */
+bool WaveForm::searchMinMax(int &mn, int &mx)
+{
+    mx=0;
+    mn=4096;
+    for(int i=0;i<_nbSamples;i++)
+    {
+        int x=_samples[i];
+        if(x>mx) mx=x;
+        if(x<mn) mn=x;
+    }
+    return true;
+}
+/**
+ * 
+ * @param tgt
+ * @param dex
+ * @param value
+ * @param startAt
+ * @return 
+ */
+bool WaveForm::searchValueAbove(const int tgt, int &dex, int &value, int startAt)
+{
+    for(int i=startAt;i<_nbSamples;i++)
+    {
+        int x=_samples[i];
+        if(x>tgt)
+        {
+            dex=i;
+            value=x;
+            return true;
+        }
+    }
+    return false;
+
+}
