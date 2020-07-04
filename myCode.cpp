@@ -77,7 +77,7 @@ void MainTask::run()
     if(!NVM::hasCalibration())
         calibration();
 
-#if 0    
+#if 1    
     Capacitor cap(pin1,pin2,pin3);
     cap.compute();
 #endif

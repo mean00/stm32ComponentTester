@@ -18,9 +18,12 @@ CycleClock clk;
 float capz;
 
 
-const Capacitor::CapScale capScalesSmall={500000,  ADC_SMPR_13_5,DSOADC::ADC_PRESCALER_6 ,TestPin::PULL_HI,true}; // Best we can do for small cap, i.e; between 200pf & 100 nf
-const Capacitor::CapScale capScaleHigh={4000,      ADC_SMPR_41_5,DSOADC::ADC_PRESCALER_8 ,TestPin::PULL_LOW,false}; // Best we can do for big cap, i.e; between 10 uf and ~ 200 uf
-const Capacitor::CapScale capScaleMed={100000,     ADC_SMPR_41_5,DSOADC::ADC_PRESCALER_8 ,TestPin::PULL_LOW,false}; // Best we can do for big cap, i.e; between 100 nf and ~ 10f uf
+const Capacitor::CapScale capScalesSmall={500000,TestPin::PULL_HI,true}; // Best we can do for small cap, i.e; between 200pf & 100 nf
+const Capacitor::CapScale capScaleHigh={4000,    TestPin::PULL_LOW,false}; // Best we can do for big cap, i.e; between 10 uf and ~ 200 uf
+const Capacitor::CapScale capScaleMed={100000,   TestPin::PULL_LOW,false}; // Best we can do for big cap, i.e; between 100 nf and ~ 10f uf
+
+
+
 /**
  * 
  * @return 

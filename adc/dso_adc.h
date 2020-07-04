@@ -125,6 +125,7 @@ public:
     static  uint32_t getVCCmv(); // this one is cached
     static  float    readVCCmv();    
     static float     adcToVolt(float adc);
+    static bool     frequencyToRateScale (int fq, DSOADC::Prescaler &scaler, adc_smp_rate &rate); // compute rate & scale so that it is faster than frequency/2
             bool     setTriggerMode(TriggerMode mode);
             TriggerMode getTriggerMode() {return _triggerMode;};
             TriggerMode getActualTriggerMode() 

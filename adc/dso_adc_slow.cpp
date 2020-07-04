@@ -21,6 +21,52 @@ CaptureState captureState=Capture_idle;
 void dumpAdcRegs();
 
 /**
+ * \brief compute rate & scale so that the sampling frequency is more than double the ADC sampling fq
+ * @param fq
+ * @param scaler
+ * @param rate
+ * @return 
+ */
+
+typedef struct RateArray
+{
+    adc_smp_rate rate;
+    int          rateInt;
+};
+
+const RateArray rateArrays[]={
+    {  ADC_SMPR_1_5,1},
+    {  ADC_SMPR_7_5,7},
+    {  ADC_SMPR_13_5,13},
+    {  ADC_SMPR_28_5,28},
+    {  ADC_SMPR_41_5,41},
+    {  ADC_SMPR_55_5,55},
+    {  ADC_SMPR_71_5,71},
+    {  ADC_SMPR_239_5,239}
+};
+
+bool DSOADC::frequencyToRateScale (int fq, DSOADC::Prescaler &scaler, adc_smp_rate &rate)
+{
+    bool found=false;
+    for(int s=4;s>=0 && !found;s--)
+    {
+        for(int ri=(sizeof(rateArrays)/sizeof(RateArray))-1; ri>=0 && !found;ri--)
+        {
+            int sampling=F_CPU/((s*2)*(12+rateArrays[ri].rateInt));
+            if(sampling>2*fq)
+            {
+                found=true;
+                scaler=(DSOADC::Prescaler)(s-1);
+                rate=rateArrays[ri].rate;
+                return true;
+            }
+        }
+    }
+    xAssert(0);
+    return false;
+}
+
+/**
  * 
  */
 void DSOADC::stopTimeCapture(void)

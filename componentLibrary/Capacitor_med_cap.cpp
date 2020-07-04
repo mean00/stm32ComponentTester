@@ -15,12 +15,12 @@
 
 const Capacitor::CapScale medCaps[]=
 {
-    {2*1000,   ADC_SMPR_1_5,DSOADC::ADC_PRESCALER_4 ,TestPin::PULL_MED,false}, //  5 uf
-    {6*1000,   ADC_SMPR_1_5,DSOADC::ADC_PRESCALER_4 ,TestPin::PULL_MED,false}, //  2 uf
-    {12*1000,  ADC_SMPR_1_5,DSOADC::ADC_PRESCALER_4 ,TestPin::PULL_MED,false}, //  1 uf
-    {20*1000,  ADC_SMPR_1_5,DSOADC::ADC_PRESCALER_4 ,TestPin::PULL_MED,false}, //  500 nf
-    {50*1000,  ADC_SMPR_1_5,DSOADC::ADC_PRESCALER_4 ,TestPin::PULL_MED,false}, //  200 nf
-    {100*1000, ADC_SMPR_1_5,DSOADC::ADC_PRESCALER_4 ,TestPin::PULL_MED,false}, //   100 nf
+    {2*1000,   TestPin::PULL_MED,false}, //  5 uf
+    {6*1000,   TestPin::PULL_MED,false}, //  2 uf
+    {12*1000,  TestPin::PULL_MED,false}, //  1 uf
+    {20*1000,  TestPin::PULL_MED,false}, //  500 nf
+    {50*1000,  TestPin::PULL_MED,false}, //  200 nf
+    {100*1000, TestPin::PULL_MED,false}, //   100 nf
 };
 
 bool Capacitor::computeMediumCap()

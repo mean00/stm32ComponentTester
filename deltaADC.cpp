@@ -87,10 +87,15 @@ DeltaADCTime::~DeltaADCTime()
  * @param nbSamples
  * @return 
  */
+extern bool frequencyToRateScale(int fq, DSOADC::Prescaler &scaler, adc_smp_rate &rate);
 bool DeltaADCTime::setup(int frequency,const  int nbSamples)
 {
     _fq=frequency;
-    return _pA.prepareDualTimeSample(_fq,_pB,ADC_SMPR_1_5,DSOADC::ADC_PRESCALER_6,nbSamples);
+    DSOADC::Prescaler scaler;
+    adc_smp_rate rate;
+    DSOADC::frequencyToRateScale(_fq,scaler,rate);
+    
+    return _pA.prepareDualTimeSample(_fq,_pB,rate,scaler,nbSamples);
     
 }
 

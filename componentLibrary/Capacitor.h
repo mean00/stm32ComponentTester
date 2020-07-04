@@ -10,8 +10,6 @@ public:
             typedef struct CapScale
             {
                 int                 fq;
-                adc_smp_rate        rate;
-                DSOADC::Prescaler   scale;
                 TestPin::PULL_STRENGTH strength;
                 bool                doubled;
             };
