@@ -123,11 +123,12 @@ Capacitor::CapEval Capacitor::eval(const CapScale &sc,CapCurve &curve, int &delt
     
     // Search start of ramp up above noise
     int iA,iB,vA,vB;
-    int tgt=mn+(((mx-mn)*63)/100); // look for 0.666= ~ e-1
+    int tgt=mn+(((mx-mn)*66)/100); // look for 0.666= ~ e-1
     wave.searchValueAbove(mn+50, iA, vA, 0);
     wave.searchValueAbove(tgt, iB, vB, iA);
     
-    if((iB-iA)<100) return EVAL_SMALLER_CAP; // the pulse is too quick 
+    if(vB<(4095/3)) return EVAL_BIGGER_CAP; // still charging...
+    if((iB-iA)<(nbSamples/8)) return EVAL_SMALLER_CAP; // the pulse is too quick 
     if((vB-vA)<400) return EVAL_BIGGER_CAP; // A & B are too close, we must zoom out
     
     
@@ -138,6 +139,7 @@ Capacitor::CapEval Capacitor::eval(const CapScale &sc,CapCurve &curve, int &delt
     curve.vMax=vB;
     curve.vMin=vA;
     curve.period=1./(float)sc.fq;
+    curve.nbSamples=nbSamples;
     return EVAL_OK;    
 }
 

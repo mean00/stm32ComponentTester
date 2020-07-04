@@ -24,6 +24,7 @@ public:
             };
             struct CapCurve
             {
+                int nbSamples;
                 int iMin;
                 int iMax;
                 int vMin;
@@ -50,7 +51,7 @@ protected:
             bool  computeHighCap();
             bool  computeLowCap();
             bool  computeVeryLowCap();
-            
+            bool computeCapRange(int n, const Capacitor::CapScale *scale, int overSampling);
             bool doOneQuick(TestPin::PULL_STRENGTH strength, bool doubled, float percent,int &timeUs, int &resistance,int &value);
             bool getRange(int dex, int &range);
             bool getEsr(float &esr);
