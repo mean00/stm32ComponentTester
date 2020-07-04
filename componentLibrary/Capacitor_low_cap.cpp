@@ -45,17 +45,4 @@ bool Capacitor::computeLowCap()
     }
     return false;
 }
-/**
- * 
- * @param curve
- * @return 
- */
-float Capacitor::computeCapacitance(CapCurve &curve)
-{
-      float c=(curve.iMax-curve.iMin);
-        c/=(float)curve.resistance;
-        c=c/log( (float)(4095.-curve.vMin)/(float)(4095.-curve.vMax));
-        c=c*curve.period;
-        return c;
-}
 //EOF

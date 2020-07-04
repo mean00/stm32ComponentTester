@@ -47,7 +47,7 @@ protected:
             bool  doOne(float target,int dex, float &cap);
             CapEval eval(const CapScale &sc,CapCurve &curve, int &deltaTime);
             bool  computeMediumCap();
-            bool  computeHiCap();
+            bool  computeHighCap();
             bool  computeLowCap();
             bool  computeVeryLowCap();
             

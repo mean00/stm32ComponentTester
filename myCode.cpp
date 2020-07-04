@@ -70,10 +70,15 @@ void MainTask::run()
     pin2.finishTimer(nbSamples,&samples);
     }
     
+  
+            
         
   // 
     if(!NVM::hasCalibration())
         calibration();
+    
+    Capacitor cap(pin1,pin2,pin3);
+    cap.compute();
     
     TesterGfx::clear();
     TesterGfx::print(6,70,"Press to start");
