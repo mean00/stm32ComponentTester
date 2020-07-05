@@ -32,6 +32,10 @@ bool Capacitor::computeVeryLowCap()
     }
     else
     {
+        TesterGfx::clear();
+        TesterGfx::print(10,60,"Connect one leg");
+        TesterGfx::print(10,90,"to center");
+        TesterControl::waitForAnyEvent();
         return false;      
     }
     p2->setToGround();

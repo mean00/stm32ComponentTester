@@ -240,28 +240,7 @@ bool Capacitor::calibrationValue(float &c)
     return true;
 #endif    
 }
-/**
- * 
- * @param c
- * @return 
- */
-bool Capacitor::quickEval(float &c)
-{
-    if(!computeHighCap()) return false;
-    if(capacitance<300./pPICO)
-    {
-        capacitance=capacitance-_pA._calibration.capOffsetInPf/pPICO;
-    }
-    if(capacitance<MINIMUM_DETECTED_CAP/pPICO) 
-    {
-        capacitance=0.;
-        return false;
-    }
-    if(capacitance<=0.0)
-        return false;
-    c=capacitance;
-    return true;
-}
+
 /**
  * 
  * @param nbSample
@@ -327,30 +306,6 @@ float Capacitor::computeCapacitance(int nbSamples, uint16_t *samples, int resist
     return c;
 }
 
-/**
- * This is for high value cap. They need a lot of time to charge so we can't use a dma filled buffer
- * instead we'll poll their voltage
- * @param time
- * @param resistance
- * @param actualValue
- * @return 
- */
-
-float Capacitor::computeCapacitance(int time, int iresistance, int actualValue)
-{
-    float cap;
-    float t=(float)time/1000.;        
-    float resistance=iresistance;
-    float den;
-    
-    den=1.-(float)(actualValue)/4095.;
-    
-    den=log(den);
-    if(-den<0.000001) return 0;    
-    cap=-t/(resistance*den);
-    cap/=1000.;
-    return cap;
-}
 
 /**
  * 
