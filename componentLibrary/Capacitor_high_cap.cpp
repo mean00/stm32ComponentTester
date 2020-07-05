@@ -27,8 +27,11 @@ const Capacitor::CapScale hiCaps[]=
  * @return 
  */
 
-bool Capacitor::computeHighCap()
+bool Capacitor::computeHighCap(bool overSample)
 {    
+    int oversampling=1;
+    if(!overSample) oversampling=0;
+     
     int n=sizeof(hiCaps)/sizeof(Capacitor::CapScale);
-    return computeCapRange(n,hiCaps,1);
+    return computeCapRange(n,hiCaps,oversampling);
 }

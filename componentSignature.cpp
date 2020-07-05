@@ -245,7 +245,7 @@ Component *Component::identify2poles(TestPin &A, TestPin &B, TestPin &C, COMPONE
         type=COMPONENT_DIODE;
         return new Diode(A,B,C);
     }
-    if(bottomLeft==SIG(MEDIUM,MEDIUM) && topLeft==SIG(HIGH,LOW)) // Diodie cathode = A
+    if(bottomLeft==SIG(MEDIUM,MEDIUM) && topLeft==SIG(HIGH,LOW)) // Diode cathode = A
     {
        PRINTF("DIODE");
        type=COMPONENT_DIODE;
@@ -277,14 +277,11 @@ Component *Component::identify2poles(TestPin &A, TestPin &B, TestPin &C, COMPONE
         PRINTF("CAPACITOR");
         // We need to evaluate it to confirm
         // too bad we'll do it twice
-        type=COMPONENT_CAPACITOR;
-        Capacitor *c= new Capacitor(A,B,C);
-        if(c->compute())
+        if(Capacitor::quickEval(A,B,C)) // it"s a cap ?
         {
-            PRINTF("CONFIRMED");
-            return c;
-        }
-        delete c;
+            type=COMPONENT_CAPACITOR;
+            return new Capacitor(A,B,C);
+        }        
         PRINTF("NOT");
         zeroAllPins();
         return NULL;

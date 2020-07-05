@@ -23,8 +23,11 @@ const Capacitor::CapScale medCaps[]=
     {100*1000, TestPin::PULL_MED,false}, //   100 nf
 };
 
-bool Capacitor::computeMediumCap()
+bool Capacitor::computeMediumCap(bool overSample)
 {    
+    int oversampling=3;
+    if(!overSample) oversampling=0;
+    
     int n=sizeof(medCaps)/sizeof(Capacitor::CapScale);
     return computeCapRange(n,medCaps,4);
 }
@@ -47,7 +50,7 @@ bool Capacitor::computeCapRange(int n, const Capacitor::CapScale *scale, int ove
             // We have X sample total
             bool taken=false;
             if(deltaTime>(curve.nbSamples/3)) taken=true; // That one looks valid, we have enough point            
-            if(i==(n-1) && deltaTime>=curve.nbSamples/4) taken=true; // if it is the last try we allow less point (~ 100)
+            if(i==(n-1) && deltaTime>=curve.nbSamples/5) taken=true; // if it is the last try we allow less point (~ 100)
             if(taken)
             {
                 capacitance=computeCapacitance(curve);;

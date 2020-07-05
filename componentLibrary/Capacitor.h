@@ -36,18 +36,20 @@ public:
                       capacitance=0;
                       computed=false;
                     }
-            virtual bool compute()            ;
+            virtual bool compute()  ;
+            static  bool quickEval(TestPin &a, TestPin &b,TestPin &dummy); // return true if this is a capacitor
             virtual bool draw(int yOffset);
                     int  getValue() {return capacitance;}
                     int  likely() {return 50;} // medium likely
             
 protected:
+            bool  quickEval(); // return true if this is a capacitor
             float capacitance;
             bool  doOne(float target,int dex, float &cap);
-            CapEval eval(const CapScale &sc,CapCurve &curve, int &deltaTime);
-            bool  computeMediumCap();
-            bool  computeHighCap();
-            bool  computeLowCap();
+            CapEval eval(const CapScale &sc,CapCurve &curve, int &deltaTime,bool largeWindow=false);
+            bool  computeMediumCap(bool overSample=true);
+            bool  computeHighCap(bool overSample=true);
+            bool  computeLowCap(bool overSample=true);
             bool  computeVeryLowCap();
             bool computeCapRange(int n, const Capacitor::CapScale *scale, int overSampling);
             bool doOneQuick(TestPin::PULL_STRENGTH strength, bool doubled, float percent,int &timeUs, int &resistance,int &value);

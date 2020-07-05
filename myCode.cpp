@@ -77,6 +77,26 @@ void MainTask::run()
     if(!NVM::hasCalibration())
         calibration();
 
+#if 0
+    
+    while(1)
+    {
+        TesterGfx::clear();
+        TesterGfx::print(30,40,"Press !");
+        zeroAllPins();
+        if(Capacitor::quickEval(pin2,pin1,pin3))
+        {
+             TesterGfx::print(30,40,"Cap");
+        }else
+        {
+            TesterGfx::print(30,40,"NOPE");
+        }
+        TesterControl::waitForAnyEvent();        
+    }
+    
+
+#endif    
+    
 #if 1    
     Capacitor cap(pin1,pin2,pin3);
     cap.compute();

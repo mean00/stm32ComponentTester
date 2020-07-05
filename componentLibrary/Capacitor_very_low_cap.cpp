@@ -44,11 +44,6 @@ bool Capacitor::computeVeryLowCap()
     uint16_t *samples;
     
     int fq=2000;
-
-    if(!p1->pulseTime(50,fq,TestPin::PULL_HI,nbSamples,&samples,samplingTime,resistance))
-    {
-        return false;
-    }
     if(!p1->pulseTime(1024,fq,TestPin::PULL_HI,nbSamples,&samples,samplingTime,resistance))
     {
         return false;

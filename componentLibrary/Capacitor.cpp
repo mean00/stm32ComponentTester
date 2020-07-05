@@ -24,10 +24,56 @@ const Capacitor::CapScale capScaleMed={100000,   TestPin::PULL_LOW,false}; // Be
 
 
 
+const Capacitor::CapScale probePoints[]={
+    {500*1000,  TestPin::PULL_HI,   true},
+    {500*1000,  TestPin::PULL_HI,   false},
+    {60*1000,   TestPin::PULL_HI,   false},
+    {35*1000,   TestPin::PULL_HI,   false},
+    
+    {100*1000,   TestPin::PULL_MED,   false},
+    {50*1000,   TestPin::PULL_MED,   false},    
+    {12*1000,   TestPin::PULL_MED,   false},    
+    {6*1000,   TestPin::PULL_MED,   false},    
+    
+    {4*1000,    TestPin::PULL_LOW,  false},
+    {100*1000,  TestPin::PULL_LOW,false}
+};
+
 /**
  * 
  * @return 
  */
+bool Capacitor::quickEval(TestPin &a, TestPin &b,TestPin &c)
+{
+    Capacitor cap(a,b,c);
+    return cap.quickEval();
+}
+
+/**
+ * Try to just detect if a cap is connected or not
+ * It will NOT detec small cap (less than 100 pf)
+ * 
+ * @return 
+ */
+bool Capacitor::quickEval()
+{
+    int n=sizeof(probePoints)/sizeof(Capacitor::CapScale);
+    for(int i=0;i<n;i++)
+    {
+        CapCurve curve;
+        int deltaTime;
+        switch(eval(probePoints[i],curve, deltaTime,true))
+        {
+            case  EVAL_OK:
+                    return true;
+            default:
+                    break;
+        }
+    }
+    return false;
+}
+
+//--
 
 bool Capacitor::compute()
 {
@@ -80,7 +126,7 @@ bool Capacitor::compute()
  * @param deltaTime
  * @return 
  */
-Capacitor::CapEval Capacitor::eval(const CapScale &sc,CapCurve &curve, int &deltaTime)
+Capacitor::CapEval Capacitor::eval(const CapScale &sc,CapCurve &curve, int &deltaTime, bool largeWindow)
 {
     int resistance;
     zeroAllPins();
@@ -126,12 +172,22 @@ Capacitor::CapEval Capacitor::eval(const CapScale &sc,CapCurve &curve, int &delt
     
     // Search start of ramp up above noise
     int iA,iB,vA,vB;
-    int tgt=mn+(((mx-mn)*66)/100); // look for 0.666= ~ e-1
+    int tgt=mn+(((mx-mn)*70)/100); // look for 0.666= ~ e-1
     wave.searchValueAbove(mn+50, iA, vA, 0);
     wave.searchValueAbove(tgt, iB, vB, iA);
     
     if(vB<(4095/3)) return EVAL_BIGGER_CAP; // still charging...
-    if((iB-iA)<(nbSamples/8)) return EVAL_SMALLER_CAP; // the pulse is too quick 
+    
+    // If largeWindow is on, we dont require as much difference between min & max
+    // it is for probing support
+    // if largeWindow is off, we must have at leasst nbSample/8 samples, i.e. about 60
+    int minSamples=0;
+    if(!largeWindow)
+        minSamples=nbSamples/8;
+    else
+        minSamples=25;
+    
+    if((iB-iA)<(minSamples)) return EVAL_SMALLER_CAP; // the pulse is too quick 
     if((vB-vA)<400) return EVAL_BIGGER_CAP; // A & B are too close, we must zoom out
     
     

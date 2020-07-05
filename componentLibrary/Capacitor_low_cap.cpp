@@ -29,10 +29,13 @@ const Capacitor::CapScale lowCaps[]=
     //{900*1000, ADC_SMPR_1_5,DSOADC::ADC_PRESCALER_2 ,TestPin::PULL_HI,true}, //  200 pf nf
 };
 
-bool Capacitor::computeLowCap()
+bool Capacitor::computeLowCap(bool overSample)
 {    
+    int oversampling=7;
+    if(!overSample) oversampling=0;
+    
     int n=sizeof(lowCaps)/sizeof(Capacitor::CapScale);
-    bool r= computeCapRange(n,lowCaps,8);
+    bool r= computeCapRange(n,lowCaps,oversampling);
     if(r)
     { // take parasitic cap into consideration
         float offset=(float)_pA._calibration.capOffsetInPf/pPICO;
