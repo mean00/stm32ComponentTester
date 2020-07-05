@@ -39,8 +39,8 @@ public:
             virtual bool compute()  ;
             static  bool quickEval(TestPin &a, TestPin &b,TestPin &dummy); // return true if this is a capacitor
             virtual bool draw(int yOffset);
-                    int  getValue() {return capacitance;}
-                    int  likely() {return 50;} // medium likely
+                    float getValue() {return capacitance;}
+                    int   likely() {return 50;} // medium likely
             
 protected:
             bool  quickEval(); // return true if this is a capacitor

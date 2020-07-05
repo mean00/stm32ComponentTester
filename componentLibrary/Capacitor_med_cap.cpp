@@ -40,7 +40,8 @@ bool Capacitor::computeMediumCap(bool overSample)
  */
 bool Capacitor::computeCapRange(int n, const Capacitor::CapScale *scale, int overSampling)
 {    
-    
+    // 0 or 1 means no oversampling
+    if(!overSampling) overSampling=1;
     CapCurve curve;
     int deltaTime;
     for(int i=0;i<n;i++)

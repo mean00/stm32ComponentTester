@@ -18,9 +18,11 @@ CycleClock clk;
 float capz;
 
 
-const Capacitor::CapScale capScalesSmall={500000,TestPin::PULL_HI,true}; // Best we can do for small cap, i.e; between 200pf & 100 nf
-const Capacitor::CapScale capScaleHigh={4000,    TestPin::PULL_LOW,false}; // Best we can do for big cap, i.e; between 10 uf and ~ 200 uf
-const Capacitor::CapScale capScaleMed={100000,   TestPin::PULL_LOW,false}; // Best we can do for big cap, i.e; between 100 nf and ~ 10f uf
+const Capacitor::CapScale SmallBegin={500*1000,  TestPin::PULL_HI,true}; // Best we can do for small cap, i.e; between 200pf & 100 nf
+const Capacitor::CapScale SmallEnd={    8*1000,  TestPin::PULL_HI,false}; // Best we can do for small cap, i.e; between 200pf & 100 nf
+const Capacitor::CapScale HighBegin={4000,       TestPin::PULL_LOW,false}; // 
+const Capacitor::CapScale MedEnd={100*1000,      TestPin::PULL_MED,false}; // Best we can do for big cap, i.e; between 100 nf and ~ 10f uf
+const Capacitor::CapScale MedBegin={2*1000,      TestPin::PULL_MED,false}; // Best we can do for big cap, i.e; between 100 nf and ~ 10f uf
 
 
 
@@ -30,13 +32,14 @@ const Capacitor::CapScale probePoints[]={
     {60*1000,   TestPin::PULL_HI,   false},
     {35*1000,   TestPin::PULL_HI,   false},
     
-    {100*1000,   TestPin::PULL_MED,   false},
-    {50*1000,   TestPin::PULL_MED,   false},    
-    {12*1000,   TestPin::PULL_MED,   false},    
-    {6*1000,   TestPin::PULL_MED,   false},    
+    {100*1000,  TestPin::PULL_MED, false},
+    {50*1000,   TestPin::PULL_MED,  false},    
+    {12*1000,   TestPin::PULL_MED,  false},    
+    {6*1000,    TestPin::PULL_MED,   false},    
     
-    {4*1000,    TestPin::PULL_LOW,  false},
-    {100*1000,  TestPin::PULL_LOW,false}
+    {35*1000,    TestPin::PULL_LOW,  false},
+    {8*1000,     TestPin::PULL_LOW,  false},
+    {1200,       TestPin::PULL_LOW,  false}
 };
 
 /**
@@ -79,7 +82,7 @@ bool Capacitor::compute()
 {
     CapCurve curve;
     int deltaTime;
-    switch(eval(capScalesSmall,curve, deltaTime))
+    switch(eval(SmallBegin,curve, deltaTime))
     {
         case  EVAL_SMALLER_CAP:
                 return computeVeryLowCap();
@@ -91,10 +94,12 @@ bool Capacitor::compute()
                 return false;
                 break;
     }
-    switch(eval(capScaleMed,curve, deltaTime))
+    switch(eval(MedEnd,curve, deltaTime))
     {
         case  EVAL_SMALLER_CAP:
-                return computeLowCap();
+                // It's either a small or the beginning of med
+                if(EVAL_SMALLER_CAP==eval(MedBegin,curve,deltaTime))
+                    return computeLowCap();
                 break;
         case  EVAL_OK:
         case  EVAL_BIGGER_CAP:;
@@ -103,7 +108,7 @@ bool Capacitor::compute()
                 return false;
                 break;
     }
-     switch(eval(capScaleHigh,curve, deltaTime))
+     switch(eval(HighBegin,curve, deltaTime))
      {
         case  EVAL_SMALLER_CAP:
                 return computeMediumCap();

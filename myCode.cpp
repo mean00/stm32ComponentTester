@@ -12,24 +12,19 @@
 #include "cpuID.h"
 #include "pinConfiguration.h"
 #include "waveForm.h"
+#include "pinConfiguration.cpp"
+#include "tester.h"
 
 #define LED PC13
 
 extern void calibration();
 extern void menuSystem(void);
-uint32_t  deviceId;
-uint32_t  memDensity=0;
-extern DSOADC *adc;
-//
 
-
+// Free RTOS heap
 
 uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
-//
-#include "pinConfiguration.cpp"
-#include "tester.h"
 
-// PB1,PB10,PB11, PB1 is the button
+
 /**
  * @brief 
  * 
@@ -37,7 +32,7 @@ uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
 class MainTask : public xTask
 {
 public:
-            MainTask() : xTask("MainTask",10,300)
+            MainTask() : xTask("MainTask",10,400)
             {
 
             }
@@ -64,7 +59,7 @@ void MainTask::run()
 
     xDelay(100);
     TesterControl::init();
- // The fist Time based sampling is always wrong
+    // The fist Time based sampling is always wrong
     // do a dummy one
     {
         uint16_t *samples;
@@ -77,10 +72,25 @@ void MainTask::run()
     if(!NVM::hasCalibration())
         calibration();
 
+#if 0   
+    Capacitor c(pin1,pin2,pin3);
+    c.compute();
+    char st[40];
+    Component::prettyPrint(c.getValue(),"F",st);
+    TesterGfx::print(10,10,st);
+    while(1)
+    {
+        
+    }
+#endif    
+
+    
     TesterGfx::clear();
     TesterGfx::print(6,70,"Press to start");
     TesterControl::waitForAnyEvent();
-   
+    
+    
+    // All ready
     Tester tester;
     while(1)
     {

@@ -173,19 +173,7 @@ next:
                 c->changePage(count);
             }
         }
-
-        
     }
     delete c;
-#if 0    
-    TesterGfx::printStatus("-------------");
-    for(int i=0;i<5;i++)
-    {
-        digitalWrite(LED,HIGH);
-        xDelay(200);
-        digitalWrite(LED,LOW);
-        xDelay(200);
-    }
-#endif    
     return true;
 }
