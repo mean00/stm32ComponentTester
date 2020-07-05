@@ -366,3 +366,40 @@ void testMonoDma()
     pin2.pullDown(TestPin::PULL_LOW);   
     PostAmble("MonoDMA");
 }
+
+
+
+#if 0
+    
+    // The fist Time based sampling is always wrong
+    // do a dummy one
+    {
+    uint16_t *samples;
+    int nbSamples;    
+    pin2.prepareTimerSample(100*1000,10);      
+    pin2.finishTimer(nbSamples,&samples);
+    }
+    
+  
+    while(1)
+    {
+        TesterGfx::clear();
+        TesterGfx::print(30,40,"Press !");
+        zeroAllPins();
+        if(Capacitor::quickEval(pin2,pin1,pin3))
+        {
+             TesterGfx::print(30,40,"Cap");
+        }else
+        {
+            TesterGfx::print(30,40,"NOPE");
+        }
+        TesterControl::waitForAnyEvent();        
+    }
+    
+
+#endif    
+    
+#if 0    
+    Capacitor cap(pin1,pin2,pin3);
+    cap.compute();
+#endif
