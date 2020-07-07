@@ -256,6 +256,7 @@ bool DSOADC::programTimer(int overFlow, int scaler)
     ADC_TIMER.setOverflow(overFlow);
     ADC_TIMER.setCompare(ADC_TIMER_CHANNEL,overFlow-1);
     timer_cc_enable(ADC_TIMER.c_dev(), ADC_TIMER_CHANNEL);
+    return true;
 }
 
 // EOF
