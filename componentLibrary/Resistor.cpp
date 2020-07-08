@@ -88,12 +88,24 @@ bool Resistor::probe( TestPin &A,TestPin::TESTPIN_STATE stateA, TestPin &B,TestP
       B.setMode(stateB);
       int hiAdc, loAdc;
       int hiNb,loNb;    
-      A.summedRead(hiAdc,hiNb);
-      B.summedRead(loAdc,loNb);
       
-      float delta=abs(hiAdc-loAdc);      
-      if(delta<0.) delta=0.;
-      adc=delta/(float)(hiNb); // assume hiNB=loNB   
+      
+      int nbSamples;
+      uint16_t *samples;
+      float period;
+      
+      DeltaADCTime delta(A,B);
+      
+      delta.setup(1000,64);
+      xAssert(delta.get(nbSamples, &samples,period));
+      
+      float sum=0;
+      for(int i=0;i<nbSamples;i++)
+          sum+=samples[i];
+      sum/=(float)nbSamples;
+      
+      if(sum<0.) sum=0.;
+      adc=sum;
       resistance=A.getCurrentRes()+B.getCurrentRes();      
       return true;
 }
