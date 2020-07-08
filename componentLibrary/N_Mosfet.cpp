@@ -89,13 +89,15 @@ bool NMosFet::computeVgOn()
     xDelay(100);
     int nbSamples;
     uint16_t *samples;
-//
-    adc_smp_rate sampleRate=evaluateSampleRate();
         
-    pinGate.prepareDualDmaSample(pinDrain,sampleRate, DSOADC::ADC_PRESCALER_6,1024);    
+    int fq=evaluateSampleRate();
+    DSOADC::Prescaler scaler;
+    adc_smp_rate rate;
+    DSOADC::frequencyToRateScale(fq,scaler,rate);    
+    pinGate.prepareDualTimeSample(fq,pinDrain,rate, scaler,512);    
     // now charge the gate 
     pinGate.pullUp(TestPin::PULL_HI);
-    if(!pinGate.finishDmaSample(nbSamples,&samples)) 
+    if(!pinGate.finishTimer(nbSamples,&samples)) 
     {
         Debug("Dma failed");
         return false;

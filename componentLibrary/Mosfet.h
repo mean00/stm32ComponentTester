@@ -34,7 +34,7 @@ public:
     
     
 protected:
-            adc_smp_rate evaluateSampleRate();
+            int evaluateSampleRate();
 protected:
         float _rdsOn;
         float _diodeVoltage;

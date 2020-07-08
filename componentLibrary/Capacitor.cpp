@@ -237,20 +237,9 @@ bool Capacitor::draw(int yOffset)
  */
 bool Capacitor::calibrationValue(float &c)
 {        
-#if 0
-    float Cest=0;
-    int overSampling=4;
-    for(int i=0;i<overSampling;i++)
-    {
-        float cap;
-         if(!doOne(0.9,0,cap))
-             return false;        
-         Cest+=cap;
-    }
-    Cest/=overSampling;
-    c=Cest;
+    if(!computeLowCap()) return false;
+    c=capacitance;
     return true;
-#endif    
 }
 
 /**

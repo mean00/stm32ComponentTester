@@ -142,28 +142,17 @@ bool Mosfet::compute()
     return true;
 }
 
-static int clockDivier[]=
-{
-    12.5+1.5, //ADC_SMPR_1_5,               /**< 1.5 ADC cycles */
-    12.5+7.5, //ADC_SMPR_7_5,               /**< 7.5 ADC cycles */
-    12.5+13.5, //ADC_SMPR_13_5,              /**< 13.5 ADC cycles */
-    12.5+28.8, //ADC_SMPR_28_5,              /**< 28.5 ADC cycles */
-    12.5+41.5, //ADC_SMPR_41_5,              /**< 41.5 ADC cycles */
-    12.5+55.5, //ADC_SMPR_55_5,              /**< 55.5 ADC cycles */
-    12.5+71.5, //ADC_SMPR_71_5,              /**< 71.5 ADC cycles */
-    12.5+239.5 //ADC_SMPR_239_5,             /**< 239.5 ADC cycles */
-};
 /**
- * 
+ * \brief return the sampling frequency
  * @return 
  */
-adc_smp_rate Mosfet::evaluateSampleRate()
+int Mosfet::evaluateSampleRate()
 {
-    adc_smp_rate rate=ADC_SMPR_13_5;
+    
     
     // we want the value to be ~ 300 samples
     // With a divider of 6
-    float clock=F_CPU/6;
+    
     float rc=(float)_pA.getRes(TestPin::PULLUP_HI)*this->_capacitance; // in seconds        
     // Rc is the time to charge the cap up to 70%
     // if we take 2*Rc, the cap is charged up to 86 % (1-exp(-2)) =~ 2.8 V
@@ -171,17 +160,12 @@ adc_smp_rate Mosfet::evaluateSampleRate()
     rc=2*rc+15./1000000;
     // we want i/300 of that
     rc=rc/300.;
-    int n=sizeof(clockDivier)/sizeof(int);
-    for(int i=n-1;i>0;i--)
-    {
-        float curClock=clock/clockDivier[i];
-        curClock=1./curClock; // in sec
-        // RC=t
-        if(curClock<=rc)
-            return (adc_smp_rate)(i);
-    }    
-    return ADC_SMPR_1_5; // Default
     
+    // that gives us the frequency or about
+    // it will be round up when the actual timer is programmed
+    xAssert(rc!=0);
+    rc=1./rc;
+    return (int)rc;
 }
 
 // EOF
