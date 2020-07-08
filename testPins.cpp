@@ -384,7 +384,8 @@ bool    TestPin::slowDmaSample(int &xadc, int &nbSamples)
     adc->setADCPin(_pin);    
     xDelay(10); // wait a bit
     adc->clearSamples();
-    xAssert(prepareDmaSample(ADC_SMPR_239_5, DSOADC::ADC_PRESCALER_8 ,32));
+    
+    xAssert(prepareTimerSample(4000,32));
     xAssert(true==adc->getSamples(&samples,nbSamples));
     int r=0;
    // if(nbSamples!=32) return false;

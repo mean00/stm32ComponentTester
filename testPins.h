@@ -56,19 +56,22 @@ static  void    initADC(int pin);
         void    setToGround();
         void    disconnect();
         bool    slowDmaSample(int &adcSum, int &nbSamples);
-        bool    prepareTimerSample(int frequency,int nbSamples);
-        bool    finishTimer(int &nbSamples, uint16_t **xsamples);
-        bool    finishDmaSample(int &nbSamples, uint16_t **xsamples);
-        
-        bool    pulseTime(int nbSampleAsked,int samplingFrequency, TestPin::PULL_STRENGTH strength, int &sampleOut,  uint16_t **xsamples,int &samplingTime,int &r);
-        bool    pulseDma(int nbSamples,  DSOADC::Prescaler prescaler, adc_smp_rate   rate, TestPin::PULL_STRENGTH strength,   int &sampleOut,  uint16_t **xsamples);
-        bool    prepareDmaSample(adc_smp_rate rate,  DSOADC::Prescaler scale,int nbSamples);
         
                 // For this one, we actually sample 2 pins alternatively : pin & otherPin
                 // The nbSample asked is sample Pin + sample OtherPin, i.e. you'll get half of nbSample for pin1 and half of nbSample for otherPin
                 // Odd / even. the first pair may be incorrect
         bool    prepareDualDmaSample(TestPin &otherPin,  adc_smp_rate rate,  DSOADC::Prescaler scale,int nbSamples);
         bool    prepareDualTimeSample(int fq,TestPin &otherPin,adc_smp_rate rate,   DSOADC::Prescaler scale ,int nbSamples);
+        
+        bool    prepareDmaSample(adc_smp_rate rate,  DSOADC::Prescaler scale,int nbSamples);        
+        bool    prepareTimerSample(int frequency,int nbSamples);
+        
+        bool    finishTimer(int &nbSamples, uint16_t **xsamples);
+        bool    finishDmaSample(int &nbSamples, uint16_t **xsamples);
+        
+        bool    pulseTime(int nbSampleAsked,int samplingFrequency, TestPin::PULL_STRENGTH strength, int &sampleOut,  uint16_t **xsamples,int &samplingTime,int &r);
+        bool    pulseDma(int nbSamples,  DSOADC::Prescaler prescaler, adc_smp_rate   rate, TestPin::PULL_STRENGTH strength,   int &sampleOut,  uint16_t **xsamples);
+        
         //
         bool    sample(int &value);
         bool    fastSampleUp(int threshold1,int threshold2,int &value1,int &value2, int &timeUs1,int &timeUs2);

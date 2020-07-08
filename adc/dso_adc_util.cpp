@@ -51,6 +51,7 @@ struct rcc_reg_map_extended {
 
 void DSOADC::allAdcsOnOff(bool on)
 {
+#if 0
     if(!on)
     {
         ADC1->regs->CR2&=~ADC_CR2_ADON;
@@ -61,6 +62,7 @@ void DSOADC::allAdcsOnOff(bool on)
         ADC2->regs->CR2|=ADC_CR2_ADON;
         
     }
+#endif
 }
 
 /**

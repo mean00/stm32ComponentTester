@@ -149,19 +149,26 @@ Capacitor::CapEval Capacitor::eval(const CapScale &sc,CapCurve &curve, int &delt
     float period;
     
     if(!delta.setup(sc.fq,1024)) return EVAL_ERROR;
-    
+    if(strength==TestPin::PULL_HI)
+    {
+        // Let the adc start for 2 us
+        delayMicroseconds(2);
+    }
     _pA.pullUp(strength);   
     
     resistance=_pA.getCurrentRes()+_pB.getCurrentRes();
     bool r=delta.get(nbSamples,&samples,period);
-    _pA.pullDown(TestPin::PULL_LOW);   
+    _pA.pullDown(TestPin::PULL_LOW); 
+    zeroAllPins();
+    
     if(!r) return EVAL_ERROR;
     
-#if 1    
+#if 1   
     TesterGfx::drawCurve(nbSamples,samples);
     //TesterControl::waitForAnyEvent();
 #endif    
 
+    
     WaveForm wave(nbSamples-1,samples+1);
     int mn,mx;
     wave.searchMinMax(mn,mx);
@@ -177,7 +184,7 @@ Capacitor::CapEval Capacitor::eval(const CapScale &sc,CapCurve &curve, int &delt
     
     // Search start of ramp up above noise
     int iA,iB,vA,vB;
-    int tgt=mn+(((mx-mn)*70)/100); // look for 0.666= ~ e-1
+    int tgt=mn+(((mx-mn)*80)/100); // look for 0.666= ~ e-1
     wave.searchValueAbove(mn+50, iA, vA, 0);
     wave.searchValueAbove(tgt, iB, vB, iA);
     

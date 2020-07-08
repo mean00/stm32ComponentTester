@@ -21,12 +21,12 @@ const Capacitor::CapScale lowCaps[]=
     {16*1000, TestPin::PULL_HI,false}, //  20 nf
     {36*1000, TestPin::PULL_HI,false}, //  10 nf
     {60*1000, TestPin::PULL_HI,false}, //  5 nf
-    {100*1000,TestPin::PULL_HI,false}, //  2 nf
+    {200*1000, TestPin::PULL_HI,false}, //  5 nf
     {360*1000,TestPin::PULL_HI,false}, //  1 nf
-    {250*1000,TestPin::PULL_HI,true}, //  660 pf nf
-    {360*1000,TestPin::PULL_HI,true}, //  500 pf nf
+    
+    {250*1000,TestPin::PULL_HI,true}, //  2 nf
+    {360*1000,TestPin::PULL_HI,true}, //  1 nf
     {500*1000,TestPin::PULL_HI,true}, //  330 pf nf
-    //{900*1000, ADC_SMPR_1_5,DSOADC::ADC_PRESCALER_2 ,TestPin::PULL_HI,true}, //  200 pf nf
 };
 
 bool Capacitor::computeLowCap(bool overSample)

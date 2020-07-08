@@ -72,16 +72,21 @@ void MainTask::run()
     if(!NVM::hasCalibration())
         calibration();
 
-#if 0   
+#if 1   
     Capacitor c(pin1,pin2,pin3);
+    
     c.compute();
     char st[40];
     Component::prettyPrint(c.getValue(),"F",st);
-    TesterGfx::print(10,10,st);
-    while(1)
-    {
-        
-    }
+    TesterGfx::print(10,20,st);
+    TesterControl::waitForAnyEvent();
+    int sum,nb;
+    pin1.slowDmaSample(sum,nb);
+    Capacitor::quickEval(pin1,pin2,pin3);
+    c.compute();
+    Component::prettyPrint(c.getValue(),"F",st);
+    TesterGfx::print(10,20,st);
+    TesterControl::waitForAnyEvent();
 #endif    
 
     
