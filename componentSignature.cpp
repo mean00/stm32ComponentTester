@@ -47,7 +47,7 @@ int getSignature(TestPin &A,TestPin &B)
 int  Component::evaluate(TestPin &pin)
 {
     int sum,nb;
-    xAssert(pin.slowDmaSample(sum,nb));
+    xAssert(pin.summedRead(sum,nb));
     
     sum=sum/nb;    
     return (int)sum;

@@ -55,7 +55,7 @@ static  void    initADC(int pin);
         void    setToVcc();
         void    setToGround();
         void    disconnect();
-        bool    slowDmaSample(int &adcSum, int &nbSamples);
+        bool    summedRead(int &adcSum, int &nbSamples); // Read and sum ~ 32 samples
         
                 // For this one, we actually sample 2 pins alternatively : pin & otherPin
                 // The nbSample asked is sample Pin + sample OtherPin, i.e. you'll get half of nbSample for pin1 and half of nbSample for otherPin

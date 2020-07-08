@@ -243,7 +243,7 @@ int easySample(TestPin &M)
 {
     int sum,nb;
     xDelay(10);
-    xAssert(M.slowDmaSample(sum, nb)); // should never fail
+    xAssert(M.summedRead(sum, nb)); // should never fail
     sum/=nb;
     return sum;
 }

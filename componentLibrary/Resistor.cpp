@@ -88,8 +88,8 @@ bool Resistor::probe( TestPin &A,TestPin::TESTPIN_STATE stateA, TestPin &B,TestP
       B.setMode(stateB);
       int hiAdc, loAdc;
       int hiNb,loNb;    
-      A.slowDmaSample(hiAdc,hiNb);
-      B.slowDmaSample(loAdc,loNb);
+      A.summedRead(hiAdc,hiNb);
+      B.summedRead(loAdc,loNb);
       
       float delta=abs(hiAdc-loAdc);      
       if(delta<0.) delta=0.;

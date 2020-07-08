@@ -94,8 +94,8 @@ bool Component::computeDiode(TestPin &Anode, TestPin &Cathode,float &vfOut)
     int adcA,nbA;
     int adcB,nbB;
     
-    Anode.slowDmaSample(adcA,nbA);
-    Cathode.slowDmaSample(adcB,nbB);
+    Anode.summedRead(adcA,nbA);
+    Cathode.summedRead(adcB,nbB);
 
     float vf=(float)(adcA-adcB);
     vf/=(float)nbA;

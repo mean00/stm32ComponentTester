@@ -81,7 +81,7 @@ void MainTask::run()
     TesterGfx::print(10,20,st);
     TesterControl::waitForAnyEvent();
     int sum,nb;
-    pin1.slowDmaSample(sum,nb);
+    pin1.summedRead(sum,nb);
     Capacitor::quickEval(pin1,pin2,pin3);
     c.compute();
     Component::prettyPrint(c.getValue(),"F",st);

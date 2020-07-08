@@ -377,7 +377,7 @@ bool    TestPin::prepareDualTimeSample(int fq,TestPin &otherPin,adc_smp_rate rat
  * @param adc
  * @param voltage
  */
-bool    TestPin::slowDmaSample(int &xadc, int &nbSamples)
+bool    TestPin::summedRead(int &xadc, int &nbSamples)
 {
     uint16_t *samples;
     xadc=0;
@@ -524,7 +524,7 @@ bool TestPin::evalInternalResistance ( int &resDown,int &resUp)
 
     xDelay(50);
     int sum,nb;
-    xAssert(slowDmaSample(sum,nb));
+    xAssert(summedRead(sum,nb));
     sum=(sum+nb/2)/nb;
     valDown=sum;    
     
@@ -534,7 +534,7 @@ bool TestPin::evalInternalResistance ( int &resDown,int &resUp)
     pinMode(_pinVolt,OUTPUT);
     
      xDelay(50);
-    xAssert(slowDmaSample(sum,nb));
+    xAssert(summedRead(sum,nb));
     sum=(sum+nb/2)/nb;
     valUp=4095-sum;    
     
