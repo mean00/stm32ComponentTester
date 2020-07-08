@@ -89,7 +89,7 @@ bool NMosFet::computeVgOn()
     xDelay(100);
     int nbSamples;
     uint16_t *samples;
-        
+    DSOADC::clearSamples();
     int fq=evaluateSampleRate();
     DSOADC::Prescaler scaler;
     adc_smp_rate rate;

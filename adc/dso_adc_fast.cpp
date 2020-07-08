@@ -31,7 +31,7 @@ adc_reg_map *adc_Register;
 volatile uint32_t cr2;
 
 
-uint16_t DSOADC::adcInternalBuffer[ADC_INTERNAL_BUFFER_SIZE] __attribute__ ((aligned (8)));;;
+uint16_t DSOADC::adcInternalBuffer[ADC_INTERNAL_BUFFER_SIZE+16] __attribute__ ((aligned (8)));;;
 
 int dmaSpuriousInterrupt=0;
 extern HardwareTimer Timer4;

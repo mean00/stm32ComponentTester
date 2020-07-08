@@ -197,7 +197,7 @@ protected:
             adc_smp_rate       _timerSamplingRate;
             DSOADC::Prescaler  _timerScale;
 public:            
-static      uint16_t adcInternalBuffer[ADC_INTERNAL_BUFFER_SIZE];            
+static      uint16_t adcInternalBuffer[ADC_INTERNAL_BUFFER_SIZE+16];            
 };
 
 
