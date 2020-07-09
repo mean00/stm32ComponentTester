@@ -1,2 +1,2 @@
 #define MINIMUM_DETECTED_CAP 30
-#define PIN_ZERO_THRESHOLD   50 // ~ 40mv
+#define PIN_ZERO_THRESHOLD   35 // ~ 40mv
