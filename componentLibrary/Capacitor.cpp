@@ -27,8 +27,8 @@ const Capacitor::CapScale MedBegin={2*1000,      TestPin::PULL_MED,false}; // Be
 
 
 const Capacitor::CapScale probePoints[]={
-    {500*1000,  TestPin::PULL_HI,   true},
-    {500*1000,  TestPin::PULL_HI,   false},
+    {400*1000,  TestPin::PULL_HI,   true},
+    {400*1000,  TestPin::PULL_HI,   false},
     {60*1000,   TestPin::PULL_HI,   false},
     {35*1000,   TestPin::PULL_HI,   false},
     
@@ -163,8 +163,11 @@ Capacitor::CapEval Capacitor::eval(const CapScale &sc,CapCurve &curve, int &delt
         return EVAL_ERROR;
     
 #if 1   
+    char st[20];
+    sprintf(st,"%d k",sc.fq/1000);    
     TesterGfx::drawCurve(nbSamples,samples);
-    //TesterControl::waitForAnyEvent();
+    TesterGfx::print(10,25,st);
+    TesterControl::waitForAnyEvent();
 #endif    
 
     
@@ -183,7 +186,7 @@ Capacitor::CapEval Capacitor::eval(const CapScale &sc,CapCurve &curve, int &delt
     
     // Search start of ramp up above noise
     int iA,iB,vA,vB;
-    int tgt=mn+(((mx-mn)*80)/100); // look for 0.666= ~ e-1
+    int tgt=mn+(((mx-mn)*70)/100); // look for 0.666= ~ e-1
     wave.searchValueAbove(mn+50, iA, vA, 0);
     wave.searchValueAbove(tgt, iB, vB, iA);
     
