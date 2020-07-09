@@ -48,7 +48,7 @@ void calibration()
     float val;
 #define ALLCAP(pin,a,b,c) {   \
                                 Capacitor cap(a,b,c); \
-                                cap.calibrationValue(val);\
+                                cap.compute1nfRange(val);\
                                 calibration##pin.capOffsetInPf=(int)(val*pPICO+0.49);\
                                 }
     
