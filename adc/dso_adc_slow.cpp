@@ -47,6 +47,12 @@ const RateArray rateArrays[]={
 
 bool DSOADC::frequencyToRateScale (int fq, DSOADC::Prescaler &scaler, adc_smp_rate &rate)
 {
+    if(fq>=500000)
+    {
+            rate=ADC_SMPR_1_5;
+            scaler=DSOADC::ADC_PRESCALER_2;
+            return true;
+    }
     bool found=false;
     for(int s=4;s>=0 && !found;s--)
     {
@@ -254,7 +260,7 @@ bool DSOADC::programTimer(int overFlow, int scaler)
 {
     ADC_TIMER.setPrescaleFactor(scaler);
     ADC_TIMER.setOverflow(overFlow);
-    ADC_TIMER.setCompare(ADC_TIMER_CHANNEL,overFlow-1);
+    ADC_TIMER.setCompare(ADC_TIMER_CHANNEL,overFlow/2);
     timer_cc_enable(ADC_TIMER.c_dev(), ADC_TIMER_CHANNEL);
     return true;
 }
