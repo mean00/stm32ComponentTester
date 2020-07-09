@@ -58,7 +58,7 @@ protected:
             bool minMax(bool high,int &minmax);
             bool computeWrapper();
 public:
-            bool calibrationValue(float &c);
+            bool compute1nfRange(float &c);
             bool computed;
 static      float computeCapacitance(int nbSample, uint16_t *samples, int resistance, float period);
 static      float computeCapacitance(CapCurve &curve);

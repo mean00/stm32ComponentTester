@@ -99,7 +99,7 @@ bool Mosfet::computeRdsOn(TestPin &top, TestPin &bottom,float &value)
 bool Mosfet::computeCg(TestPin &top, TestPin &bottom,float &value)
 {    
     Capacitor cap(top,bottom,top);
-    if(!cap.calibrationValue(value))
+    if(!cap.compute1nfRange(value))
     {
         value=0;
         return false;

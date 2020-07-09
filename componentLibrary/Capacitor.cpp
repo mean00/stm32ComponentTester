@@ -148,20 +148,19 @@ Capacitor::CapEval Capacitor::eval(const CapScale &sc,CapCurve &curve, int &delt
     DeltaADCTime delta(_pA,_pB);
     float period;
     
-    if(!delta.setup(sc.fq,1024)) return EVAL_ERROR;
-    if(strength==TestPin::PULL_HI)
+    if(!delta.setup(sc.fq,1024)) 
     {
-        // Let the adc start for 2 us
-        delayMicroseconds(2);
+        xAssert(0);
+        return EVAL_ERROR;
     }
     _pA.pullUp(strength);   
     
     resistance=_pA.getCurrentRes()+_pB.getCurrentRes();
     bool r=delta.get(nbSamples,&samples,period);
     _pA.pullDown(TestPin::PULL_LOW); 
-    zeroAllPins();
-    
-    if(!r) return EVAL_ERROR;
+    zeroAllPins();   
+    if(!r) 
+        return EVAL_ERROR;
     
 #if 1   
     TesterGfx::drawCurve(nbSamples,samples);
@@ -235,7 +234,7 @@ bool Capacitor::draw(int yOffset)
  * 
  * @return 
  */
-bool Capacitor::calibrationValue(float &c)
+bool Capacitor::compute1nfRange(float &c)
 {        
     if(!computeLowCap()) return false;
     c=capacitance;
