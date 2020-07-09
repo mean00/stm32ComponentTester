@@ -18,9 +18,9 @@ CycleClock clk;
 float capz;
 
 
-const Capacitor::CapScale SmallBegin={500*1000,  TestPin::PULL_HI,true}; // Best we can do for small cap, i.e; between 200pf & 100 nf
-const Capacitor::CapScale SmallEnd={    8*1000,  TestPin::PULL_HI,false}; // Best we can do for small cap, i.e; between 200pf & 100 nf
-const Capacitor::CapScale HighBegin={4000,       TestPin::PULL_LOW,false}; // 
+const Capacitor::CapScale SmallBegin={400*1000,  TestPin::PULL_HI,true}; // Best we can do for small cap, i.e; between 200pf & 100 nf
+const Capacitor::CapScale SmallEnd={  8*1000,  TestPin::PULL_HI,false}; // Best we can do for small cap, i.e; between 200pf & 100 nf
+const Capacitor::CapScale HighBegin={ 4000,       TestPin::PULL_LOW,false}; // 
 const Capacitor::CapScale MedEnd={100*1000,      TestPin::PULL_MED,false}; // Best we can do for big cap, i.e; between 100 nf and ~ 10f uf
 const Capacitor::CapScale MedBegin={2*1000,      TestPin::PULL_MED,false}; // Best we can do for big cap, i.e; between 100 nf and ~ 10f uf
 
@@ -148,6 +148,7 @@ Capacitor::CapEval Capacitor::eval(const CapScale &sc,CapCurve &curve, int &delt
     DeltaADCTime delta(_pA,_pB);
     float period;
     
+    if(sc.fq>400000) xAssert(0);
     if(!delta.setup(sc.fq,1024)) 
     {
         xAssert(0);
@@ -162,7 +163,7 @@ Capacitor::CapEval Capacitor::eval(const CapScale &sc,CapCurve &curve, int &delt
     if(!r) 
         return EVAL_ERROR;
     
-#if 1   
+#if 0   
     char st[20];
     sprintf(st,"%d k",sc.fq/1000);    
     TesterGfx::drawCurve(nbSamples,samples);
