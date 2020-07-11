@@ -158,53 +158,89 @@ public:
      * @param offset
      * @return 
      */
-    bool  createWaveForm(     int sampleAsked,    int &nbSamples,    uint16_t  **samples)
+    bool  createWaveForm(    int clockPerSample, int sampleAsked,    int &nbSamples,    uint16_t  **samples)
     {
         // The apparent sampling frequency is F_CPU/(timerScaler*apprentDivider)
         // make it so timerSCaler*apparentDivier=8
         // so we end up with a know sampling frequency of F_CPU/8 => 9 Mhz with CPU@72 Mhz whatever timerScale is
         // as long as it is 1 2 or 4, from 500 Hz to ~ 10 khz
         
-        int apparentDivider=8/timerScaler;
+        int apparentDivider=clockPerSample/timerScaler;
         if(!apparentDivider) xAssert(0);
-            // ADC is running X cycles faster than repeat
-            // Same thing as ~ adc running at  X Cycle
-            if(!adc->prepareTimerSampling(timerScaler,timerOvf+apparentDivider,false,rate,prescaler))
-            {
-                xAssert(0);
-                return false;
-            }
-            adc->clearSemaphore();
-            int before=millis();
-            nbSamples=0;
+        // ADC is running X cycles faster than repeat
+        // Same thing as ~ adc running at  X Cycle
+        if(!adc->prepareTimerSampling(timerScaler,timerOvf+apparentDivider,false,rate,prescaler))
+        {
+            xAssert(0);
+            return false;
+        }
+        adc->clearSemaphore();
+        int before=millis();
+        nbSamples=0;
 
-            pwmQuickRestart quick(pin);
-            adc->startTimerSampling(sampleAsked);
-            quick.go();
-            if(!adc->getSamples(samples,nbSamples))    
-            {
-                xAssert(0);
-                adc->stopTimeCapture();
-                return false;
-            }
-            // skip 1st sample
-            nbSamples-=1;
-            (*samples)+=1;
-            
+        pwmQuickRestart quick(pin);
+        adc->startTimerSampling(sampleAsked);
+        quick.go();
+        if(!adc->getSamples(samples,nbSamples))    
+        {
+            xAssert(0);
             adc->stopTimeCapture();
-            pwmPause(pin);
-            offset=0;
-            this->stroboscopeSampling=apparentDivider;            
-            return true;  
+            return false;
+        }
+        // skip 1st sample
+        nbSamples-=1;
+        (*samples)+=1;
+
+        adc->stopTimeCapture();
+        pwmPause(pin);
+        offset=0;
+        return true;  
     }
-    
+    bool  createWaveFormDelta(TestPin &otherPin,    int clockPerSample, int sampleAsked,    int &nbSamples,    uint16_t  **samples)
+    {
+        // The apparent sampling frequency is F_CPU/(timerScaler*apprentDivider)
+        // make it so timerSCaler*apparentDivier=8
+        // so we end up with a know sampling frequency of F_CPU/8 => 9 Mhz with CPU@72 Mhz whatever timerScale is
+        // as long as it is 1 2 or 4, from 500 Hz to ~ 10 khz
+        
+        int apparentDivider=clockPerSample/timerScaler;
+        if(!apparentDivider) xAssert(0);
+        // ADC is running X cycles faster than repeat
+        // Same thing as ~ adc running at  X Cycle
+        if(!adc->prepareDualTimerSampling(timerScaler,timerOvf+apparentDivider,false,rate,prescaler))
+        {
+            xAssert(0);
+            return false;
+        }
+        adc->clearSemaphore();
+        int before=millis();
+        nbSamples=0;
+
+        pwmQuickRestart quick(pin);
+        adc->startDualTimeSampling(otherPin._pin,sampleAsked);
+        quick.go();
+        if(!adc->getSamples(samples,nbSamples))    
+        {
+            xAssert(0);
+            adc->stopTimeCapture();
+            return false;
+        }
+        //
+        adc->stopTimeCapture();
+        nbSamples=(nbSamples-4)/2;
+        *samples+=4;
+        testPin.dualSimulatenousDelta(nbSamples,*samples);
+        // Delta        
+        pwmPause(pin);
+        offset=0;
+        return true;  
+    }
     int             pin;
     int             timerScaler;
     int             timerOvf;
     DSOADC::Prescaler  prescaler;   
     adc_smp_rate    rate ;
     int             offset;
-    int             stroboscopeSampling;
     TestPin::TESTPIN_STATE        pinState;
     int             res;
     TestPin         &testPin;
@@ -213,15 +249,16 @@ public:
 /**
  * 
  * @param nbSampleAsked
+ * @param clockPerSample    : We target clockPerSample vs F_CPU as apparent sampling frequency
+ *                                          internally it is F_CPU/(samplingTime)
  * @param samplingFrequency : The input signal is repeated every samplingFrequency
  * @param strength          : Pull up strength
  * @param nbSample
  * @param xsamples
- * @param samplingTime      : The "Apparent" sampling frequency is F_CPU/samplingTime
  * @param res               : Load Resistance
  * @return 
  */
-bool  TestPin::pulseTime(int nbSampleAsked, int samplingFrequency, TestPin::PULL_STRENGTH strength,   int &nbSample,  uint16_t **xsamples,int &samplingTime,int &res)
+bool  TestPin::pulseTime(int clockPerSample,int nbSampleAsked, int samplingFrequency, TestPin::PULL_STRENGTH strength,   int &nbSample,  uint16_t **xsamples,int &res)
 {
     disconnectAll();
     
@@ -239,7 +276,7 @@ bool  TestPin::pulseTime(int nbSampleAsked, int samplingFrequency, TestPin::PULL
     adc->setADCPin(this->_pin);
     adc->setupTimerSampling();
     //
-    if(!settings.createWaveForm(nbSampleAsked,nbSample,xsamples  ))
+    if(!settings.createWaveForm(clockPerSample,nbSampleAsked,nbSample,xsamples  ))
     {
         return false;
     }
@@ -247,10 +284,53 @@ bool  TestPin::pulseTime(int nbSampleAsked, int samplingFrequency, TestPin::PULL
     pullDown(strength);
     xDelay(10);
     
-    // Apparent divider compared to F_CPU
-    samplingTime=settings.stroboscopeSampling*settings.timerScaler;
     res=settings.res;   
     disconnectAll();
+    return true;
+}
+/**
+ * 
+ * @param otherPin
+ * @param clockPerSample
+ * @param nbSampleAsked
+ * @param samplingFrequency
+ * @param strength
+ * @param nbSample
+ * @param xsamples
+ * @param res
+ * @return 
+ */
+bool  TestPin::pulseTimeDelta(TestPin &otherPin, int clockPerSample,int nbSampleAsked, int samplingFrequency, TestPin::PULL_STRENGTH strength,   int &nbSample,  uint16_t **xsamples,int &res)
+{
+    disconnectAll();
+    
+    PulseSetting settings(*this,strength);
+    
+    pullDown(TestPin::PULL_LOW);
+    xDelay(10);
+    
+    settings.init(samplingFrequency);    
+    
+    pwm(strength,samplingFrequency);
+    pwmPause(settings.pin);
+     
+    
+    adc->setADCPin(this->_pin);
+    adc->setupTimerSampling();
+    //
+    if(!settings.createWaveFormDelta(otherPin,clockPerSample,nbSampleAsked,nbSample,xsamples  ))
+    {
+        return false;
+    }
+   
+    pullDown(strength);
+    xDelay(10);
+    
+    res=settings.res;   
+    disconnectAll();
+    
+    // Merge
+    
     return true;
 }
 

@@ -4,7 +4,7 @@
 #include "nvm_default.h"
 #include "cpuID.h"
 
-#define HASH 0x456C
+#define HASH 0x456D
 
 
 /**

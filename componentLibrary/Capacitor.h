@@ -57,6 +57,7 @@ protected:
             bool getEsr(float &esr);
             bool minMax(bool high,int &minmax);
             bool computeWrapper();
+            Capacitor::CapEval evalSmall(int fq,int clockPerSample, float &cap);
 public:
             bool compute1nfRange(float &c);
             bool computed;

@@ -60,7 +60,7 @@ void calibration()
     ALLCAP(2,pin2,pin1,pin3);
     ALLCAP(3,pin3,pin2,pin1);
     
-
+#if 0
     // Stroboscopic calibration, only on pin2
     TesterGfx::print(5,INTER,"Fine cal");
     TesterGfx::print(5,INTER*2,"(30sec)");
@@ -72,12 +72,11 @@ void calibration()
     calibration3.capOffsetHighInPfMu16=INTERNAL_CAPACITANCE_IN_PF_HIGH*16;
     int fq=2000; // 2Khz
     int resistance;
-    int samplingTime;
     int nbSamples;
     uint16_t *samples;
     float c=0;
     // Dummy first one
-    if(!pin2.pulseTime(50,fq,TestPin::PULL_HI,nbSamples,&samples,samplingTime,resistance))
+    if(!pin2.pulseTime(8,50,fq,TestPin::PULL_HI,nbSamples,&samples,resistance))
     {
        
     }
@@ -87,10 +86,10 @@ void calibration()
         c=0;
         for(int i=0;i<AVG;i++)
         {
-            pin2.pulseTime(1024,fq,TestPin::PULL_HI,nbSamples,&samples,samplingTime,resistance);
+            pin2.pulseTime(8,1024,fq,TestPin::PULL_HI,nbSamples,&samples,resistance);
             // compute C
             float period=F_CPU;
-            period=(float)(samplingTime)/period;
+            period=(float)(8)/period;
             c+=Capacitor::computeCapacitance(  nbSamples,  samples, resistance,period);
         }
         
@@ -103,7 +102,7 @@ void calibration()
     TesterGfx::print(5,INTER*1,str);
     sprintf(str,"C=%f pF",c);
     TesterGfx::print(2,INTER*3,str);
-    
+#endif    
     // and save
     NVM::reset();
     NVM::saveTestPin(1,calibration1);

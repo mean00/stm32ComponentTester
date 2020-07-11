@@ -72,7 +72,7 @@ void MainTask::run()
     if(!NVM::hasCalibration())
         calibration();
 
-#if 0   
+#if 1   
     Capacitor c(pin1,pin2,pin3);
     
     c.compute();
