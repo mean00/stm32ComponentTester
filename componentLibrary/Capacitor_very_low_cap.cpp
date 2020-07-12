@@ -15,6 +15,88 @@
 #include "math.h"
 /**
  * 
+ * @param fq
+ * @param clockPerSample
+ * @param cap
+ * @return 
+ */
+Capacitor::CapEval Capacitor::quickEvalSmall(int fq, int clockPerSample)
+{   
+    TestPin *p1,*p2;
+    if(_pB.pinNumber()==2)
+    {
+        p1=&_pB;
+        p2=&_pA;
+    }else if(_pA.pinNumber()==2)
+    {
+        p1=&_pA;
+        p2=&_pB;        
+    }
+   
+    p2->setToGround();
+    p1->pullDown(TestPin::PULL_LOW);
+    xDelay(10);
+    
+    int resistance;
+    int samplingTime;
+    int nbSamples;
+    uint16_t *samples;
+    
+    if(!p1->pulseTimeDelta(*p2,clockPerSample, 64,fq,TestPin::PULL_HI,nbSamples,&samples,resistance))
+    {
+        return EVAL_ERROR;
+    }
+    
+    
+    TesterGfx::clear();
+    TesterGfx::drawCurve(nbSamples,samples);
+    
+    WaveForm wave(nbSamples,samples);
+    int mn,mx;
+    wave.searchMinMax(mn,mx);
+    
+    if( (mx-mn)<100) // flat
+    {
+        if(mx<150) // stuck to zero
+            return EVAL_BIGGER_CAP;
+        else
+            return EVAL_SMALLER_CAP;
+    }
+    int iA,iB,vA,vB;    
+    
+    wave.searchValueAbove(mn+((mx-mn)/2), iB, vB, 0);
+    wave.searchValueAbove(mx-1, iA, vA, iB);
+    bool ok=true;
+    
+    // B is middle point between min & max
+    
+    vA=4095-vA;
+    vB=4095-mx;
+    
+    
+    char st[20];
+    sprintf(st,"M:%d",iB);
+    TesterGfx::print(10,20,st);
+    
+    Component::prettyPrint(fq,"Hz",st);
+    TesterGfx::print(10,50,st);
+    
+    sprintf(st,"%d",clockPerSample);
+    TesterGfx::print(10,80,st);
+    
+    sprintf(st,"Md:%d",iB);
+    TesterGfx::print(70,80,st);
+    
+    
+    TesterControl::waitForAnyEvent();
+   
+    float r=(float)iB/(float)nbSamples;
+    if(r<1/5.) return EVAL_SMALLER_CAP;
+    return EVAL_OK;
+}
+
+/**
+ * 
  * @return 
  */
 Capacitor::CapEval Capacitor::evalSmall(int fq, int clockPerSample, float &cap)
@@ -53,6 +135,9 @@ Capacitor::CapEval Capacitor::evalSmall(int fq, int clockPerSample, float &cap)
     
     float period=F_CPU;
     period=(float)(clockPerSample)/period;
+    
+    TesterGfx::drawCurve(nbSamples,samples);
+    
 #define OFFSET 5    
     WaveForm wave(nbSamples-OFFSET,samples+OFFSET);
     int mn,mx;
@@ -84,15 +169,20 @@ Capacitor::CapEval Capacitor::evalSmall(int fq, int clockPerSample, float &cap)
     if((iB-iA)<(minSamples)) return EVAL_SMALLER_CAP; // the pulse is too quick 
     if((vB-vA)<400) return EVAL_BIGGER_CAP; // A & B are too close, we must zoom out
     
-    cap=computeCapacitance(  nbSamples,   samples, resistance,  period);
+    cap=computeCapacitance(  iA,iB,vA,vB, resistance,  period);
     
-    TesterGfx::drawCurve(nbSamples,samples);
+    
     
     char st[20];
     Component::prettyPrint(cap,"F",st);
     TesterGfx::print(10,20,st);
-    TesterControl::waitForAnyEvent();
     
+    Component::prettyPrint(fq,"Hz",st);
+    TesterGfx::print(10,50,st);
+    
+    sprintf(st,"%d",clockPerSample);
+    TesterGfx::print(10,80,st);
+    TesterControl::waitForAnyEvent();
     return EVAL_OK;  
 
 }
@@ -106,12 +196,21 @@ bool Capacitor::computeVeryLowCap()
    Capacitor::CapEval er;
    float cap;
    
-   er=evalSmall(1000,8,cap);
-   er=evalSmall(1000,16,cap);
-   er=evalSmall(2000,8,cap);
-   er=evalSmall(2000,16,cap);
+   int strobo=64; // actual sampling freq=F_CPU/strobo =~ 1 Mhz
+   bool found=false;
+   for(int i=0;i<6;i++)
+   {
+       if(quickEvalSmall(1200,strobo*8)==EVAL_OK)
+       {
+           found=true;
+            break;
+       }
+       strobo>>=1;
+   }
+   if(!found)
+       return false;
    
-   capacitance=cap;
-   
+   er=evalSmall(1200,strobo,cap);
+   capacitance=cap;   
    return er==EVAL_OK;
 }

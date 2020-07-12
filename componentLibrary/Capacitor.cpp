@@ -253,6 +253,25 @@ bool Capacitor::compute1nfRange(float &c)
  * @param period
  * @return 
  */
+float Capacitor::computeCapacitance(int ia, int ib, int va, int vb,int resistance, float period)
+{    
+   
+    //
+    float c=(ib-ia);
+    c/=(float)resistance;
+    c=c/log( (float)vb/(float)va);
+    c=c*period;        
+    return c;
+}
+
+/**
+ * 
+ * @param nbSample
+ * @param samples
+ * @param resistance
+ * @param period
+ * @return 
+ */
 int vA,vB,iA,iB; // for debug
 float Capacitor::computeCapacitance(int nbSamples, uint16_t *samples, int resistance, float period)
 {    
@@ -301,13 +320,8 @@ float Capacitor::computeCapacitance(int nbSamples, uint16_t *samples, int resist
             found=true;
         }
     }
+    return computeCapacitance(iA, iB, vA,vB, resistance,  period);
     //
-    float c=(iB-iA);
-    c/=(float)resistance;
-    c=c/log( (float)vB/(float)vA);
-    c=c*period;
-        
-    return c;
 }
 
 

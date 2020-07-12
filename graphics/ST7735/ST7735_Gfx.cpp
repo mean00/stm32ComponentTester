@@ -335,24 +335,44 @@ void TesterGfx::printStatus(const char *status)
 void TesterGfx::drawCurve(int nb, uint16_t *data)
 {
     instance->fillScreen(0);
-    int n=nb/128; // multiplier
-    int x=0,inc=2;
-    while(x<128)
+    if(nb>=128)
     {
-        instance->putPixel(x,2,0xff<<8);
-        instance->putPixel(2,x,0xff<<8);
-        inc+=1;
-        x+=inc;
-    }
-    for(int i=0;i<128;i++)
+        int n=nb/128; // multiplier        
+        int x=0,inc=2;
+        while(x<128)
+        {
+            instance->putPixel(x,2,0xff<<8);
+            instance->putPixel(2,x,0xff<<8);
+            inc+=1;
+            x+=inc;
+        }
+        for(int i=0;i<128;i++)
+        {
+            float x=data[i*n];
+            x=x/36.;
+            instance->putPixel(i,127-i,0xff);
+            instance->putPixel(i,127-((int)x),0xfffff);
+            if(i*n>nb) return;
+        }
+    }else
     {
-        float x=data[i*n];
-        x=x/36.;
-        instance->putPixel(i,127-i,0xff);
-        instance->putPixel(i,127-((int)x),0xfffff);
-        
+        int n=128/(nb+1); // multiplier        
+        int x=0,inc=2;
+        while(x<128)
+        {
+            instance->putPixel(x,2,0xff<<8);
+            instance->putPixel(2,x,0xff<<8);
+            inc+=1;
+            x+=inc;
+        }
+        for(int i=0;i<nb;i++)
+        {
+            float x=data[i];
+            x=x/36.;
+            instance->putPixel(i*n,127-(i*n),0xff);
+            instance->putPixel(i*n,127-((int)x),0xfffff);
+        }
     }
-    
 }
 /**
  * 

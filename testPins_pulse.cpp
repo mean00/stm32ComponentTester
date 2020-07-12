@@ -77,76 +77,17 @@ public:
         }
         res=testPin.getRes(pinState)+testPin.getRes(TestPin::GND);
     }
-    bool init(int samplingFrequency)
-    {
-        if(!  findRateScale(samplingFrequency, prescaler,rate))
-        {
-            xAssert(0);
-            return false;
-        }   
-        pwmGetScaleOverFlow(samplingFrequency,timerScaler,timerOvf);
-        return false;
-    }
-
     /**
-     * \brief compute rate & scale so that the ADC sampling fq is larger than timer frequency
-     * @param frequency
-     * @param prescaler
-     * @param rate
+     * 
+     * @param samplingFrequency
      * @return 
      */
-    bool findRateScale(int frequency,  DSOADC::Prescaler  &prescaler,  adc_smp_rate   &rate)
+    bool init(int samplingFrequency)
     {
-#if 0        
-        // The parasitic cap varies depending on the rate/scale
-        // hardcode it to the one we know
-        prescaler= DSOADC::ADC_PRESCALER_2;
-        rate=ADC_SMPR_1_5;
-        return true;
-#endif        
-        float alpha=(float)F_CPU;
-        alpha/=(float)(frequency+1);
-
-        int dex=-1;
-        for(int i=sizeof(scalerTable)/sizeof(ScalerTable)-1;i>0 && dex==-1;i--)
-        {
-            float one=alpha/scalerTable[i].div;
-            if(one>(239.5+12))
-            {
-                dex=i;
-                break;
-            }
-        }
-        if(dex==-1)
-        {
-            // Take the biggest prescaler
-            dex=0; //sizeof(scalerTable)/sizeof(ScalerTable)-1;
-        }
-        prescaler=scalerTable[dex].scaler;
-
-        // now rate
-        alpha=(float)F_CPU;
-        alpha/=(float)(frequency+1);
-        alpha/=scalerTable[dex].div;
-        dex=-1;
-        for(int i=sizeof(rateTable)/sizeof(RateTable)-1;i>0 && dex==-1;i--)
-        {
-            // Alpha > rate
-            if(alpha>rateTable[i].cycle)
-            {
-                dex=i;
-                break;
-            }
-        }
-        if(dex==-1)
-        {
-            dex=0;
-        }
-        rate=rateTable[dex].rate;
+        DSOADC::frequencyToRateScale(samplingFrequency,prescaler,rate);
+        pwmGetScaleOverFlow(samplingFrequency,timerScaler,timerOvf);
         return true;
     }
-    
-
     /**
      * \brief compute the offset so that the ramp up is near the beginning
      * increasing the shift makes the curve  later
@@ -196,7 +137,7 @@ public:
         offset=0;
         return true;  
     }
-    bool  createWaveFormDelta(TestPin &otherPin,    int clockPerSample, int sampleAsked,    int &nbSamples,    uint16_t  **samples)
+    bool  createWaveFormDelta(TestPin &otherPin,    int &clockPerSample, int sampleAsked,    int &nbSamples,    uint16_t  **samples)
     {
         // The apparent sampling frequency is F_CPU/(timerScaler*apprentDivider)
         // make it so timerSCaler*apparentDivier=8
@@ -204,6 +145,7 @@ public:
         // as long as it is 1 2 or 4, from 500 Hz to ~ 10 khz
         
         int apparentDivider=clockPerSample/timerScaler;
+        clockPerSample=apparentDivider*timerScaler;
         if(!apparentDivider) xAssert(0);
         // ADC is running X cycles faster than repeat
         // Same thing as ~ adc running at  X Cycle
@@ -227,14 +169,17 @@ public:
         }
         //
         adc->stopTimeCapture();
-        nbSamples=(nbSamples-4)/2;
-        *samples+=4;
-        testPin.dualSimulatenousDelta(nbSamples,*samples);
+        nbSamples=(nbSamples)/2;
         // Delta        
+        testPin.dualSimulatenousDelta(nbSamples,*samples);
+        // skip the 2 first ones
+        nbSamples-=2;
+        (*samples)+=2;
         pwmPause(pin);
         offset=0;
         return true;  
     }
+public:    
     int             pin;
     int             timerScaler;
     int             timerOvf;
@@ -300,7 +245,7 @@ bool  TestPin::pulseTime(int clockPerSample,int nbSampleAsked, int samplingFrequ
  * @param res
  * @return 
  */
-bool  TestPin::pulseTimeDelta(TestPin &otherPin, int clockPerSample,int nbSampleAsked, int samplingFrequency, TestPin::PULL_STRENGTH strength,   int &nbSample,  uint16_t **xsamples,int &res)
+bool  TestPin::pulseTimeDelta(TestPin &otherPin, int &clockPerSample,int nbSampleAsked, int samplingFrequency, TestPin::PULL_STRENGTH strength,   int &nbSample,  uint16_t **xsamples,int &res)
 {
     disconnectAll();
     
@@ -316,7 +261,7 @@ bool  TestPin::pulseTimeDelta(TestPin &otherPin, int clockPerSample,int nbSample
      
     
     adc->setADCPin(this->_pin);
-    adc->setupTimerSampling();
+    adc->setupDualTimerSampling();
     //
     if(!settings.createWaveFormDelta(otherPin,clockPerSample,nbSampleAsked,nbSample,xsamples  ))
     {

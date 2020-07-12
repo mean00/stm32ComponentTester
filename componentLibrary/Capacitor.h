@@ -57,10 +57,12 @@ protected:
             bool getEsr(float &esr);
             bool minMax(bool high,int &minmax);
             bool computeWrapper();
-            Capacitor::CapEval evalSmall(int fq,int clockPerSample, float &cap);
+            Capacitor::CapEval evalSmall(int fq,int clockPerSample,float &cap);
+            Capacitor::CapEval quickEvalSmall(int fq, int clockPerSample);
 public:
             bool compute1nfRange(float &c);
             bool computed;
 static      float computeCapacitance(int nbSample, uint16_t *samples, int resistance, float period);
 static      float computeCapacitance(CapCurve &curve);
+static      float computeCapacitance(int ia, int ib, int va, int vb,int resistance, float period);
 };
