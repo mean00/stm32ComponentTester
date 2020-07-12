@@ -51,7 +51,14 @@ void cpuID::identify()
          if(_flashSize==128) 
             _chipId=MCU_STM32_128K;
         else if(_flashSize == 64)
+        {   // Assume all STM32 have 128k
+#if 1
+                      _chipId=MCU_STM32_128K;
+                      _flashSize=128;
+#else
                 _chipId=MCU_STM32_64K;
+#endif
+        }
             else
                 xAssert(0);         
         _ramSize=20;

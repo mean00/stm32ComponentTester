@@ -13,6 +13,38 @@
 #include "testerControl.h"
 #include "myPwm.h"
 #include "math.h"
+
+
+typedef struct VeryLowScale
+{
+    int signalFrequency;
+    int s512; // apparent sampling for 512 sample
+    int s64;  // apparent sampling for 64 samples   
+};
+
+#if F_CPU==72000000
+const VeryLowScale veryLowScales[]=
+{    
+    {2000,32,256}, // For 100..500 pf
+    {2000,16,128}, // For 100..500 pf
+    {2000,8,64}, // For 100..500 pf
+    {2000,2,16}, // For 100..500 pf
+    {2000,2,8}, // For 100..500 pf
+    
+};
+#elif
+const VeryLowScale veryLowScales[]=
+{
+#error update
+    {1000,32,256}, // For 200..100 pf
+    {2000,32,256}, // For 100..500 pf
+    {2000,16,128}, // For 100..500 pf
+    {2000,2,16}, // For 100..500 pf    
+};
+
+#else
+#error unsupport fq!
+#endif
 /**
  * 
  * @param fq
@@ -42,7 +74,7 @@ Capacitor::CapEval Capacitor::quickEvalSmall(int fq, int clockPerSample)
     int nbSamples;
     uint16_t *samples;
     
-    if(!p1->pulseTimeDelta(*p2,clockPerSample, 64,fq,TestPin::PULL_HI,nbSamples,&samples,resistance))
+    if(!p1->pulseTimeDelta(*p2,clockPerSample, 64*2,fq,TestPin::PULL_HI,nbSamples,&samples,resistance))
     {
         return EVAL_ERROR;
     }
@@ -51,7 +83,7 @@ Capacitor::CapEval Capacitor::quickEvalSmall(int fq, int clockPerSample)
     TesterGfx::clear();
     TesterGfx::drawCurve(nbSamples,samples);
     
-    WaveForm wave(nbSamples,samples);
+    WaveForm wave(nbSamples-2,samples+2);
     int mn,mx;
     wave.searchMinMax(mn,mx);
     
@@ -69,29 +101,38 @@ Capacitor::CapEval Capacitor::quickEvalSmall(int fq, int clockPerSample)
     bool ok=true;
     
     // B is middle point between min & max
-    
-    vA=4095-vA;
-    vB=4095-mx;
-    
+        
     
     char st[20];
-    sprintf(st,"M:%d",iB);
+    sprintf(st,"iB:%d",iB);
     TesterGfx::print(10,20,st);
     
-    Component::prettyPrint(fq,"Hz",st);
-    TesterGfx::print(10,50,st);
-    
-    sprintf(st,"%d",clockPerSample);
+    sprintf(st,"mx:%d",vA);
     TesterGfx::print(10,80,st);
+
     
-    sprintf(st,"Md:%d",iB);
-    TesterGfx::print(70,80,st);
+    Component::prettyPrint(fq,"Hz",st);
+    TesterGfx::print(10,40,st);
     
+    sprintf(st,"CPS:%d",clockPerSample);
+    TesterGfx::print(10,60,st);
+        
+    
+    
+   
+    vA=4095-vA;
+    vB=4095-mx;
+
+    
+    
+    float r=(float)iB/(float)nbSamples;
+    
+    sprintf(st,"r:%d",(int)(r*100));
+    TesterGfx::print(10,100,st);
     
     TesterControl::waitForAnyEvent();
-   
-    float r=(float)iB/(float)nbSamples;
-    if(r<1/5.) return EVAL_SMALLER_CAP;
+    
+    if(r<0.09) return EVAL_SMALLER_CAP;
     return EVAL_OK;
 }
 
@@ -195,22 +236,21 @@ bool Capacitor::computeVeryLowCap()
    
    Capacitor::CapEval er;
    float cap;
-   
-   int strobo=64; // actual sampling freq=F_CPU/strobo =~ 1 Mhz
-   bool found=false;
-   for(int i=0;i<6;i++)
+  
+   int found=-1;
+   int n=sizeof(veryLowScales)/sizeof(VeryLowScale);
+   for(int i=0;i<n;i++)
    {
-       if(quickEvalSmall(1200,strobo*8)==EVAL_OK)
+       if(quickEvalSmall(veryLowScales[i].signalFrequency,veryLowScales[i].s64)==EVAL_OK)
        {
-           found=true;
-            break;
+           found=i;
+           break;
        }
-       strobo>>=1;
    }
-   if(!found)
+   if(found<0)
        return false;
    
-   er=evalSmall(1200,strobo,cap);
+   er=evalSmall(veryLowScales[found].signalFrequency,veryLowScales[found].s512,cap);
    capacitance=cap;   
    return er==EVAL_OK;
 }
