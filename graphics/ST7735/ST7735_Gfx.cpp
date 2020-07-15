@@ -137,11 +137,11 @@ void TesterGfx::progress6(int pg)
 #define PG(x) (24+16*x)    
     for(int i=0;i<pg;i++)
     {
-        DRAW(i,point_empty);
+        DRAW(i,point_full);
     }
     for(int i=pg;i<6;i++)
     {
-        DRAW(i,point_full);
+        DRAW(i,point_empty);
     }
 }
 
