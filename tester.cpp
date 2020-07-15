@@ -90,7 +90,7 @@ bool  Tester::probe2Pins(int dex,Component **comp)
  */
 void Tester::scan2Pins(int dex, Component **c)
 {
-    TesterGfx::print(dex*20,75,"x");
+    
     probe2Pins(dex,c);
 }
 /**
@@ -103,7 +103,7 @@ void Tester::scan2Pins(int dex, Component **c)
  */
 void Tester::scan3Pins(int dex, Component **c)
 {
-    TesterGfx::print(dex*20,75,"x");
+    
     probe3Pins(dex,c);
 }
 
@@ -123,19 +123,24 @@ bool Tester::probe(void)
     TesterGfx::print(0,40,"Click to probe");
 next:
     TesterGfx::clear();
-    TesterGfx::print(0,40,"Detecting");
+    TesterGfx::print(18,40,"Detecting");
     
     Component *c=NULL;
 
-    
+    TesterGfx::progress6(0);
     scan3Pins(1,&c);
+    TesterGfx::progress6(1);
     scan3Pins(2,&c);
+    TesterGfx::progress6(2);
     scan3Pins(3,&c);
         
     if(!c)
     {
+        TesterGfx::progress6(3);
         scan2Pins(1,&c);
+        TesterGfx::progress6(4);
         scan2Pins(2,&c);
+        TesterGfx::progress6(5);
         scan2Pins(3,&c);
     }
     

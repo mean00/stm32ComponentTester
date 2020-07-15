@@ -25,3 +25,7 @@ convGif Nmosfet2
 convGif Pmosfet
 convGif NPN
 convGif PNP
+convGif zif
+convGif zif
+convGif point_empty
+convGif point_full

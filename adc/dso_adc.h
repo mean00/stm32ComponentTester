@@ -141,7 +141,7 @@ public:
             bool startDMATriggeredSampling (const int count, int ADCTriggerValue);
             bool commonTrigger (int count,uint32_t triggerValueADC);
             bool startTimerSampling (int count);
-            bool startDualTimeSampling (const int otherPin,int count);
+            bool startDualTimeSampling (const int otherPin,int count,int preload=0);
             
             bool startTriggeredTimerSampling (int count,uint32_t triggerADC);
     static  void clearSamples();

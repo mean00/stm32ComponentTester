@@ -9,3 +9,6 @@
 #include "generated/Pmosfet_compressed.h"
 #include "generated/NPN_compressed.h"
 #include "generated/PNP_compressed.h"
+#include "generated/zif_compressed.h"
+#include "generated/point_empty_compressed.h"
+#include "generated/point_full_compressed.h"

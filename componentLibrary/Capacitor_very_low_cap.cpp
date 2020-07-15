@@ -24,12 +24,17 @@ typedef struct VeryLowScale
 
 #if F_CPU==72000000
 const VeryLowScale veryLowScales[]=
-{    
-    {2000,32,256}, // For 100..500 pf
-    {2000,16,128}, // For 100..500 pf
-    {2000,8,64}, // For 100..500 pf
-    {2000,2,16}, // For 100..500 pf
-    {2000,2,8}, // For 100..500 pf
+{   
+
+    {1600,48,40*8}, // For 100..500 pf
+    {2000,32,32*8}, // For 100..500 pf
+    {2000,24,24*8}, // For 100..500 pf
+    {2000,16,16*8}, // For 100..500 pf
+    {2000,12,12*8}, // For 100..500 pf
+    {2000,8,8*8}, // For 100..500 pf
+    
+
+//    {20000,1,32}, // For 100..500 p
     
 };
 #elif
@@ -52,18 +57,9 @@ const VeryLowScale veryLowScales[]=
  * @param cap
  * @return 
  */
-Capacitor::CapEval Capacitor::quickEvalSmall(int fq, int clockPerSample)
+Capacitor::CapEval Capacitor::quickEvalSmall(TestPin *p1, TestPin *p2,int fq, int clockPerSample, int &d)
 {   
-    TestPin *p1,*p2;
-    if(_pB.pinNumber()==2)
-    {
-        p1=&_pB;
-        p2=&_pA;
-    }else if(_pA.pinNumber()==2)
-    {
-        p1=&_pA;
-        p2=&_pB;        
-    }
+  
    
     p2->setToGround();
     p1->pullDown(TestPin::PULL_LOW);
@@ -80,12 +76,20 @@ Capacitor::CapEval Capacitor::quickEvalSmall(int fq, int clockPerSample)
     }
     
     
-    TesterGfx::clear();
-    TesterGfx::drawCurve(nbSamples,samples);
+    
     
     WaveForm wave(nbSamples-2,samples+2);
     int mn,mx;
     wave.searchMinMax(mn,mx);
+
+
+    TesterGfx::clear();
+     char st[20];
+    TesterGfx::drawCurve(nbSamples,samples);
+    sprintf(st,"Mn:%d",mn);
+    TesterGfx::print(10,100,st);
+    sprintf(st,"Mx:%d",mx);
+
     
     if( (mx-mn)<100) // flat
     {
@@ -94,20 +98,18 @@ Capacitor::CapEval Capacitor::quickEvalSmall(int fq, int clockPerSample)
         else
             return EVAL_SMALLER_CAP;
     }
+    
     int iA,iB,vA,vB;    
+    int tgt=mn+(((mx-mn)*85)/100); // look for 0.666= ~ e-1
+    wave.searchValueAbove(mn+50, iA, vA, 0);
+    wave.searchValueAbove(tgt, iB, vB, iA);
     
-    wave.searchValueAbove(mn+((mx-mn)/2), iB, vB, 0);
-    wave.searchValueAbove(mx-1, iA, vA, iB);
-    bool ok=true;
+    d=(iB-iA)*8;
     
-    // B is middle point between min & max
-        
-    
-    char st[20];
     sprintf(st,"iB:%d",iB);
     TesterGfx::print(10,20,st);
     
-    sprintf(st,"mx:%d",vA);
+    sprintf(st,"d:%d",d);
     TesterGfx::print(10,80,st);
 
     
@@ -117,22 +119,11 @@ Capacitor::CapEval Capacitor::quickEvalSmall(int fq, int clockPerSample)
     sprintf(st,"CPS:%d",clockPerSample);
     TesterGfx::print(10,60,st);
         
-    
-    
    
-    vA=4095-vA;
-    vB=4095-mx;
-
-    
-    
-    float r=(float)iB/(float)nbSamples;
-    
-    sprintf(st,"r:%d",(int)(r*100));
-    TesterGfx::print(10,100,st);
+    TesterGfx::print(90,100,st);
     
     TesterControl::waitForAnyEvent();
     
-    if(r<0.09) return EVAL_SMALLER_CAP;
     return EVAL_OK;
 }
 
@@ -140,26 +131,9 @@ Capacitor::CapEval Capacitor::quickEvalSmall(int fq, int clockPerSample)
  * 
  * @return 
  */
-Capacitor::CapEval Capacitor::evalSmall(int fq, int clockPerSample, float &cap)
+Capacitor::CapEval Capacitor::evalSmall(  TestPin *p1,TestPin *p2,int fq, int clockPerSample, float &cap)
 {   
-    TestPin *p1,*p2;
-    if(_pB.pinNumber()==2)
-    {
-        p1=&_pB;
-        p2=&_pA;
-    }else if(_pA.pinNumber()==2)
-    {
-        p1=&_pA;
-        p2=&_pB;        
-    }
-    else
-    {
-        TesterGfx::clear();
-        TesterGfx::print(10,60,"Connect one leg");
-        TesterGfx::print(10,90,"to center");
-        TesterControl::waitForAnyEvent();
-        return EVAL_ERROR;      
-    }
+       
     p2->setToGround();
     p1->pullDown(TestPin::PULL_LOW);
     xDelay(10);
@@ -169,7 +143,7 @@ Capacitor::CapEval Capacitor::evalSmall(int fq, int clockPerSample, float &cap)
     int nbSamples;
     uint16_t *samples;
     
-    if(!p1->pulseTimeDelta(*p2,clockPerSample, 1024,fq,TestPin::PULL_HI,nbSamples,&samples,resistance))
+    if(!p1->pulseTimeDelta(*p2,clockPerSample, 512*2,fq,TestPin::PULL_HI,nbSamples,&samples,resistance))
     {
         return EVAL_ERROR;
     }
@@ -177,12 +151,20 @@ Capacitor::CapEval Capacitor::evalSmall(int fq, int clockPerSample, float &cap)
     float period=F_CPU;
     period=(float)(clockPerSample)/period;
     
-    TesterGfx::drawCurve(nbSamples,samples);
     
-#define OFFSET 5    
+    
+#define OFFSET 4    
     WaveForm wave(nbSamples-OFFSET,samples+OFFSET);
     int mn,mx;
     wave.searchMinMax(mn,mx);
+    
+    char st[20];
+    TesterGfx::drawCurve(nbSamples,samples);
+    sprintf(st,"Mn:%d",mn);
+    TesterGfx::print(10,100,st);
+    
+    sprintf(st,"Mx:%d",mx);
+    
     
     if( (mx-mn)<100) // flat
     {
@@ -194,8 +176,8 @@ Capacitor::CapEval Capacitor::evalSmall(int fq, int clockPerSample, float &cap)
     // look for the starting minimum
     // Search start of ramp up above noise
     int iA,iB,vA,vB;
-    int tgt=mn+(((mx-mn)*70)/100); // look for 0.666= ~ e-1
-    wave.searchValueAbove(mn+50, iA, vA, OFFSET);
+    int tgt=(mx*80)/100; // look for 0.666= ~ e-1
+    wave.searchValueAbove(mn+20, iA, vA, OFFSET);
     wave.searchValueAbove(tgt, iB, vB, iA);
     
     if(vB<(4095/3)) return EVAL_BIGGER_CAP; // still charging...
@@ -214,7 +196,7 @@ Capacitor::CapEval Capacitor::evalSmall(int fq, int clockPerSample, float &cap)
     
     
     
-    char st[20];
+    
     Component::prettyPrint(cap,"F",st);
     TesterGfx::print(10,20,st);
     
@@ -223,6 +205,16 @@ Capacitor::CapEval Capacitor::evalSmall(int fq, int clockPerSample, float &cap)
     
     sprintf(st,"%d",clockPerSample);
     TesterGfx::print(10,80,st);
+    
+
+    sprintf(st,"A%d",iA);
+    TesterGfx::print(80,80,st);
+
+    sprintf(st,"B%d",iB);
+    TesterGfx::print(80,100,st);
+    
+    
+    
     TesterControl::waitForAnyEvent();
     return EVAL_OK;  
 
@@ -233,24 +225,50 @@ Capacitor::CapEval Capacitor::evalSmall(int fq, int clockPerSample, float &cap)
  */
 bool Capacitor::computeVeryLowCap()
 {   
-   
+    
    Capacitor::CapEval er;
    float cap;
   
+    TestPin *p1,*p2;
+    if(_pB.pinNumber()==2)
+    {
+        p1=&_pB;
+        p2=&_pA;
+    }else if(_pA.pinNumber()==2)
+    {
+        p1=&_pA;
+        p2=&_pB;        
+    }
+    else
+    {
+        TesterGfx::clear();
+        TesterGfx::print(10,60,"Connect one leg");
+        TesterGfx::print(10,90,"to center");
+        TesterControl::waitForAnyEvent();
+        return EVAL_ERROR; 
+    }
    int found=-1;
+   int apparent;
+   int d;
    int n=sizeof(veryLowScales)/sizeof(VeryLowScale);
-   for(int i=0;i<n;i++)
+   
+   // Search for good distance between 150 & 200
+    for(int i=0;i<n && found==-1;i++)
    {
-       if(quickEvalSmall(veryLowScales[i].signalFrequency,veryLowScales[i].s64)==EVAL_OK)
-       {
-           found=i;
-           break;
-       }
+        er=quickEvalSmall(p1,p2,veryLowScales[i].signalFrequency,veryLowScales[i].s64,d);
+        if(er==EVAL_OK)
+        {
+            if(d>=150)
+            {
+                found=i;
+            }
+        }
    }
    if(found<0)
        return false;
    
-   er=evalSmall(veryLowScales[found].signalFrequency,veryLowScales[found].s512,cap);
+   er=evalSmall(p1,p2,veryLowScales[found].signalFrequency,veryLowScales[found].s512,cap);
+   
    capacitance=cap;   
    return er==EVAL_OK;
 }

@@ -187,8 +187,8 @@ Capacitor::CapEval Capacitor::eval(const CapScale &sc,CapCurve &curve, int &delt
     
     // Search start of ramp up above noise
     int iA,iB,vA,vB;
-    int tgt=mn+(((mx-mn)*70)/100); // look for 0.666= ~ e-1
-    wave.searchValueAbove(mn+50, iA, vA, 0);
+    int tgt=mn+(((mx-mn)*85)/100); // look for 0.666= ~ e-1
+    wave.searchValueAbove(mn+10, iA, vA, 0);
     wave.searchValueAbove(tgt, iB, vB, iA);
     
     if(vB<(4095/3)) return EVAL_BIGGER_CAP; // still charging...

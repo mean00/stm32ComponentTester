@@ -11,25 +11,52 @@
 #include "nvm_default.h"
 #include "testerControl.h"
 extern TestPin pin1,pin2,pin3;
-extern void pinTest();
-#define Y_OFFSET 20
+extern bool pinTest();
+
 /**
  * 
  */
+
+void title(const char *v)
+{
+    TesterGfx::title(v);
+}
+#define TINTER(x) (36+16*x)
+#define ZINTER(x) (32+18*x)
+     
 void calibration()
 {    
-#define INTER 26        
+    TesterGfx::title("Calibration");
+    
+    TesterGfx::drawZif();
+    
+    TesterGfx::print(10,TINTER(0),"Clear socket");
+    TesterGfx::print(10,TINTER(1),"and press ");
+    TesterGfx::print(10,TINTER(2),"button");
+    TesterControl::waitForAnyEvent();
+     
+    
+    
+
     //--------------------------------------
     // Check pins are correctly connected
     //--------------------------------------
-     pinTest();
-     TesterGfx::clear();
-     TesterGfx::print(5,0,"Basic ");
-    
+     if(!pinTest()) 
+     {
+         TesterGfx::print(1,120,"*** FAIL ***");    
+         while(1)
+         {
+             
+         }
+     }
+     
      //---------------------------------------     
      // Eval internal up & down resistances
      // Around 20 Ohms
      //---------------------------------------
+     TesterGfx::clear();
+     title("Resistor");
+    
     int resup3,resdown3;
     int resup1,resdown1;
     int resup2,resdown2;
@@ -39,26 +66,42 @@ void calibration()
     
     TestPinCalibration calibration1,calibration2,calibration3;
     
-#define ALLRES(x) calibration##x.resUp=resup##x;calibration##x.resDown=resdown##x;
+    char st[20];
+    
+#define ALLRES(x) {calibration##x.resUp=resup##x;calibration##x.resDown=resdown##x;sprintf(st,"RU:%d:RD:%d",resup##x,resdown##x),TesterGfx::print(1,ZINTER(x-1),st);}
     
     ALLRES(1);
     ALLRES(2);
     ALLRES(3);
     
+    TesterGfx::bottomLine("Press button");
+    TesterControl::waitForAnyEvent();
+    
     float val;
 #define ALLCAP(pin,a,b,c) {   \
                                 Capacitor cap(a,b,c); \
-                                cap.compute1nfRange(val);\
+                                cap.computeMedInternalCap(val);\
                                 calibration##pin.capOffsetInPf=(int)(val*pPICO+0.49);\
+                                sprintf(st,"%d pf",calibration##pin.capOffsetInPf);TesterGfx::print(1,ZINTER(pin),st); \
                                 }
+    
     
     //--------------------------------------
     // Eval internal cap in // with the test pins
     // They are in the 20 pf range
     //--------------------------------------
+    
+    TesterGfx::clear();
+    TesterGfx::title("Cap");
+
+    
     ALLCAP(1,pin1,pin2,pin3);
     ALLCAP(2,pin2,pin1,pin3);
     ALLCAP(3,pin3,pin2,pin1);
+    
+    TesterGfx::bottomLine("Press button");
+    TesterControl::waitForAnyEvent();
+
     
 #if 0
     // Stroboscopic calibration, only on pin2
@@ -104,11 +147,20 @@ void calibration()
     TesterGfx::print(2,INTER*3,str);
 #endif    
     // and save
+    TesterGfx::clear();
+    TesterGfx::title("Saving");
+
+    
     NVM::reset();
     NVM::saveTestPin(1,calibration1);
     NVM::saveTestPin(2,calibration2);
     NVM::saveTestPin(3,calibration3);
     NVM::doneWriting();    
+    TesterGfx::bottomLine("RESTART");
     TesterControl::waitForAnyEvent();
+    while(1)
+    {
+        
+    }
     
 }

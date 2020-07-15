@@ -184,7 +184,7 @@ void dumpAdcRegs()
  * @param count
  * @return 
  */
-bool DSOADC::startDualTimeSampling (const int otherPin,int count)
+bool DSOADC::startDualTimeSampling (const int otherPin,int count, int preload)
 {
     
     if(count>ADC_INTERNAL_BUFFER_SIZE)
@@ -199,12 +199,10 @@ bool DSOADC::startDualTimeSampling (const int otherPin,int count)
     volatile uint32_t s =ADC1->regs->DR;
     s =ADC2->regs->DR;
     
+    ADC_TIMER.setCount(preload); 
+    
     setupAdcDualDmaTransfer( otherPin, requestedSamples,(uint32_t *)adcInternalBuffer, DMA1_CH1_Event,false );
     startDualTime();
-
-    dumpAdcRegs();   
-    
-    ADC_TIMER.setCount(0); 
     ADC_TIMER.resume();  
     lastStartedCR2=ADC1->regs->CR2;
     FancyInterrupts::enable();

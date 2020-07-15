@@ -81,8 +81,9 @@ void pwmPause(int pin)
 {
     timer_dev *tdev=PIN_MAP[pin].timer_device;
     HardwareTimer *t=pinToTimer(tdev);
- 
+    
     t->pause();
+    t->setCount(0);
 }
 void pwmRestart(int pin)
 {

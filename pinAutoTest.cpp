@@ -200,43 +200,35 @@ bool dualDmaTest(const char *text, TestPin &A, TestPin & B, TestPin &C, bool thi
     } \
 }
 
-void pinTest()
+bool pinTest()
 {
-
-    bool testFailed=false;
-    TesterGfx::clear();
     
-    TesterGfx::print(1, Y_OFFSET ,"Pin Test");
+    bool testFailed=false;
+
+    TesterGfx::title("PinTest");
     RUNTEST(2,2,50+Y_OFFSET)
     RUNTEST(3,3,80+Y_OFFSET)    
     RUNTEST(1,1,20+Y_OFFSET)
     if(testFailed)
     {
-        while(1) {};
+       return false;
     }
-    
-    TesterGfx::clear();
-    TesterGfx::print(1,Y_OFFSET,"1DMA Test");
+        
+    TesterGfx::title("DMA");
     RUN1DMATEST(1,2,20+Y_OFFSET);
     RUN1DMATEST(1,3,50+Y_OFFSET);
     RUN1DMATEST(2,3,80+Y_OFFSET);
     if( testFailed)        
-        while(1)
-        {
-
-        }
+        return false;
     
-    TesterGfx::clear();
-    TesterGfx::print(1,Y_OFFSET,"2DMA Test");
+    
+    TesterGfx::title("2DMA");
     RUNDDMATEST(1,2,3,20+Y_OFFSET);
     RUNDDMATEST(1,3,2,50+Y_OFFSET);
     RUNDDMATEST(2,3,1,80+Y_OFFSET);
     if( testFailed)        
-        while(1)
-        {
-
-        }
-    TesterGfx::print(1,120,"*** PASS **");    
+        return false;    
+    return true;
 }
 
 int easySample(TestPin &M)

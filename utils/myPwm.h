@@ -17,10 +17,10 @@ public:
     {
         tdev=PIN_MAP[pin].timer_device;
         t=pinToTimer(tdev);
+        timer_set_count(tdev,0);
     }
     void go(void)
     {
-        timer_set_count(tdev, 0);
         timer_resume(tdev);
     }
 protected:

@@ -120,8 +120,10 @@ public:
         nbSamples=0;
 
         pwmQuickRestart quick(pin);
+        noInterrupts();
         adc->startTimerSampling(sampleAsked);
         quick.go();
+        interrupts();
         if(!adc->getSamples(samples,nbSamples))    
         {
             xAssert(0);
@@ -159,8 +161,10 @@ public:
         nbSamples=0;
 
         pwmQuickRestart quick(pin);
-        adc->startDualTimeSampling(otherPin._pin,sampleAsked);
+        noInterrupts();
+        adc->startDualTimeSampling(otherPin._pin,sampleAsked,0*(timerOvf-apparentDivider));
         quick.go();
+        interrupts();
         if(!adc->getSamples(samples,nbSamples))    
         {
             xAssert(0);

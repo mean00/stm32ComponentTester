@@ -48,4 +48,30 @@ bool Capacitor::computeLowCap(bool overSample)
     }
     return false;
 }
+/**
+ * 
+ * @param overSample
+ * @return 
+ */
+bool Capacitor::computeMedInternalCap(float &c)
+{
+    int n=sizeof(lowCaps)/sizeof(Capacitor::CapScale);
+    const Capacitor::CapScale *scale=lowCaps+n-1;
+    c=0.;
+    int overSampling=0;
+    capacitance=0;
+    for(int i=0;i<8;i++)
+    {
+        CapCurve curve;
+        int deltaTime;
+        if(eval(*scale,curve, deltaTime)==EVAL_OK)
+        {
+            capacitance+=computeCapacitance(curve);;
+            overSampling++;            
+        }
+    }
+    c=(capacitance)/(float)overSampling;
+    return true;
+}
+
 //EOF

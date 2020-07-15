@@ -78,6 +78,7 @@ void TesterGfx::init()
  */
 void TesterGfx::splash()
 {
+    return;
 #define INC 23
 #define LINE(x) (23+INC*x)
     instance->fillScreen(0x0);
@@ -113,6 +114,49 @@ void TesterGfx::clear()
 {
     instance->fillScreen(0);
 }
+/**
+ * 
+ * @param enable
+ */
+void TesterGfx::title(const char *x)
+{
+    
+    TesterGfx::clear();
+    instance->setTextColor( instance-> Color565(0,255,0),0);
+    instance->setCursor(4,18);
+    instance->print(x);
+    instance->setTextColor(0xffff,0) ;    
+}
+/**
+ * 
+ * @param pg
+ */
+void TesterGfx::progress6(int pg)
+{
+#define DRAW(x,icon) instance->drawRLEBitmap( point_full_width, point_full_height, 16+x*16,60,0xffff,0,icon)
+#define PG(x) (24+16*x)    
+    for(int i=0;i<pg;i++)
+    {
+        DRAW(i,point_empty);
+    }
+    for(int i=pg;i<6;i++)
+    {
+        DRAW(i,point_full);
+    }
+}
+
+/**
+ * 
+ * @param x
+ */
+void TesterGfx::bottomLine(const char *x)
+{
+    instance->setTextColor( instance-> Color565(0,0,255),0);
+    instance->setCursor(4,128-18);
+    instance->print(x);
+    instance->setTextColor(0xffff,0) ;    
+}
+
 /**
  */
 void TesterGfx::print(int x, int y, const char *txt)
@@ -173,6 +217,20 @@ void TesterGfx::drawNPN(float hfe, float vf,int base, int emitter,int collector)
    instance->setCursor(5,BASELINE_LAST);
    Component::prettyPrintPrefix("Vbe:",vf, "V",st);      
    instance->print(st);      
+}
+/**
+ * 
+ */
+
+void TesterGfx::drawZif()
+{
+#define ZIF_BASE 70    
+      instance->drawRLEBitmap(zif_width,zif_height,
+                                0,ZIF_BASE,
+                                RGB565(30,80,80),0,
+                                zif);
+      print(20,ZIF_BASE+50,"  1112333");
+      
 }
 /**
  * 

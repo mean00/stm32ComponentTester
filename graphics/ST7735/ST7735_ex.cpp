@@ -39,6 +39,16 @@ Adafruit_ST7735Ex::Adafruit_ST7735Ex(int8_t CS, int8_t RS, int8_t RST ) : Adafru
   
   
 }
+/**
+ * 
+ * @param r
+ * @param g
+ * @param b
+ * @return 
+ */
+uint16_t Adafruit_ST7735::Color565(uint8_t r, uint8_t g, uint8_t b) {
+   return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+}
 
 /**
  * 
