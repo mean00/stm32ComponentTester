@@ -178,6 +178,10 @@ next:
                 c->changePage(count);
             }
         }
+    }else
+    {
+        TesterGfx::clear();
+        TesterGfx::print(0,60,"Found nothing");
     }
     delete c;
     return true;
