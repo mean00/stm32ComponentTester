@@ -137,4 +137,9 @@ void myLoop()
 {
     xAssert(0);
 }
+// Defining this mostly disable usb altogether and we gain ~ 4 kB of code
+extern "C" void __irq_usb_lp_can_rx0()
+{
+
+}
 // EOF
