@@ -48,6 +48,7 @@ ELSEIF(USE_GD32F303)
     SET(ARDUINO_UPLOAD_METHOD BMP) # Use blackmagic link, if you comment it out you'll use DFU => 8kB flash
 ELSE()
     SET(EXTENSION             "_STM32F103")
+    set(ARDUINO_LD_FILE      jtag)      # Use that instead of default jtag-c8 to get the full 128 kB
     set(ARDUINO_DEFAULT_BOARD genericSTM32F103C)        # Default Board ID, when not specified
     set(ARDUINO_CPU           STM32F103C8)
     SET(ARDUINO_UPLOAD_METHOD BMP) # Use blackmagic link, if you comment it out you'll use DFU => 8kB flash
