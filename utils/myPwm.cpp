@@ -84,6 +84,7 @@ void pwmPause(int pin)
     
     t->pause();
     t->setCount(0);
+    t->refresh();
 }
 void pwmRestart(int pin)
 {
@@ -91,6 +92,7 @@ void pwmRestart(int pin)
     HardwareTimer *t=pinToTimer(tdev);
     
     t->setCount(0);
+    t->refresh();
     t->resume();
 }
 
