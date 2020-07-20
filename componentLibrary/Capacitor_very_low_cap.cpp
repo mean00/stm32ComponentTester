@@ -26,7 +26,7 @@ typedef struct VeryLowScale
 const VeryLowScale veryLowScales[]=
 {   
 
-    {1600,48,40*8}, // For 100..500 pf
+    {1600,48,48*8}, // For 100..500 pf
     {2000,32,32*8}, // For 100..500 pf
     {2000,24,24*8}, // For 100..500 pf
     {2000,16,16*8}, // For 100..500 pf
@@ -37,16 +37,23 @@ const VeryLowScale veryLowScales[]=
 //    {20000,1,32}, // For 100..500 p
     
 };
-#elif
+#elif F_CPU==96000000
 const VeryLowScale veryLowScales[]=
-{
-#error update
-    {1000,32,256}, // For 200..100 pf
-    {2000,32,256}, // For 100..500 pf
-    {2000,16,128}, // For 100..500 pf
-    {2000,2,16}, // For 100..500 pf    
-};
+{   
 
+    {1000,128,128*8}, // For 100..500 pf
+    {1400,64,64*8}, // For 100..500 pf
+    {1600,48,48*8},
+    {2000,32,32*8}, // For 100..500 pf
+    {2000,24,24*8}, // For 100..500 pf
+    {2000,16,16*8}, // For 100..500 pf
+    {2000,12,12*8}, // For 100..500 pf
+    {2000,8,8*8}, // For 100..500 pf
+    
+
+//    {20000,1,32}, // For 100..500 p
+    
+};
 #else
 #error unsupport fq!
 #endif
