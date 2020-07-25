@@ -52,12 +52,13 @@ void pwmFromScalerAndOverflow(int pin, int scaler, int overFlow)
     int channel=PIN_MAP[pin].timer_channel;
     if(!channel) xAssert(0);
     
-    t->pause();
+    t->pause();  
     t->setPrescaleFactor(scaler);
     t->setOverflow(overFlow);
     t->setCompare(channel,overFlow/2);
+    t->setCount(0);
+    tdev->regs.bas->CR1|=0x10; //downcounting
     t->refresh();
-    t->resume();
     gpio_set_mode(PIN_MAP[pin].gpio_device, PIN_MAP[pin].gpio_bit, GPIO_AF_OUTPUT_PP);
 
     timer_disable_irq(tdev, channel);
@@ -81,10 +82,9 @@ void pwmPause(int pin)
 {
     timer_dev *tdev=PIN_MAP[pin].timer_device;
     HardwareTimer *t=pinToTimer(tdev);
-    
-    t->pause();
     t->setCount(0);
-    t->refresh();
+    t->refresh();    
+    t->pause();
 }
 void pwmRestart(int pin)
 {
