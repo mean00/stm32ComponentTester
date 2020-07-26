@@ -279,3 +279,48 @@ bool Capacitor::computeVeryLowCap()
    capacitance=cap;   
    return er==EVAL_OK;
 }
+/**
+ * 
+ * @return 
+ */
+bool Capacitor::calibration()
+{
+#if 0
+    Capacitor::CapEval er;
+    float cap;
+  
+    TestPin *p1,*p2;
+    if(_pB.pinNumber()==2)
+    {
+        p1=&_pB;
+        p2=&_pA;
+    }else if(_pA.pinNumber()==2)
+            {
+                p1=&_pA;
+                p2=&_pB;        
+            }else
+            {
+                xAssert(0);
+            }
+   
+    calibrationLow(_pA,_pB);
+    
+    int n=sizeof(veryLowScales)/sizeof(VeryLowScale);
+    for(int i=0;i<n;i++)
+    {
+       er=Capacitor::evalSmall(   p1,p2,veryLowScales[i].signalFrequency,veryLowScales[i].s512,cap)    ;
+        if(er==  EVAL_OK)
+        {
+            char st[20];
+            TesterGfx::clear();
+            TesterGfx::print(10,60,"Calibration");
+            Component::prettyPrint(cap,"F",st);
+            TesterGfx::print(10,90,st);
+            sprintf(st,"I=%d",i);
+            TesterGfx::print(10,20,st);
+            TesterControl::waitForAnyEvent();
+        }
+    }
+#endif
+    return false;
+}

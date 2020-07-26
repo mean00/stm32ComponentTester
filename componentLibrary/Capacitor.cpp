@@ -390,4 +390,19 @@ float Capacitor::computeCapacitance(CapCurve &curve)
         c=c*curve.period;
         return c;
 }
+
+/**
+ * 
+ * @param a
+ * @param b
+ * @param c
+ * @return 
+ */
+bool  Capacitor::calibration(TestPin &a, TestPin &b,TestPin &c)
+{
+    Capacitor cap(a,b,c);
+    return cap.calibration();
+}
+
+
 // EOF

@@ -66,4 +66,7 @@ public:
 static      float computeCapacitance(int nbSample, uint16_t *samples, int resistance, float period);
 static      float computeCapacitance(CapCurve &curve);
 static      float computeCapacitance(int ia, int ib, int va, int vb,int resistance, float period);
+static      bool  calibration(TestPin &a, TestPin &b,TestPin &c);
+static      bool  calibrationLow(TestPin &_pA, TestPin &_pB,float &cap);
+static      bool  calibration();;
 };
