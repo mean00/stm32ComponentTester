@@ -79,9 +79,15 @@ void calibration()
     
     float val;
 #define ALLCAP(pin,a,b,c) {   \
-                                Capacitor cap(a,b,c); \
-                                cap.computeMedInternalCap(val);\
-                                calibration##pin.capOffsetInPf=(int)(val*pPICO+0.49);\
+                                float avgCap=0;\
+                                for(int i=0;i<8;i++) \
+                                {\
+                                    float cap;\
+                                    Capacitor::calibrationLow(a,b,cap); \
+                                    avgCap+=cap;\
+                                }\
+                                avgCap/=8.;\
+                                calibration##pin.capOffsetInPf=(int)(avgCap*pPICO+0.49);\
                                 sprintf(st,"%d pf",calibration##pin.capOffsetInPf);TesterGfx::print(1,ZINTER(pin),st); \
                                 }
     
