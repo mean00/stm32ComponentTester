@@ -67,6 +67,29 @@ void pwmFromScalerAndOverflow(int pin, int scaler, int overFlow)
 }
 /**
  * 
+ * @param t
+ * @param scaler
+ * @param overFlow
+ */
+void pwmFromScalerAndOverflow(HardwareTimer *t,int channel, int scaler, int overFlow)
+{
+    
+    
+    t->pause();  
+    t->setPrescaleFactor(scaler);
+    t->setOverflow(overFlow);
+    t->setCompare(channel,overFlow/2);
+    t->setCount(0);
+    t->c_dev()->regs.bas->CR1|=0x10; //downcounting
+    t->refresh();
+
+    timer_disable_irq(t->c_dev(), channel);
+    timer_oc_set_mode(t->c_dev(), channel, TIMER_OC_MODE_PWM_1, TIMER_OC_PE);
+    timer_cc_enable(t->c_dev(), channel);
+}
+
+/**
+ * 
  * @param pin
  * @param fq
  */
