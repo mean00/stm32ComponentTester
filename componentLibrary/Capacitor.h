@@ -57,6 +57,7 @@ protected:
             bool getEsr(float &esr);
             bool minMax(bool high,int &minmax);
             bool computeWrapper();
+            Capacitor::CapEval quickProbe();
             Capacitor::CapEval evalSmall( TestPin *p1,TestPin *p2,int fq,int clockPerSample,float &cap);
             Capacitor::CapEval quickEvalSmall( TestPin *p1,TestPin *p2,int fq, int clockPerSample,int &d);
 public:

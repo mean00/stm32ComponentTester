@@ -60,15 +60,36 @@ bool Capacitor::quickEval(TestPin &a, TestPin &b,TestPin &c)
  */
 bool Capacitor::quickEval()
 {
+    CapCurve curve;
+    int deltaTime;
+
     int n=sizeof(probePoints)/sizeof(Capacitor::CapScale);
-    for(int i=0;i<n;i++)
+    Capacitor::CapEval ev=eval(probePoints[0],curve, deltaTime,true);
+    switch(ev)
     {
-        CapCurve curve;
-        int deltaTime;
+        case EVAL_OK:    
+            return true;
+            break;
+        case EVAL_SMALLER_CAP:
+            // quick eval very low cap 
+            switch(quickProbe())
+            {
+                case EVAL_OK:
+                case EVAL_BIGGER_CAP: return true;break;
+                default: return false;
+            }
+            break;
+        default:
+            return false; // bigger cap
+    }
+    for(int i=1;i<n;i++)
+    {
         switch(eval(probePoints[i],curve, deltaTime,true))
         {
             case  EVAL_OK:
                     return true;
+            case  EVAL_SMALLER_CAP:
+                    return false; // no need to go further
             default:
                     break;
         }
@@ -82,6 +103,7 @@ bool Capacitor::compute()
 {
     CapCurve curve;
     int deltaTime;
+    eval(SmallBegin,curve, deltaTime); // dummy scan to avoid 1st one being garbage
     switch(eval(SmallBegin,curve, deltaTime))
     {
         case  EVAL_SMALLER_CAP:
@@ -97,9 +119,16 @@ bool Capacitor::compute()
     switch(eval(MedEnd,curve, deltaTime))
     {
         case  EVAL_SMALLER_CAP:
-                // It's either a small or the beginning of med
+                // It's either a small or the beginning of med or a little bit too
+                // small for low cap
                 if(EVAL_SMALLER_CAP==eval(MedBegin,curve,deltaTime))
-                    return computeLowCap();
+                {
+                    if(false==computeLowCap())
+                    {
+                        return computeVeryLowCap();
+                    }
+                }
+                return true;
                 break;
         case  EVAL_OK:
         case  EVAL_BIGGER_CAP:;

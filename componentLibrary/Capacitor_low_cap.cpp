@@ -29,7 +29,11 @@ const Capacitor::CapScale lowCaps[]=
     {400*1000,TestPin::PULL_HI,true}, //  330 pf nf   
     
 };
-
+/**
+ * 
+ * @param overSample
+ * @return 
+ */
 bool Capacitor::computeLowCap(bool overSample)
 {    
     int oversampling=7;
