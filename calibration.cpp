@@ -23,7 +23,34 @@ void title(const char *v)
 }
 #define TINTER(x) (36+16*x)
 #define ZINTER(x) (32+18*x)
-     
+#define INTER     18
+  
+/**
+ * 
+ * @param cal
+ * @param p1
+ * @param p2
+ */
+void veryLowCapCalibration(int pinNumber,TestPinCalibration &cal,TestPin &pin1,TestPin &pin2)
+{
+        float cap;
+        char st[20];
+        for(int i=0;i<CALIBRATION_VERY_SMALL_SIZE;i++)
+        {
+            int mul16;
+            Capacitor::calibrationVeryLow(i,pin1,pin2,mul16);
+            TesterGfx::clear();
+            sprintf(st,"Fine Pin%d",pinNumber);
+            TesterGfx::title(st);
+            sprintf(st," %d/%d",i+1,CALIBRATION_VERY_SMALL_SIZE);
+            TesterGfx::print(5,INTER*3,st);
+            
+            sprintf(st,"C=%2.2f pf",(float)mul16/16.);
+            TesterGfx::print(5,INTER*4,st);    
+            cal.capOffsetHighInPfMu16[i]=mul16;
+        }
+}
+
 void calibration()
 {    
     TesterGfx::title("Calibration");
@@ -94,7 +121,7 @@ void calibration()
     
     //--------------------------------------
     // Eval internal cap in // with the test pins
-    // They are in the 20 pf range
+    // They are in the 200 pf range
     //--------------------------------------
     
     TesterGfx::clear();
@@ -109,49 +136,27 @@ void calibration()
     TesterControl::waitForAnyEvent();
 
     
-#if 0
+    // Cap calibration for lower value i.e. stroboscopic mode
+    // below ~ 200 Pf
+    // One of the pin must be the 2nd one
+    
+    
+    
     // Stroboscopic calibration, only on pin2
-    TesterGfx::print(5,INTER,"Fine cal");
-    TesterGfx::print(5,INTER*2,"(30sec)");
+    TesterGfx::clear();
+    TesterGfx::title("Fine Cap");
+    TesterGfx::print(5,INTER*2,"This is slow");
+    TesterGfx::print(5,INTER*3,"Please wait");
+    
     pin1.setToGround();
     pin3.setToGround();
-    // Only pin2 is able to do stroboscopic
-    calibration1.capOffsetHighInPfMu16=INTERNAL_CAPACITANCE_IN_PF_HIGH*16;
-    calibration2.capOffsetHighInPfMu16=INTERNAL_CAPACITANCE_IN_PF_HIGH*16;
-    calibration3.capOffsetHighInPfMu16=INTERNAL_CAPACITANCE_IN_PF_HIGH*16;
-    int fq=2000; // 2Khz
-    int resistance;
-    int nbSamples;
-    uint16_t *samples;
-    float c=0;
-    // Dummy first one
-    if(!pin2.pulseTime(8,50,fq,TestPin::PULL_HI,nbSamples,&samples,resistance))
-    {
-       
-    }
-    else
-    {
-    #define AVG 8
-        c=0;
-        for(int i=0;i<AVG;i++)
-        {
-            pin2.pulseTime(8,1024,fq,TestPin::PULL_HI,nbSamples,&samples,resistance);
-            // compute C
-            float period=F_CPU;
-            period=(float)(8)/period;
-            c+=Capacitor::computeCapacitance(  nbSamples,  samples, resistance,period);
-        }
-        
-        c=c/(float)AVG;
-        calibration2.capOffsetHighInPfMu16=(uint16_t)(c*pPICO*16);;
-    }
-    TesterGfx::clear();
-    char str[50];
-    sprintf(str,"C=%d pF",calibration2.capOffsetHighInPfMu16);
-    TesterGfx::print(5,INTER*1,str);
-    sprintf(str,"C=%f pF",c);
-    TesterGfx::print(2,INTER*3,str);
-#endif    
+    pin2.setToGround();
+    
+    xDelay(10);
+    
+    veryLowCapCalibration(1,calibration1,pin1,pin2);
+    veryLowCapCalibration(3,calibration3,pin3,pin2);
+
     // and save
     TesterGfx::clear();
     TesterGfx::title("Saving");

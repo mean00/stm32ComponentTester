@@ -26,7 +26,9 @@ typedef struct VeryLowScale
 const VeryLowScale veryLowScales[]=
 {   
 
-    {1600,48,48*8}, // For 100..500 pf
+    {1000,128,128*8}, // For 100..500 pf
+    {1400,64,64*8}, // For 100..500 pf
+    {1600,48,48*8},
     {2000,32,32*8}, // For 100..500 pf
     {2000,24,24*8}, // For 100..500 pf
     {2000,16,16*8}, // For 100..500 pf
@@ -120,7 +122,7 @@ Capacitor::CapEval Capacitor::quickEvalSmall(TestPin *p1, TestPin *p2,int fq, in
     int mn,mx;
     wave.searchMinMax(mn,mx);
 
-
+#if 0
     TesterGfx::clear();
      char st[20];
     TesterGfx::drawCurve(nbSamples,samples);
@@ -128,7 +130,7 @@ Capacitor::CapEval Capacitor::quickEvalSmall(TestPin *p1, TestPin *p2,int fq, in
     TesterGfx::print(10,100,st);
     sprintf(st,"Mx:%d",mx);
 
-    
+#endif    
     if( (mx-mn)<100) // flat
     {
         if(mx<150) // stuck to zero
@@ -143,7 +145,7 @@ Capacitor::CapEval Capacitor::quickEvalSmall(TestPin *p1, TestPin *p2,int fq, in
     wave.searchValueAbove(tgt, iB, vB, iA);
     
     d=(iB-iA)*8;
-    
+#if 0    
     sprintf(st,"iB:%d",iB);
     TesterGfx::print(10,20,st);
     
@@ -161,7 +163,7 @@ Capacitor::CapEval Capacitor::quickEvalSmall(TestPin *p1, TestPin *p2,int fq, in
     TesterGfx::print(90,100,st);
     
     TesterControl::waitForAnyEvent();
-    
+#endif    
     return EVAL_OK;
 }
 
@@ -195,14 +197,14 @@ Capacitor::CapEval Capacitor::evalSmall(  TestPin *p1,TestPin *p2,int fq, int cl
     WaveForm wave(nbSamples-OFFSET,samples+OFFSET);
     int mn,mx;
     wave.searchMinMax(mn,mx);
-    
+#if 0    
     char st[20];
     TesterGfx::drawCurve(nbSamples,samples);
     sprintf(st,"Mn:%d",mn);
     TesterGfx::print(10,100,st);
     
     sprintf(st,"Mx:%d",mx);
-    
+#endif    
     
     if( (mx-mn)<100) // flat
     {
@@ -234,7 +236,7 @@ Capacitor::CapEval Capacitor::evalSmall(  TestPin *p1,TestPin *p2,int fq, int cl
     
     
     
-    
+#if 0
     Component::prettyPrint(cap,"F",st);
     TesterGfx::print(10,20,st);
     
@@ -254,6 +256,7 @@ Capacitor::CapEval Capacitor::evalSmall(  TestPin *p1,TestPin *p2,int fq, int cl
     
     
     TesterControl::waitForAnyEvent();
+#endif    
     return EVAL_OK;  
 
 }
@@ -307,18 +310,29 @@ bool Capacitor::computeVeryLowCap()
    
    er=evalSmall(p1,p2,veryLowScales[found].signalFrequency,veryLowScales[found].s512,cap);
    
-   capacitance=cap;   
-   return er==EVAL_OK;
+   if(er!=EVAL_OK)
+   {
+       capacitance=0;
+       return false;
+   }
+   
+   float cal=p2->_calibration.capOffsetHighInPfMu16[found];
+   cal=(cal/16.)/pPICO;
+   if(cap<cal)
+   {
+       capacitance=0;
+       return false;
+   }
+   capacitance=cap-cal;   
+   return true;
 }
 /**
  * 
  * @return 
  */
-bool Capacitor::calibration()
+bool  Capacitor::calibrationVeryLow(int dex,TestPin &_pA, TestPin &_pB,int &calMul16)
 {
-#if 0
     Capacitor::CapEval er;
-    float cap;
   
     TestPin *p1,*p2;
     if(_pB.pinNumber()==2)
@@ -334,24 +348,33 @@ bool Capacitor::calibration()
                 xAssert(0);
             }
    
-    calibrationLow(_pA,_pB);
     
     int n=sizeof(veryLowScales)/sizeof(VeryLowScale);
-    for(int i=0;i<n;i++)
+    if(dex>=n) 
     {
-       er=Capacitor::evalSmall(   p1,p2,veryLowScales[i].signalFrequency,veryLowScales[i].s512,cap)    ;
-        if(er==  EVAL_OK)
-        {
-            char st[20];
-            TesterGfx::clear();
-            TesterGfx::print(10,60,"Calibration");
-            Component::prettyPrint(cap,"F",st);
-            TesterGfx::print(10,90,st);
-            sprintf(st,"I=%d",i);
-            TesterGfx::print(10,20,st);
-            TesterControl::waitForAnyEvent();
-        }
+        calMul16=0;
+        return true;
     }
-#endif
-    return false;
+    float cap=0;
+    int   den=0;
+    for(int j=0;j<8;j++)
+    {
+        float thisCap;
+
+         er=Capacitor::evalSmall(   p1,p2,veryLowScales[dex].signalFrequency,veryLowScales[dex].s512,thisCap)    ;
+         if(er==  EVAL_OK)
+         {
+             cap+=thisCap;
+             den++;
+
+         }
+    }
+    if(den)
+     cap/=(int)den;
+    else
+      cap=0;
+    calMul16=(int)(16.*cap*pPICO);
+
+    return true;
 }
+// EO

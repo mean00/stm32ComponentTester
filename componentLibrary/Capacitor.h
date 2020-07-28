@@ -42,7 +42,9 @@ public:
                     float getValue() {return capacitance;}
                     int   likely() {return 50;} // medium likely
             
+            
 protected:
+            
             bool  quickEval(); // return true if this is a capacitor
             float capacitance;
             bool  doOne(float target,int dex, float &cap);
@@ -58,7 +60,7 @@ protected:
             bool minMax(bool high,int &minmax);
             bool computeWrapper();
             Capacitor::CapEval quickProbe();
-            Capacitor::CapEval evalSmall( TestPin *p1,TestPin *p2,int fq,int clockPerSample,float &cap);
+static      Capacitor::CapEval evalSmall( TestPin *p1,TestPin *p2,int fq,int clockPerSample,float &cap);
             Capacitor::CapEval quickEvalSmall( TestPin *p1,TestPin *p2,int fq, int clockPerSample,int &d);
 public:
             bool compute1nfRange(float &c);    
@@ -69,5 +71,5 @@ static      float computeCapacitance(CapCurve &curve);
 static      float computeCapacitance(int ia, int ib, int va, int vb,int resistance, float period);
 static      bool  calibration(TestPin &a, TestPin &b,TestPin &c);
 static      bool  calibrationLow(TestPin &_pA, TestPin &_pB,float &cap);
-static      bool  calibration();;
+static      bool  calibrationVeryLow(int dex,TestPin &_pA, TestPin &_pB,int &calMul16);;
 };

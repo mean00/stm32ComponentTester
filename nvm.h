@@ -1,10 +1,12 @@
+
+#define CALIBRATION_VERY_SMALL_SIZE 10
 class TestPinCalibration
 {
 public:
         uint16_t  resDown;
         uint16_t  resUp;
         uint16_t  capOffsetInPf; // when using fast ADC
-        uint16_t  capOffsetHighInPfMu16; // when using slow adc
+        uint16_t  capOffsetHighInPfMu16[CALIBRATION_VERY_SMALL_SIZE]; // when using slow adc
         uint16_t  inductanceInUF;
         TestPinCalibration()
         {
@@ -12,7 +14,8 @@ public:
           resUp=0;
           capOffsetInPf=0;
           inductanceInUF=0;
-          capOffsetHighInPfMu16=0;
+          for(int i=0;i<CALIBRATION_VERY_SMALL_SIZE;i++)
+            capOffsetHighInPfMu16[i]=0.0;
         }
 };
 

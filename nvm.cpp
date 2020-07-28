@@ -4,8 +4,9 @@
 #include "nvm_default.h"
 #include "cpuID.h"
 
-#define HASH 0x456D
+#define HASH 0x456E
 
+#define SLOTS_PER_PIN 20
 
 /**
  * 
@@ -49,15 +50,17 @@ bool    NVM::loadTestPin(int pin, TestPinCalibration &calibration)
         calibration.resUp             =WIRE_RESISTANCE_AND_INTERNAL;
         calibration.resDown           =WIRE_RESISTANCE_AND_INTERNAL;
         calibration.capOffsetInPf     =INTERNAL_CAPACITANCE_IN_PF;
-        calibration.capOffsetHighInPfMu16 =INTERNAL_CAPACITANCE_IN_PF_HIGH*16;        
+        for(int i=0;i<CALIBRATION_VERY_SMALL_SIZE;i++)
+            calibration.capOffsetHighInPfMu16[i] =0;        
         calibration.inductanceInUF    =INTERNAL_INDUCTANCE_IN_UF;
         return true; // default value
     }
-    calibration.resUp=          eep.read(10*pin+1+0);
-    calibration.resDown=        eep.read(10*pin+1+1);;
-    calibration.capOffsetInPf=  eep.read(10*pin+1+2)+1;; // there is a ~ 3/4 pf Error
-    calibration.inductanceInUF= eep.read(10*pin+1+3);;
-    calibration.capOffsetHighInPfMu16= eep.read(10*pin+1+4);;    
+    calibration.resUp=          eep.read(SLOTS_PER_PIN*pin+1+0);
+    calibration.resDown=        eep.read(SLOTS_PER_PIN*pin+1+1);;
+    calibration.capOffsetInPf=  eep.read(SLOTS_PER_PIN*pin+1+2)+1;; // there is a ~ 3/4 pf Error
+    calibration.inductanceInUF= eep.read(SLOTS_PER_PIN*pin+1+3);;
+    for(int i=0;i<CALIBRATION_VERY_SMALL_SIZE;i++)        
+        calibration.capOffsetHighInPfMu16[i]= eep.read(SLOTS_PER_PIN*pin+5+i);;    
     return true;
 }
 /**
@@ -69,11 +72,12 @@ bool    NVM::loadTestPin(int pin, TestPinCalibration &calibration)
 bool    NVM::saveTestPin(int pin, const TestPinCalibration &calibration)
 {
       NVMeeprom eep;
-      eep.write(10*pin+1+0, calibration.resUp);
-      eep.write(10*pin+1+1, calibration.resDown);;
-      eep.write(10*pin+1+2,calibration.capOffsetInPf);;
-      eep.write(10*pin+1+3,calibration.inductanceInUF);;
-      eep.write(10*pin+1+4,calibration.capOffsetHighInPfMu16);;
+      eep.write(SLOTS_PER_PIN*pin+1+0, calibration.resUp);
+      eep.write(SLOTS_PER_PIN*pin+1+1, calibration.resDown);;
+      eep.write(SLOTS_PER_PIN*pin+1+2,calibration.capOffsetInPf);;
+      eep.write(SLOTS_PER_PIN*pin+1+3,calibration.inductanceInUF);;
+      for(int i=0;i<CALIBRATION_VERY_SMALL_SIZE;i++)        
+            eep.write(SLOTS_PER_PIN*pin+5+i,calibration.capOffsetHighInPfMu16[i]);;
       return true;
 }
 

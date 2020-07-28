@@ -88,8 +88,27 @@ void MainTask::run()
     TesterGfx::print(10,20,st);
     TesterControl::waitForAnyEvent();
 #endif    
-
+#if 0 // calibration
+  // Stroboscopic calibration, only on pin2
     
+    TesterGfx::print(5,28,"Fine cal");
+    
+    // dummy scan
+    Capacitor xcap(pin1,pin2,pin3);
+    float ccc;
+    xcap.compute1nfRange(ccc);    
+    
+    pin1.setToGround();
+    pin3.setToGround();
+    pin2.setToGround();
+    TestPinCalibration cal1,cal3;
+    xDelay(10);
+    {
+        float cap;
+        Capacitor::calibrationVeryLow(pin1,pin2,cal1);
+        Capacitor::calibrationVeryLow(pin3,pin2,cal3);
+    }
+#endif    
     TesterGfx::clear();
     TesterGfx::print(6,70,"Press to start");
     TesterControl::waitForAnyEvent();
