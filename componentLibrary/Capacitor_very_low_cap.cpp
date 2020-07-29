@@ -318,7 +318,7 @@ bool Capacitor::computeVeryLowCap()
    
    float cal=p2->_calibration.capOffsetHighInPfMu16[found];
    cal=(cal/16.)/pPICO;
-   if(cap<cal)
+   if(cap<cal+1./pPICO) // less than 1pF => noise
    {
        capacitance=0;
        return false;
