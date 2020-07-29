@@ -20,14 +20,11 @@ ENDIF(NOT EXISTS "${PLATFORM_PATH}/patched2")
 
 cmake_minimum_required(VERSION 3.0)
 
-IF(USE_GD32F103)
+IF(USE_GD32F103 OR USE_GD32F303)
     SET(MCU_SPEED             96000000)                 # Max speed, above 96M USB will not work (?)
 ENDIF(USE_GD32F103)
 include(./platformConfig.cmake)
 
-IF(USE_GD32F103 OR USE_GD32F303)
-    SET(MCU_SPEED             96000000)  
-ENDIF()
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 SET(CMAKE_TOOLCHAIN_FILE cmake/ArduinoToolchain.cmake)
