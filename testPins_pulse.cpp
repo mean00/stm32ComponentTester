@@ -142,12 +142,11 @@ public:
     bool  createWaveFormDelta(TestPin &otherPin,    int &clockPerSample, int sampleAsked,    int &nbSamples,    uint16_t  **samples)
     {
         // The apparent sampling frequency is F_CPU/(timerScaler*apprentDivider)
-        // make it so timerSCaler*apparentDivier=8
-        // so we end up with a know sampling frequency of F_CPU/8 => 9 Mhz with CPU@72 Mhz whatever timerScale is
-        // as long as it is 1 2 or 4, from 500 Hz to ~ 10 khz
-        
+        // clockPerSample is in F_CPU tick, we know the timerScaler
+        // so we can compute the apparentDivider i.e. the offset we have to put in the ADC
+        // to get the correct clockPerSample        
         int apparentDivider=clockPerSample/timerScaler;
-        clockPerSample=apparentDivider*timerScaler;
+        clockPerSample=apparentDivider*timerScaler; // update it in case we have a rounding issue
         if(!apparentDivider) xAssert(0);
         // ADC is running X cycles faster than repeat
         // Same thing as ~ adc running at  X Cycle
