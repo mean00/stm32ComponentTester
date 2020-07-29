@@ -158,7 +158,7 @@ next:
     TesterGfx::clear();
     const char *sname=c->getShortName();
     TesterGfx::print(8,40,sname);
-    TesterGfx::print(0,60,"  Measuring");
+    TesterGfx::bottomLine("  Measuring");
 
     // Valid component detected ?
     if(c->compute())
