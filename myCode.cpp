@@ -24,7 +24,8 @@ extern void menuSystem(void);
 
 uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
 
-
+extern void menu(void);
+bool Tester_waitForkeyPress(const char *msg);
 /**
  * @brief 
  * 
@@ -109,20 +110,49 @@ void MainTask::run()
         Capacitor::calibrationVeryLow(pin3,pin2,cal3);
     }
 #endif    
-    TesterGfx::clear();
-    TesterGfx::print(6,70,"Press to start");
-    TesterControl::waitForAnyEvent();
+    
+  
     
     
     // All ready
     Tester tester;
+    
+    Tester_waitForkeyPress("Press to start");
+
     while(1)
     {
         TesterGfx::clear();
-        tester.probe();
-        TesterControl::waitForAnyEvent();
+        bool found=tester.probe();
+        if(!found)
+        {
+            Tester_waitForkeyPress("Found nothing");
+        }
     }
 }
+
+/**
+ * 
+ * @param msg
+ * @return 
+ */
+bool Tester_waitForkeyPress(const char *msg)
+{
+    TesterGfx::clear();
+    TesterGfx::print(0,60,msg);
+
+    int evt=TesterControl::waitForEvent();            
+        if(evt & CONTROL_LONG) 
+        {
+            menu();
+        }
+    return true;
+}
+
+void menu()
+{
+    
+}
+
 
 /**
  * 

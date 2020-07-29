@@ -6,8 +6,7 @@ class Tester
 {
 public:
                     Tester();
-            bool    probe();
-
+            bool    probe(); // return true if we have found something
 
 protected:
             bool probe3Pins(int dex,Component **comp);
@@ -15,6 +14,6 @@ protected:
             void scan2Pins(int dex, Component **c);
             void scan3Pins(int dex, Component **c);
             
-            TestPin *pinTable[6];
+            TestPin *pinTable[6]; // sort list of pins to probe all combinaisons
     
 };

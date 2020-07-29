@@ -11,6 +11,8 @@
 #include "waveForm.h"
 #include "tester.h"
 
+extern void menu(void);
+
 extern TestPin pin1,pin2,pin3;
 
 Tester::Tester()
@@ -113,6 +115,7 @@ void Tester::scan3Pins(int dex, Component **c)
  */
 bool Tester::probe(void)
 {
+    bool ret=true;
     COMPONENT_TYPE type;
     
     // 1 : Zeroing
@@ -145,15 +148,8 @@ next:
     }
     
     if(!c)
-    {
-        TesterGfx::clear();
-        TesterGfx::print(0,60,"Found nothing");
-#if 0        
-        if(TesterControl::waitForEvent() & CONTROL_LONG)
-            menuSystem();
-#endif        
-        return true;
-        
+    {      
+        return false;        
     }
     TesterGfx::clear();
     const char *sname=c->getShortName();
@@ -161,28 +157,36 @@ next:
     TesterGfx::bottomLine("  Measuring");
 
     // Valid component detected ?
-    if(c->compute())
+    if(!c->compute())
     {   
-        zeroAllPins();
-        TesterGfx::clear();
-        c->draw(0);     
-        while(1)
-        {
-            int evt=TesterControl::waitForEvent();            
-//            if(evt & CONTROL_LONG) menuSystem(); // probe next
-            if(evt & CONTROL_SHORT) goto next; // probe next
-            // TODO LONG => menu
-            if(evt & CONTROL_ROTARY)
-            {
-                int count=TesterControl::getRotary();
-                c->changePage(count);
-            }
-        }
-    }else
-    {
-        TesterGfx::clear();
-        TesterGfx::print(0,60,"Found nothing");
+         delete c;
+         return false;  // invalid
     }
+    
+    
+    zeroAllPins();
+    TesterGfx::clear();
+    c->draw(0);     
+    while(1)
+    {
+        int evt=TesterControl::waitForEvent();            
+        if(evt & CONTROL_LONG) 
+        {
+            delete c;
+            menu();
+            return true;
+        }
+        if(evt & CONTROL_SHORT) 
+            goto doneAndDone; // probe next
+        // TODO LONG => menu
+        if(evt & CONTROL_ROTARY)
+        {
+            int count=TesterControl::getRotary();
+            c->changePage(count);
+        }
+    }
+
+doneAndDone:    
     delete c;
-    return true;
+    return ret;
 }
