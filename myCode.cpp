@@ -72,7 +72,9 @@ void MainTask::run()
     // 
     if(!NVM::hasCalibration())
         calibration();
-
+#if 0
+        menuSystem();
+#endif
 #if 0   
     Capacitor c(pin1,pin2,pin3);
     

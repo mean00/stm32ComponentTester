@@ -78,7 +78,6 @@ void TesterGfx::init()
  */
 void TesterGfx::splash()
 {
-    return;
 #define INC 23
 #define LINE(x) (23+INC*x)
     instance->fillScreen(0x0);
@@ -104,7 +103,7 @@ void TesterGfx::splash()
     instance->setCursor(0,LINE(4)+12);
     instance->print(cpuID::getIdAsString());
     instance->setFontSize(Adafruit_ST7735Ex::MediumFont);    
-    xDelay(2000);
+    xDelay(600);
     instance->fillScreen(0x0);
 }
 /**
