@@ -11,12 +11,32 @@
 #include "componentSignature.h"
 #include "cpuID.h"
 #include "pinConfiguration.h"
+#include "dso_menuEngine.h"
 /**
  */
+
+void wipeCal()
+{
+    
+}
+void swInfo()
+{
+}
+
+const MenuItem  topMenu[]={
+    {MenuItem::MENU_TITLE, "Main Menu",NULL},
+    {MenuItem::MENU_SUBMENU, "Wipe cal",(const void *)&wipeCal},
+    {MenuItem::MENU_CALL, "Info",(const void *)swInfo},
+    {MenuItem::MENU_END, NULL,NULL}
+};
+
+
+
+
 void menuSystem(void)
 {
-    TesterGfx::clear();
-    TesterGfx::print(0,60,"MenuSystel");
-    TesterControl::waitForEvent();
+     const MenuItem *tem=topMenu;
+     MenuManager man(tem);
+     man.run();
     return;
 }

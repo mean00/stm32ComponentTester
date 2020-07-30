@@ -67,7 +67,7 @@ SET(libPrefix ${ARDUINO_DEFAULT_BOARD}_)
 MESSAGE(STATUS "**** Configuration is ** ${CONFIGURATION} **")
 include_directories(configurations/${CONFIGURATION})
 ADD_DEFINITIONS(-D__NOP="" -DTESTER_CONFIGURATION="${CONFIGURATION}")
-SET(SUB_COMPONENTS FreeRTOS adc graphics assets componentLibrary )
+SET(SUB_COMPONENTS FreeRTOS adc graphics assets componentLibrary menu)
 FOREACH(comp ${SUB_COMPONENTS} control)
     include_directories(${comp} control)
 ENDFOREACH(comp ${SUB_COMPONENTS})
@@ -76,6 +76,7 @@ include_directories(${CMAKE_SOURCE_DIR})
 include_directories(FreeRTOS/Source/include)
 include_directories(utils)
 include_directories(componentLibrary)
+
 
 # Build 
 FOREACH(comp ${SUB_COMPONENTS} control)
@@ -96,6 +97,7 @@ generate_arduino_firmware(componentTester${EXTENSION}
 FOREACH(comp ${SUB_COMPONENTS})
     target_link_libraries(componentTester${EXTENSION} ${libPrefix}${comp})
 ENDFOREACH(comp ${SUB_COMPONENTS})
+
 target_link_libraries(componentTester${EXTENSION} ${libPrefix}RotaryEncoder)
 target_link_libraries(componentTester${EXTENSION} ${libPrefix}fonts)
 #dump_all()
