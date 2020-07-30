@@ -25,7 +25,7 @@ void swInfo()
 
 const MenuItem  topMenu[]={
     {MenuItem::MENU_TITLE, "Main Menu",NULL},
-    {MenuItem::MENU_SUBMENU, "Wipe cal",(const void *)&wipeCal},
+    {MenuItem::MENU_CALL, "Wipe cal",(const void *)&wipeCal},
     {MenuItem::MENU_CALL, "Info",(const void *)swInfo},
     {MenuItem::MENU_END, NULL,NULL}
 };

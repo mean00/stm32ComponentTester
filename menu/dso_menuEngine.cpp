@@ -12,6 +12,10 @@
 
 #define INTERLINE 20
 #define BG_COLOR GREEN   
+
+
+#define PRINTAT(line,text) TesterGfx::print(20,4+INTERLINE*(line),text)
+
 /**
  * 
  * @param menu
@@ -36,17 +40,12 @@ MenuManager::~MenuManager()
  */
 void MenuManager::printMenuEntry(bool onoff, int line,const char *text)
 {
-     
-    //if(onoff)
-     //   tft->setTextColor(BLACK,BG_COLOR); 
-    //else  
-      //  tft->setTextColor(BG_COLOR,BLACK);
-    TesterGfx::print(10,10+INTERLINE*line,text);
+    TesterGfx::highlight(onoff);
+    PRINTAT(line+2,text) ;
 }
 void MenuManager::printMenuTitle(const char *text)
-{
-    //tft->setTextColor(GREEN,BLACK); 
-    TesterGfx::print(10,10+INTERLINE,text);  
+{    
+    TesterGfx::topLine(text);
 }
 /**
  * 
@@ -54,7 +53,8 @@ void MenuManager::printMenuTitle(const char *text)
 void MenuManager::run(void)
 {
      TesterGfx::clear();
-     runOne(_menu);     
+     runOne(_menu);   
+     TesterGfx::highlight(false);
 };
 /**
  */

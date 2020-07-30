@@ -156,7 +156,27 @@ void TesterGfx::bottomLine(const char *x)
     instance->print(x);
     instance->setTextColor(0xffff,0) ;    
 }
+/**
+ * 
+ * @param x
+ */
+void TesterGfx::topLine(const char *x)
+{
+    instance->setTextColor( instance-> Color565(0,0,255),0);
+    instance->setCursor(4,20);
+    instance->print(x);
+    instance->setTextColor(0xffff,0) ;    
+}
 
+
+
+void TesterGfx::highlight(bool onoff)
+{
+    if(onoff)
+        instance->setTextColor( instance-> Color565(0,255,0),0);
+    else
+        instance->setTextColor( instance-> Color565(255,255,255),0);
+}
 /**
  */
 void TesterGfx::print(int x, int y, const char *txt)

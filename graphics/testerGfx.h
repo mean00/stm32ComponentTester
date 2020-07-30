@@ -24,5 +24,7 @@ public:
   static void test(void);
   static void title(const char *);
   static void bottomLine(const char *x);
+  static void topLine(const char *x);
   static void progress6(int pg);
+  static void highlight(bool onoff);
 };
