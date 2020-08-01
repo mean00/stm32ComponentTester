@@ -20,6 +20,8 @@ ENDIF(NOT EXISTS "${PLATFORM_PATH}/patched2")
 
 cmake_minimum_required(VERSION 3.0)
 
+#this must be done before including platformConfig.cmake
+
 IF(USE_GD32F103 OR USE_GD32F303)
     SET(MCU_SPEED             96000000)                 # Max speed, above 96M USB will not work (?)
 ENDIF(USE_GD32F103 OR USE_GD32F303)
@@ -68,20 +70,22 @@ MESSAGE(STATUS "**** Configuration is ** ${CONFIGURATION} **")
 include_directories(configurations/${CONFIGURATION})
 ADD_DEFINITIONS(-D__NOP="" -DTESTER_CONFIGURATION="${CONFIGURATION}")
 SET(SUB_COMPONENTS FreeRTOS adc graphics assets componentLibrary menu)
-FOREACH(comp ${SUB_COMPONENTS} control)
-    include_directories(${comp} control)
-ENDFOREACH(comp ${SUB_COMPONENTS})
+
 
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(FreeRTOS/Source/include)
+include_directories(FreeRTOS/)
 include_directories(utils)
-include_directories(componentLibrary)
-
 
 # Build 
 FOREACH(comp ${SUB_COMPONENTS} control)
     add_subdirectory(${comp})
 ENDFOREACH(comp ${SUB_COMPONENTS} control)
+
+
+
+
+
 #
 # Our code
 #
@@ -97,6 +101,8 @@ generate_arduino_firmware(componentTester${EXTENSION}
 FOREACH(comp ${SUB_COMPONENTS})
     target_link_libraries(componentTester${EXTENSION} ${libPrefix}${comp})
 ENDFOREACH(comp ${SUB_COMPONENTS})
+
+target_include_directories(componentTester${EXTENSION} PRIVATE componentLibrary adc graphics control menu)
 
 target_link_libraries(componentTester${EXTENSION} ${libPrefix}RotaryEncoder)
 target_link_libraries(componentTester${EXTENSION} ${libPrefix}fonts)

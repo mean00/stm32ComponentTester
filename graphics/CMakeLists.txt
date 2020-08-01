@@ -13,6 +13,6 @@ generate_arduino_library(${libPrefix}graphics
                             BOARD ${ARDUINO_DEFAULT_BOARD}
                         )
 
-TARGET_INCLUDE_DIRECTORIES(${libPrefix}graphics  PRIVATE tinyAdafruit_ST7735)                           
+TARGET_INCLUDE_DIRECTORIES(${libPrefix}graphics  PRIVATE tinyAdafruit_ST7735 . ../assets ../componentLibrary ../adc ../control)                           
                             
                             
