@@ -1,6 +1,5 @@
 EESchema Schematic File Version 4
-LIBS:tester-cache
-EELAYER 26 0
+EELAYER 30 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -1201,14 +1200,6 @@ F 3 "" H 5900 6000 50  0001 C CNN
 	1    5900 6000
 	0    1    1    0   
 $EndComp
-Wire Wire Line
-	5350 3950 5800 3950
-Wire Wire Line
-	5800 3950 5800 6200
-Wire Wire Line
-	5350 3850 5900 3850
-Wire Wire Line
-	5900 3850 5900 6200
 $Comp
 L Amplifier_Operational:LMV324 U?
 U 4 1 5E7D1B3F
@@ -1241,4 +1232,16 @@ Wire Wire Line
 	6750 1000 6850 1000
 Wire Wire Line
 	6850 1000 6850 1050
+Wire Wire Line
+	5800 6050 5800 4050
+Wire Wire Line
+	5800 4050 5350 4050
+Wire Wire Line
+	5900 6050 5900 3950
+Wire Wire Line
+	5900 3950 5350 3950
+Text Notes 6100 6050 0    50   ~ 0
+TX
+Text Notes 5600 6050 0    50   ~ 0
+RX
 $EndSCHEMATC
