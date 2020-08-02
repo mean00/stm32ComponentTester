@@ -176,7 +176,7 @@ void mySetup(void)
   Serial.end(); // dont let usb bother us
   interrupts();
   Serial1.begin(38400);
-  PRINTF("Starting...\n");  
+  Logger("Starting...\n");  
   
   MainTask *mainTask=new MainTask();
   vTaskStartScheduler();        

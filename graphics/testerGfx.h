@@ -19,7 +19,6 @@ public:
   static void drawNPN(float hfe, float vf,int base, int emitter,int collector);
   static void drawPNP(float hfe, float vf,int base, int emitter,int collector);
   static void drawZif();
-  static void printStatus(const char *status);
   static void drawCurve(int nb, uint16_t *data);
   static void test(void);
   static void title(const char *);

@@ -85,7 +85,6 @@ AllPins allPins;
  */
 void zeroAllPins()
 {
-    TesterGfx::printStatus("Zeroing");
     allPins.zero();
 }
 /**

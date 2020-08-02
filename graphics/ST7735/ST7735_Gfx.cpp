@@ -398,14 +398,6 @@ void TesterGfx::drawCapacitor(int offset, const char *value,int pinA, int pinB)
 }
 /**
  * 
- * @param status
- */
-void TesterGfx::printStatus(const char *status)
-{
-    Serial.println(status);
-}
-/**
- * 
  * @param nb
  * @param data
  */

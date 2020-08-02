@@ -113,14 +113,14 @@ Component *Component::identity3(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYP
     
     // topLeft = Top/bottom with 3rd=0, topRight=top/bottom with rd=1
     // bottomLeft = bottom/top with 3rd=0, topRight=bottom/Top with rd=1
-    PRINTF("Top Left");
-    PRINTF(topLeft);
-    PRINTF("Bottom Left");
-    PRINTF(bottomLeft);
-    PRINTF("Top Right");
-    PRINTF(topRight);
-    PRINTF("Bottom Right");
-    PRINTF(bottomRight);
+    Logger("Top Left");
+    Logger(topLeft);
+    Logger("Bottom Left");
+    Logger(bottomLeft);
+    Logger("Top Right");
+    Logger(topRight);
+    Logger("Bottom Right");
+    Logger(bottomRight);
 
     // if the result differs depending on C, its a transistor of some sort
     if((bottomLeft!=bottomRight) || (topLeft!=topRight)) // tripole
@@ -130,12 +130,12 @@ Component *Component::identity3(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYP
             //
             if((bottomLeft==SIG(LOW,HIGH) ||  bottomLeft==SIG(LOW,MEDIUM) )&&  bottomRight==SIG(MEDIUM,MEDIUM))
             {
-                PRINTF("N MOSFET");
+                Logger("N MOSFET");
                 return new NMosFet(C,B,A); // k
             }
             if(bottomLeft==SIG(MEDIUM,MEDIUM) && ( bottomRight==SIG(LOW,HIGH)|| bottomRight==SIG(LOW,MEDIUM)))
             {
-                PRINTF("P MOSFET");
+                Logger("P MOSFET");
                 return new PMosFet(C,A,B); //k
             }
         }
@@ -144,12 +144,12 @@ Component *Component::identity3(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYP
         {
             if((topLeft==SIG(HIGH,LOW)|| topLeft==SIG(MEDIUM,LOW)) && topRight==SIG(MEDIUM,MEDIUM))
             {
-                PRINTF("N MOSFET");
+                Logger("N MOSFET");
                 return new NMosFet(C,A,B);
             }
             if(topLeft==SIG(MEDIUM,MEDIUM) && topRight==SIG(HIGH,LOW)|| topRight==SIG(MEDIUM,LOW))
             {
-                PRINTF("P MOSFET");
+                Logger("P MOSFET");
                 return new PMosFet(C,B,A);  //k
             }
         }
@@ -173,7 +173,7 @@ Component *Component::identity3(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYP
                 
                 // Smaller = Emitter
                 // B E C
-                PRINTF("NPN");
+                Logger("NPN");
                 if(backward<forward)                
                     return new NPNBjt(C,A,B);
                 else
@@ -200,7 +200,7 @@ Component *Component::identity3(TestPin &A, TestPin &B, TestPin &C,COMPONENT_TYP
                 B.setToVcc();
                 int backward=evaluate(A);                
                 B.pullDown(TestPin::PULL_LOW);
-                PRINTF("PNP");
+                Logger("PNP");
                 if(forward>backward)
                     return new PNPBjt(C,A,B);
                 else
@@ -241,13 +241,13 @@ Component *Component::identify2poles(TestPin &A, TestPin &B, TestPin &C, COMPONE
 
     if(topLeft==SIG(MEDIUM,MEDIUM) && bottomLeft==SIG(LOW,HIGH)) // Diodie anode = A
     {
-        PRINTF("DIODE");
+        Logger("DIODE");
         type=COMPONENT_DIODE;
         return new Diode(A,B,C);
     }
     if(bottomLeft==SIG(MEDIUM,MEDIUM) && topLeft==SIG(HIGH,LOW)) // Diode cathode = A
     {
-       PRINTF("DIODE");
+       Logger("DIODE");
        type=COMPONENT_DIODE;
        return new Diode(B,A,C);
     }        
@@ -274,7 +274,7 @@ Component *Component::identify2poles(TestPin &A, TestPin &B, TestPin &C, COMPONE
     }
     if(samples[100]>100)  // ok it's a cap (or nothing)
     {
-        PRINTF("CAPACITOR");
+        Logger("CAPACITOR");
         // We need to evaluate it to confirm
         // too bad we'll do it twice
         if(Capacitor::quickEval(A,B,C)) // it"s a cap ?
@@ -282,11 +282,11 @@ Component *Component::identify2poles(TestPin &A, TestPin &B, TestPin &C, COMPONE
             type=COMPONENT_CAPACITOR;
             return new Capacitor(A,B,C);
         }        
-        PRINTF("NOT");
+        Logger("NOT");
         zeroAllPins();
         return NULL;
     }
-    PRINTF("RESISTOR");
+    Logger("RESISTOR");
     type=COMPONENT_RESISTOR;
     zeroAllPins();    
     return new Resistor(A,B,C);

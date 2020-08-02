@@ -6,8 +6,8 @@
 #include "Arduino.h"
 #include "nvm.h"
 #include "tester_constant.h"
-#include "debug_conf.h"
 #include "dso_adc.h"
+#include "dso_debug.h"
 #define ADC_OFFSET  0 
 
 class AutoDisconnect

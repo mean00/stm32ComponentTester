@@ -10,6 +10,7 @@
 #include "cycleClock.h"
 #include "MapleFreeRTOS1000_pp.h"
 #include "Capacitor.h"
+#include "dso_debug.h"
 /**
  * 
  * @param count
@@ -115,27 +116,23 @@ bool Mosfet::computeCg(TestPin &top, TestPin &bottom,float &value)
 bool Mosfet::compute()
 {
   zeroAllPins();
-    TesterGfx::printStatus("Mos Diode"); 
     // Compute reverse diode
     if(!computeDiode())
         return false;
 
-   TesterGfx::printStatus("Mos Cap"); 
-    if(!computeCg())
+   if(!computeCg())
    {
         _capacitance=0;
         return false;
    }
 
     // and RDS on    
-    zeroAllPins();
-    TesterGfx::printStatus("Mos Rds"); 
+    zeroAllPins();    
     if(!computeRdsOn())
         return false;
     zeroAllPins();
 
 
-    TesterGfx::printStatus("Mos VgOn"); 
     if(!computeVgOn())
         return false;
 
