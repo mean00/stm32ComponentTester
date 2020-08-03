@@ -72,4 +72,10 @@ static      float computeCapacitance(int ia, int ib, int va, int vb,int resistan
 static      bool  calibration(TestPin &a, TestPin &b,TestPin &c);
 static      bool  calibrationLow(TestPin &_pA, TestPin &_pB,float &cap);
 static      bool  calibrationVeryLow(int dex,TestPin &_pA, TestPin &_pB,int &calMul16);;
+
+
+// Alt method
+            bool rawCapMeasure(float &c);
+            
+
 };

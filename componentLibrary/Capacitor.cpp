@@ -107,6 +107,7 @@ bool Capacitor::compute()
     switch(eval(SmallBegin,curve, deltaTime))
     {
         case  EVAL_SMALLER_CAP:
+                Logger("Very Low Cap-1\n");
                 return computeVeryLowCap();
                 break;
         case  EVAL_OK:
@@ -125,6 +126,7 @@ bool Capacitor::compute()
                 {
                     if(false==computeLowCap())
                     {
+                        Logger("Very Low Cap-2\n");
                         return computeVeryLowCap();
                     }
                 }

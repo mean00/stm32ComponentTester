@@ -110,7 +110,7 @@ Capacitor::CapEval Capacitor::quickEvalSmall(TestPin *p1, TestPin *p2,int fq, in
     int nbSamples;
     uint16_t *samples;
     
-    if(!p1->pulseTimeDelta(*p2,clockPerSample, 64*2,fq,TestPin::PULL_HI,nbSamples,&samples,resistance))
+    if(!p1->pulseTimeDelta(*p2,clockPerSample, 64*2,fq,TestPin::PULL_HI,nbSamples,&samples,resistance,true))
     {
         return EVAL_ERROR;
     }
@@ -183,7 +183,7 @@ Capacitor::CapEval Capacitor::evalSmall(  TestPin *p1,TestPin *p2,int fq, int cl
     int nbSamples;
     uint16_t *samples;
     
-    if(!p1->pulseTimeDelta(*p2,clockPerSample, 512*2,fq,TestPin::PULL_HI,nbSamples,&samples,resistance))
+    if(!p1->pulseTimeDelta(*p2,clockPerSample, 512*2,fq,TestPin::PULL_HI,nbSamples,&samples,resistance,true))
     {
         return EVAL_ERROR;
     }
@@ -260,6 +260,9 @@ Capacitor::CapEval Capacitor::evalSmall(  TestPin *p1,TestPin *p2,int fq, int cl
     return EVAL_OK;  
 
 }
+
+
+
 /**
  * 
  * @return 
@@ -307,25 +310,32 @@ bool Capacitor::computeVeryLowCap()
    }
    if(found<0)
        return false;
-   
-   er=evalSmall(p1,p2,veryLowScales[found].signalFrequency,veryLowScales[found].s512,cap);
-   
-   if(er!=EVAL_OK)
+   //found=7;
+   for(found=3;found<8;found++)
    {
-       capacitance=0;
-       return false;
+    Logger("scale=%d",found);
+    er=evalSmall(p1,p2,veryLowScales[found].signalFrequency,veryLowScales[found].s512,cap);
+
+    if(er!=EVAL_OK)
+    {
+        capacitance=0;
+        return false;
+    }
+
+    float cal=p2->_calibration.capOffsetHighInPfMu16[found];
+    cal=(cal/16.)/pPICO;
+    if(cap<cal+1./pPICO) // less than 1pF => noise
+    {
+        capacitance=0;
+        return false;
+    }
+    Logger("Raw Cap=%d",(int)(capacitance*pPICO));
+    capacitance=cap-cal;   
+    Logger("Adj Cap=%d",(int)(capacitance*pPICO));
    }
-   
-   float cal=p2->_calibration.capOffsetHighInPfMu16[found];
-   cal=(cal/16.)/pPICO;
-   if(cap<cal+1./pPICO) // less than 1pF => noise
-   {
-       capacitance=0;
-       return false;
-   }
-   capacitance=cap-cal;   
    return true;
 }
+
 /**
  * 
  * @return 
