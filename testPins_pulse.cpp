@@ -82,9 +82,17 @@ public:
      * @param samplingFrequency
      * @return 
      */
-    bool init(int samplingFrequency)
+    bool init(int samplingFrequency, bool forceHighestSpeed=false)
     {
-        DSOADC::frequencyToRateScale(samplingFrequency,prescaler,rate);
+        if(forceHighestSpeed)
+        {   // to minimize effect on noise for very small caps
+                prescaler= DSOADC::ADC_PRESCALER_2;
+                rate= ADC_SMPR_1_5;            
+        }else
+        {
+            DSOADC::frequencyToRateScale(samplingFrequency,prescaler,rate);
+        }
+        Logger("ADC rate=%d scale=%d",prescaler,rate);
         pwmGetScaleOverFlow(samplingFrequency,timerScaler,timerOvf);
         return true;
     }
@@ -144,12 +152,15 @@ public:
         // The apparent sampling frequency is F_CPU/(timerScaler*apprentDivider)
         // clockPerSample is in F_CPU tick, we know the timerScaler
         // so we can compute the apparentDivider i.e. the offset we have to put in the ADC
-        // to get the correct clockPerSample        
+        // to get the correct clockPerSample       
+        
         int apparentDivider=clockPerSample/timerScaler;
+        
         clockPerSample=apparentDivider*timerScaler; // update it in case we have a rounding issue
         if(!apparentDivider) xAssert(0);
         // ADC is running X cycles faster than repeat
         // Same thing as ~ adc running at  X Cycle
+        Logger("Waveform : clockPerSample=%d timerScaler=%d timerOvf=%d apparentDivider=%d",clockPerSample,timerScaler,timerOvf,apparentDivider);
         if(!adc->prepareDualTimerSampling(timerScaler,timerOvf+apparentDivider,false,rate,prescaler))
         {
             xAssert(0);
@@ -248,7 +259,7 @@ bool  TestPin::pulseTime(int clockPerSample,int nbSampleAsked, int samplingFrequ
  * @param res
  * @return 
  */
-bool  TestPin::pulseTimeDelta(TestPin &otherPin, int &clockPerSample,int nbSampleAsked, int samplingFrequency, TestPin::PULL_STRENGTH strength,   int &nbSample,  uint16_t **xsamples,int &res)
+bool  TestPin::pulseTimeDelta(TestPin &otherPin, int &clockPerSample,int nbSampleAsked, int samplingFrequency, TestPin::PULL_STRENGTH strength,   int &nbSample,  uint16_t **xsamples,int &res,bool highspeed)
 {
     disconnectAll();
     
@@ -257,7 +268,7 @@ bool  TestPin::pulseTimeDelta(TestPin &otherPin, int &clockPerSample,int nbSampl
     pullDown(TestPin::PULL_LOW);
     xDelay(10);
     
-    settings.init(samplingFrequency);    
+    settings.init(samplingFrequency,highspeed);    
     
     pwm(strength,samplingFrequency);
     pwmPause(settings.pin);

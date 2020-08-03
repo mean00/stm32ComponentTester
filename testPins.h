@@ -69,7 +69,7 @@ static  void    initADC(int pin);
         bool    finishTimer(int &nbSamples, uint16_t **xsamples);
         bool    finishDmaSample(int &nbSamples, uint16_t **xsamples);
         
-        bool    pulseTimeDelta(TestPin &otherPin, int &clockPerSample,int nbSampleAsked, int samplingFrequency, TestPin::PULL_STRENGTH strength,   int &nbSample,  uint16_t **xsamples,int &res);
+        bool    pulseTimeDelta(TestPin &otherPin, int &clockPerSample,int nbSampleAsked, int samplingFrequency, TestPin::PULL_STRENGTH strength,   int &nbSample,  uint16_t **xsamples,int &res,bool highspeed);
         bool    pulseTime(int clockPerSample, int nbSampleAsked,int samplingFrequency, TestPin::PULL_STRENGTH strength, int &sampleOut,  uint16_t **xsamples,int &r);
         bool    pulseDma(int nbSamples,  DSOADC::Prescaler prescaler, adc_smp_rate   rate, TestPin::PULL_STRENGTH strength,   int &sampleOut,  uint16_t **xsamples);
         
