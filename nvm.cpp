@@ -4,7 +4,7 @@
 #include "nvm_default.h"
 #include "cpuID.h"
 
-#define HASH 0x456E
+#define HASH 0x456F
 
 #define SLOTS_PER_PIN 20
 
