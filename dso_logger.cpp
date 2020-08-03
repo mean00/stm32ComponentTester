@@ -8,6 +8,7 @@ void Logger(const char *fmt...)
     vsnprintf(buffer,1022,fmt,va);
     buffer[1023]=0;
     Serial1.print(buffer);
+    Serial1.print("\n\r");
     va_end(va);
     
 }
