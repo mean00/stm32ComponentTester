@@ -33,6 +33,7 @@ void title(const char *v)
  */
 void veryLowCapCalibration(int pinNumber,TestPinCalibration &cal,TestPin &pin1,TestPin &pin2)
 {
+#if 0
         float cap;
         char st[20];
         for(int i=0;i<CALIBRATION_VERY_SMALL_SIZE;i++)
@@ -49,6 +50,7 @@ void veryLowCapCalibration(int pinNumber,TestPinCalibration &cal,TestPin &pin1,T
             TesterGfx::print(5,INTER*4,st);    
             cal.capOffsetHighInPfMu16[i]=mul16;
         }
+#endif        
 }
 
 void calibration()
