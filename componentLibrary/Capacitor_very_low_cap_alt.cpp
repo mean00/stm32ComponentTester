@@ -179,4 +179,34 @@ bool Capacitor::rawCapMeasure(float &c)
     return true;
 }
 
+
+Capacitor::CapEval Capacitor::quickProbe()
+{
+   Capacitor::CapEval er;
+   float cap;
+   int d;
+  
+    TestPin *p1,*p2;
+    if(_pB.pinNumber()==2)
+    {
+        p1=&_pB;
+        p2=&_pA;
+    }else if(_pA.pinNumber()==2)
+    {
+        p1=&_pA;
+        p2=&_pB;        
+    } else
+    {
+        return EVAL_ERROR;
+    }
+    er=quickEvalSmall(p1,p2,veryLowScales[0].signalFrequency,veryLowScales[0].s64,d);
+    switch(er)
+    {
+        case   EVAL_OK:
+        case   EVAL_BIGGER_CAP: return EVAL_OK;break;
+        default: return EVAL_SMALLER_CAP;break;        
+    }
+    return EVAL_ERROR;
+      
+}
 //EOF
