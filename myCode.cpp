@@ -19,6 +19,7 @@
 
 extern void calibration();
 extern void menuSystem(void);
+extern void grapher( TestPin *p1,TestPin *p2);
 
 // Free RTOS heap
 
@@ -72,6 +73,10 @@ void MainTask::run()
     // 
     if(!NVM::hasCalibration())
         calibration();
+#if 0    
+    grapher(&pin2,&pin1);
+#endif
+    
 #if 0
         menuSystem();
 #endif
