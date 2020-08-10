@@ -86,7 +86,7 @@ Capacitor::CapEval Capacitor::quickEvalSmall(TestPin *p1, TestPin *p2,int fq, in
     
     
     
-    WaveForm wave(nbSamples-2,samples+2);
+    WaveForm wave(nbSamples-1,samples+1);
     int mn,mx;
     wave.searchMinMax(mn,mx);
 
@@ -277,10 +277,15 @@ bool Capacitor::computeVeryLowCap()
    // Search for good distance between 150 & 200
     for(int i=0;i<n && found==-1;i++)
    {
+        Logger("Quick eval :%d/%d\n",i,n);
         er=quickEvalSmall(p1,p2,veryLowScales[i].signalFrequency,veryLowScales[i].s512*8,d);
         if(er==EVAL_OK)
         {
-            if(d>=150)
+            bool takeIt=false;
+            Logger("D=%d\n",d);
+            if(d>=150) takeIt=true;
+            if(i==0 && d>80) takeIt=true;
+            if(takeIt )
             {
                 found=i;
                 Logger("Using scale %d, d=%d\n",found,d);
