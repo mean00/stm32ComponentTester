@@ -19,13 +19,13 @@ typedef struct VeryLowScale
 {
     int signalFrequency;
     int s512; // apparent sampling for 512 sample
-    int s64;  // apparent sampling for 64 samples   
 };
 
 const VeryLowScale veryLowScales[]=
 {   
-    {2000,64,64*8}, // For 100..500 pf
-    
+    {2000,32}, 
+    {1000,64}, 
+    {500,128},     
 };
 
 
@@ -48,7 +48,7 @@ Capacitor::CapEval Capacitor::quickProbe()
     {
         return EVAL_ERROR;
     }
-    er=quickEvalSmall(p1,p2,veryLowScales[0].signalFrequency,veryLowScales[0].s64,d);
+    er=quickEvalSmall(p1,p2,veryLowScales[0].signalFrequency,veryLowScales[0].s512*8,d);
     switch(er)
     {
         case   EVAL_OK:
@@ -93,10 +93,11 @@ Capacitor::CapEval Capacitor::quickEvalSmall(TestPin *p1, TestPin *p2,int fq, in
 #if 0
     TesterGfx::clear();
      char st[20];
-    TesterGfx::drawCurve(nbSamples,samples);
+    TesterGfx::drawCurve(nbSamples-2,samples+2);
     sprintf(st,"Mn:%d",mn);
     TesterGfx::print(10,100,st);
     sprintf(st,"Mx:%d",mx);
+    TesterControl::waitForAnyEvent();
 
 #endif    
     if( (mx-mn)<100) // flat
@@ -109,8 +110,10 @@ Capacitor::CapEval Capacitor::quickEvalSmall(TestPin *p1, TestPin *p2,int fq, in
     
     int iA,iB,vA,vB;    
     int tgt=mn+(((mx-mn)*85)/100); // look for 0.666= ~ e-1
-    wave.searchValueAbove(mn+50, iA, vA, 0);
-    wave.searchValueAbove(tgt, iB, vB, iA);
+    if(!wave.searchValueAbove(mn+50, iA, vA, 0)) return EVAL_BIGGER_CAP;
+    if(!wave.searchValueAbove(tgt, iB, vB, iA)) return EVAL_BIGGER_CAP;
+    Logger("iA:%d vA:%d iB:%d vB:%d\n",iA,vA,iB,vB);
+    if( (vB-vA)<2000) return EVAL_BIGGER_CAP;
     
     d=(iB-iA)*8;
 #if 0    
@@ -208,6 +211,7 @@ Capacitor::CapEval Capacitor::evalSmall(  TestPin *p1,TestPin *p2,int fq, int cl
     curve.vMin=vA;
     curve.period=period;
     curve.nbSamples=nbSamples;
+    //cap=Capacitor::computeCapacitance(iA,iB,vA,vB,resistance,period);
     cap=Capacitor::computeCapacitance(curve);
     
 #if 0
@@ -273,12 +277,13 @@ bool Capacitor::computeVeryLowCap()
    // Search for good distance between 150 & 200
     for(int i=0;i<n && found==-1;i++)
    {
-        er=quickEvalSmall(p1,p2,veryLowScales[i].signalFrequency,veryLowScales[i].s64,d);
+        er=quickEvalSmall(p1,p2,veryLowScales[i].signalFrequency,veryLowScales[i].s512*8,d);
         if(er==EVAL_OK)
         {
-         //   if(d>=150)
+            if(d>=150)
             {
                 found=i;
+                Logger("Using scale %d, d=%d\n",found,d);
             }
         }
    }
@@ -301,7 +306,7 @@ bool Capacitor::computeVeryLowCap()
         capacitance=0;
         return false;
     }
-    Logger("Raw Cap=%d",(int)(capacitance*pPICO));
+    Logger("Raw Cap=%d",(int)(cap*pPICO));
     capacitance=cap-cal;   
     Logger("Adj Cap=%d",(int)(capacitance*pPICO));
    }

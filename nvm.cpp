@@ -61,6 +61,7 @@ bool    NVM::loadTestPin(int pin, TestPinCalibration &calibration)
     calibration.inductanceInUF= eep.read(SLOTS_PER_PIN*pin+1+3);;
     for(int i=0;i<CALIBRATION_VERY_SMALL_SIZE;i++)        
         calibration.capOffsetHighInPfMu16[i]= eep.read(SLOTS_PER_PIN*pin+5+i);;    
+    //calibration.capOffsetHighInPfMu16[0]=16.*40.2;
     return true;
 }
 /**

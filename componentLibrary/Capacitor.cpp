@@ -18,7 +18,7 @@ CycleClock clk;
 float capz;
 
 
-const Capacitor::CapScale SmallBegin={400*1000,  TestPin::PULL_HI,true}; // Best we can do for small cap, i.e; between 200pf & 100 nf
+const Capacitor::CapScale SmallBegin={100*1000,  TestPin::PULL_HI,false}; // Best we can do for small cap, i.e; between 200pf & 100 nf
 const Capacitor::CapScale SmallEnd={  8*1000,  TestPin::PULL_HI,false}; // Best we can do for small cap, i.e; between 200pf & 100 nf
 const Capacitor::CapScale HighBegin={ 4000,       TestPin::PULL_LOW,false}; // 
 const Capacitor::CapScale MedEnd={100*1000,      TestPin::PULL_MED,false}; // Best we can do for big cap, i.e; between 100 nf and ~ 10f uf
@@ -104,6 +104,7 @@ bool Capacitor::compute()
     CapCurve curve;
     int deltaTime;
     eval(SmallBegin,curve, deltaTime); // dummy scan to avoid 1st one being garbage
+        
     switch(eval(SmallBegin,curve, deltaTime))
     {
         case  EVAL_SMALLER_CAP:
@@ -290,7 +291,7 @@ float Capacitor::computeCapacitance(int ia, int ib, int va, int vb,int resistanc
     //
     float c=(ib-ia);
     c/=(float)resistance;
-    c=c/log( (float)vb/(float)va);
+    c=c/log( (float)(4095.-vb)/(float)(4095.-va));
     c=c*period;        
     return c;
 }
