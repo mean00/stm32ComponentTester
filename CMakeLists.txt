@@ -69,9 +69,10 @@ SET(libPrefix ${ARDUINO_DEFAULT_BOARD}_)
 MESSAGE(STATUS "**** Configuration is ** ${CONFIGURATION} **")
 include_directories(configurations/${CONFIGURATION})
 ADD_DEFINITIONS(-D__NOP="" -DTESTER_CONFIGURATION="${CONFIGURATION}")
-SET(SUB_COMPONENTS FreeRTOS adc graphics assets componentLibrary menu)
+SET(SUB_COMPONENTS FreeRTOS adc graphics assets componentLibrary menu eprintf)
 
 
+include_directories(eprintf/src)
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(FreeRTOS/Source/include)
 include_directories(FreeRTOS/)
@@ -91,10 +92,9 @@ ENDFOREACH(comp ${SUB_COMPONENTS} control)
 #
 SET(UTILS utils/fancyLock.cpp    utils/cycleClock.cpp utils/myPwm.cpp)
 
-include_directories(embedded_printf)
 generate_arduino_firmware(componentTester${EXTENSION}
                 SKETCH stm32ComponentTester.ino
-                SRCS myCode.cpp testPins.cpp testPins_pulse.cpp pinAutoTest.cpp ${UTILS}  ${GFX} componentSignature.cpp deltaADC.cpp nvm.cpp calibration.cpp cpuID.cpp embedded_printf/printf.c menuSystem.cpp control/testerControl.cpp  tester.cpp dso_logger.cpp
+                SRCS myCode.cpp testPins.cpp testPins_pulse.cpp pinAutoTest.cpp ${UTILS}  ${GFX} componentSignature.cpp deltaADC.cpp nvm.cpp calibration.cpp cpuID.cpp  menuSystem.cpp control/testerControl.cpp  tester.cpp dso_logger.cpp
                 PORT ${ARDUINO_DEFAULT_PORT}
                 BOARD_CPU ${ARDUINO_CPU}
                 )
