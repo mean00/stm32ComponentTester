@@ -73,6 +73,10 @@ void MainTask::run()
     // 
     if(!NVM::hasCalibration())
         calibration();
+#if 1    
+    Coil c(pin1,pin2,pin3);
+    c.compute();
+#endif    
 #if 0    
     grapher(&pin2,&pin1);
 #endif

@@ -19,3 +19,6 @@
 [submodule "control/RotaryEncoder"]
 	path = control/RotaryEncoder
 	url = https://github.com/mean00/RotaryEncoder_FreeRTOS.git
+[submodule "eprintf/src"]
+	path = eprintf/src
+	url = https://github.com/mpaland/printf
