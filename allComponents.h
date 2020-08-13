@@ -7,3 +7,4 @@
 #include "P_Mosfet.h"
 #include "NPN_bjt.h"
 #include "PNP_bjt.h"
+#include "Coil.h"
