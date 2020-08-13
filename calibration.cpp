@@ -33,7 +33,7 @@ void title(const char *v)
  */
 void veryLowCapCalibration(int pinNumber,TestPinCalibration &cal,TestPin &pin1,TestPin &pin2)
 {
-#if 0
+#if 1
         float cap;
         char st[20];
         for(int i=0;i<CALIBRATION_VERY_SMALL_SIZE;i++)

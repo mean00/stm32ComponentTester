@@ -1,5 +1,5 @@
 
-#define CALIBRATION_VERY_SMALL_SIZE 10
+#define CALIBRATION_VERY_SMALL_SIZE 3
 class TestPinCalibration
 {
 public:
