@@ -89,7 +89,7 @@ static bool singlePinTest(TestPin &A, TestPin &MeasurePin, const char **failure)
  * @param onoff
  * @return 
  */
-#define MARGIN 10
+#define MARGIN 20
 bool T1DmaTest(const char *text, TestPin &A,  int onoff)
 {
     AutoDisconnect ad;
@@ -190,6 +190,7 @@ bool dualDmaTest(const char *text, TestPin &A, TestPin & B, TestPin &C, bool thi
     { \
         testFailed=true; \
         TesterGfx::print(80,LINE,"KO"); \
+        Logger("1DMA-0 fail\n"); \
     } \
     if(T1DmaTest("",pin##PIN,1)) \
         TesterGfx::print(110,LINE,"+"); \
@@ -197,6 +198,7 @@ bool dualDmaTest(const char *text, TestPin &A, TestPin & B, TestPin &C, bool thi
     { \
         testFailed=true; \
         TesterGfx::print(80,LINE,"KO2"); \
+        Logger("1DMA-1 fail\n");\
     } \
 }
 
