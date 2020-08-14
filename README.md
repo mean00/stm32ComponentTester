@@ -15,7 +15,8 @@ The shopping list is (when using a bluepill board)
   * Bluepill board
   * 1.44' SPI 128x128 screen ( [Ebay Link](https://www.ebay.fr/itm/2PCS-1-44-Red-Serial-128X128-SPI-Color-TFT-LCD-Module-Replace-Nokia-5110-LCD/400766556571?ssPageName=STRK%3AMEBIDX%3AIT&_trksid=p2057872.m2749.l2649 ))
   * LMV324i Quad op Amp (or any rail to rail quad op amp)
-  * AMS 3.3v voltage regulator regulator
+  * Rotary Encoder
+  * AMS 3.3v voltage regulator regulator or similar
   * (470 Ohms, 15kOhm, 470kOhm) x3
   
 If you want to use the MCU directly, look at  kicad/schematic.pdf
@@ -54,4 +55,4 @@ While accuracy is not bad at all the following restrictions apply :
 * Capacitor of less than 4 pF will not be probed correctly
 * Capacitor can be reverse charged with a small current. I'm unsure if that's a big deal. The current is a few mA.
 
-
+![screenshot](kicad/schematic.svg?raw=true "back")
