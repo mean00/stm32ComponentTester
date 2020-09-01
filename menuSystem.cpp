@@ -28,8 +28,8 @@ void swInfo()
      char st[20];
      sprintf(st,"v%2.2f",TESTER_VERSION);
           
-     TesterGfx::print(10,40,st);
-     TesterGfx::print(10,80,cpuID::getIdAsString());
+     TesterGfx::printSmall(10,40,st);
+     TesterGfx::printSmall(10,80,cpuID::getIdAsString());
      
      const char *build="??";
      
@@ -42,7 +42,7 @@ void swInfo()
 #elif
 #error 
 #endif
-     TesterGfx::print(10,60,build);
+     TesterGfx::printSmall(10,60,build);
      TesterGfx::bottomLine("Press Ok");
      
      TesterControl::waitForAnyEvent();
@@ -52,17 +52,22 @@ void swInfo()
 
 const MenuItem  topMenu[]={
     {MenuItem::MENU_TITLE, "Main Menu",NULL},
-    {MenuItem::MENU_CALL, "Wipe cal",(const void *)&wipeCal},
     {MenuItem::MENU_CALL, "Info",(const void *)swInfo},
+    {MenuItem::MENU_CALL, "Wipe cal",(const void *)&wipeCal},    
     {MenuItem::MENU_END, NULL,NULL}
 };
 
 
 
-
+/**
+ * 
+ */
 void menuSystem(void)
 {
      const MenuItem *tem=topMenu;
+     // clear events if any
+     TesterControl::clearEvent();
+     TesterControl::clearEvent();
      MenuManager man(tem);
      man.run();
     return;

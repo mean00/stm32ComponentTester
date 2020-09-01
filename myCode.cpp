@@ -20,7 +20,7 @@
 extern void calibration();
 extern void menuSystem(void);
 extern void grapher( TestPin *p1,TestPin *p2);
-
+extern void menuSystem(void);
 // Free RTOS heap
 
 uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
@@ -152,16 +152,11 @@ bool Tester_waitForkeyPress(const char *msg)
     TesterGfx::print(0,60,msg);
 
     int evt=TesterControl::waitForEvent();            
-        if(evt & CONTROL_LONG) 
-        {
-            menu();
-        }
+    if(evt & CONTROL_LONG) 
+    {
+        menuSystem();
+    }
     return true;
-}
-
-void menu()
-{
-    
 }
 
 

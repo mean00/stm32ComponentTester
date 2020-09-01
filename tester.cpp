@@ -11,7 +11,7 @@
 #include "waveForm.h"
 #include "tester.h"
 
-extern void menu(void);
+extern void menuSystem(void);
 
 extern TestPin pin1,pin2,pin3;
 
@@ -173,7 +173,7 @@ next:
         if(evt & CONTROL_LONG) 
         {
             delete c;
-            menu();
+            menuSystem();
             return true;
         }
         if(evt & CONTROL_SHORT) 
