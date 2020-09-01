@@ -64,10 +64,12 @@ bool Capacitor::quickEval()
     int deltaTime;
 
     int n=sizeof(probePoints)/sizeof(Capacitor::CapScale);
+    Logger("Probing capacitor...");
     Capacitor::CapEval ev=eval(probePoints[0],curve, deltaTime,true);
     switch(ev)
     {
         case EVAL_OK:    
+            Logger("Probe Cap ok-0");
             return true;
             break;
         case EVAL_SMALLER_CAP:
@@ -75,11 +77,19 @@ bool Capacitor::quickEval()
             switch(quickProbe())
             {
                 case EVAL_OK:
-                case EVAL_BIGGER_CAP: return true;break;
-                default: return false;
+                case EVAL_BIGGER_CAP: 
+                    Logger("Probe Cap ok-1");
+                    return true;break;
+                default: 
+                    Logger("Probe Cap KO-1");
+                    return false;
             }
             break;
+        case EVAL_BIGGER_CAP:            
+            Logger("Bigger cap");
+            break;
         default:
+            Logger("Probe Cap KO-1def");
             return false; // bigger cap
     }
     for(int i=1;i<n;i++)
@@ -87,13 +97,17 @@ bool Capacitor::quickEval()
         switch(eval(probePoints[i],curve, deltaTime,true))
         {
             case  EVAL_OK:
+                    Logger("Probe Cap ok-2");
                     return true;
             case  EVAL_SMALLER_CAP:
+                    Logger("Probe Cap KO-2");
                     return false; // no need to go further
             default:
+                    Logger("Probe Cap KO-2def");
                     break;
         }
     }
+    Logger("All cap probes failed");
     return false;
 }
 

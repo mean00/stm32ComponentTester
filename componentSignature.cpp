@@ -279,10 +279,11 @@ Component *Component::identify2poles(TestPin &A, TestPin &B, TestPin &C, COMPONE
         // too bad we'll do it twice
         if(Capacitor::quickEval(A,B,C)) // it"s a cap ?
         {
+            Logger("CAPACITOR-Confirmed");
             type=COMPONENT_CAPACITOR;
             return new Capacitor(A,B,C);
         }        
-        Logger("NOT");
+        Logger("NOT Capacitor");
         zeroAllPins();
         return NULL;
     }
