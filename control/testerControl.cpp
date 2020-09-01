@@ -35,6 +35,14 @@ int  TesterControl::getRotary()
 /**
  * 
  */
+void TesterControl::clearEvent() 
+{
+    rotary->readEvent();
+    rotary->getCount();
+}
+/**
+ * 
+ */
 void TesterControl::waitForAnyEvent()
 {
     

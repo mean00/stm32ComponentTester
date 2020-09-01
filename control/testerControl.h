@@ -15,4 +15,5 @@ public:
   static void test();
   static int  waitForEvent();
   static int  getRotary();
+  static void clearEvent();
 };

@@ -184,6 +184,19 @@ void TesterGfx::print(int x, int y, const char *txt)
     instance->setCursor(x,y);
     instance->print(txt);
 };
+/**
+ * 
+ * @param x
+ * @param y
+ * @param txt
+ */
+void TesterGfx::printSmall(int x, int y, const char *txt)
+{
+    instance->setFontSize(Adafruit_ST7735Ex::SmallFont);    
+    instance->setCursor(x,y);
+    instance->print(txt);
+    instance->setFontSize(Adafruit_ST7735Ex::MediumFont);
+};
 
 
 static void print2Pins(Adafruit_ST7735Ex *instance, int pinA, int pinB, int line)
