@@ -20,6 +20,9 @@ void wipeCal()
 {
      NVM::reset();
 }
+/**
+ * 
+ */
 void swInfo()
 {
      TesterGfx::clear();
@@ -46,13 +49,31 @@ void swInfo()
      TesterGfx::bottomLine("Press Ok");
      
      TesterControl::waitForAnyEvent();
-     
-     
 }
+/**
+ * 
+ */
 
+#define SHOW(x) {TesterGfx::x;TesterControl::waitForAnyEvent();}
+
+void showIcons()
+{
+  SHOW(drawCapacitor(0, "x",1,2));
+  SHOW(drawResistor(0, "x",1,2));
+  SHOW(drawDiode(0, "x",1,3));
+  SHOW(drawCoil(0, "x",1,2));
+  SHOW(drawPMosFet( 1,2,3));
+  SHOW(drawNMosFet(1,2,3));
+  SHOW(drawMosInfo(0, 1.0, 1.0,1.0, 1.0));
+  SHOW(drawNPN(100,1,1,2,3));
+  SHOW(drawPNP(100,1,1,2,3));      
+}
+/**
+ */
 const MenuItem  topMenu[]={
     {MenuItem::MENU_TITLE, "Main Menu",NULL},
     {MenuItem::MENU_CALL, "Info",(const void *)swInfo},
+    {MenuItem::MENU_CALL, "Icons",(const void *)showIcons},
     {MenuItem::MENU_CALL, "Wipe cal",(const void *)&wipeCal},    
     {MenuItem::MENU_END, NULL,NULL}
 };
