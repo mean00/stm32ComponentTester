@@ -21,6 +21,7 @@ extern void calibration();
 extern void menuSystem(void);
 extern void grapher( TestPin *p1,TestPin *p2);
 extern void menuSystem(void);
+extern void showIcons();
 // Free RTOS heap
 
 uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
@@ -121,7 +122,7 @@ void MainTask::run()
         Capacitor::calibrationVeryLow(pin3,pin2,cal3);
     }
 #endif    
-    
+    //showIcons();
   
     
     

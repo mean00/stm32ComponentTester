@@ -58,10 +58,10 @@ void swInfo()
 
 void showIcons()
 {
-  SHOW(drawCapacitor(0, "x",1,2));
-  SHOW(drawResistor(0, "x",1,2));
   SHOW(drawDiode(0, "x",1,3));
   SHOW(drawCoil(0, "x",1,2));
+  SHOW(drawCapacitor(0, "x",1,2));
+  SHOW(drawResistor(0, "x",1,2));
   SHOW(drawPMosFet( 1,2,3));
   SHOW(drawNMosFet(1,2,3));
   SHOW(drawMosInfo(0, 1.0, 1.0,1.0, 1.0));
