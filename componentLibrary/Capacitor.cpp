@@ -92,9 +92,9 @@ bool Capacitor::quickEval()
             Logger("Probe Cap KO-1def");
             return false; // bigger cap
     }
-  //  for(int i=1;i<n;i++)
+    for(int i=1;i<n;i++)
     {
-        switch(eval(probePoints[n-1],curve, deltaTime,true))
+        switch(eval(probePoints[i],curve, deltaTime,true))
         {
             case  EVAL_OK:
                     Logger("Probe Cap ok-2");
