@@ -15,6 +15,7 @@
 #include "testerVersion.h"
 /**
  */
+extern TestPin   pin1,pin2,pin3;
 
 void wipeCal()
 {
@@ -54,6 +55,48 @@ void swInfo()
  * 
  */
 
+static void fmtLine(const char *patt,int up, int down, int line)
+{
+   char st[60];
+   sprintf(st,patt,up, down);
+   TesterGfx::print(1,line,st);
+}
+
+#define ZINTER(x) (32+18*x)
+void calibrationInfo()
+{
+    
+    
+    TesterGfx::clear();
+    TesterGfx::topLine("Calibration-R");     
+
+     //#define ALLRES(x) {sprintf(st,"RU:%d:RD:%d",pin##x._calibration.resUp,pin##x._calibration.resUp);TesterGfx::print(1,ZINTER(x-1),st);}
+     #define ALLRES(x) {fmtLine("RU:%d:RD:%d",pin##x._calibration.resUp,pin##x._calibration.resUp,ZINTER(x-1));;}
+    
+    ALLRES(1);
+    ALLRES(2);
+    ALLRES(3);     
+    TesterGfx::bottomLine("Press Ok");
+    TesterControl::waitForAnyEvent();
+    
+    TesterGfx::clear();
+    TesterGfx::topLine("Calibration-C");     
+    #undef ALLRES
+    //#define ALLRES(x) {sprintf(st,"Ch:%d:Cl:%d",pin##x._calibration.capOffsetInPf,pin##x._calibration.capOffsetHighInPfMu16[0]/16);TesterGfx::print(1,ZINTER(x-1),st);}
+    #define ALLRES(x) {fmtLine("Ch:%d:Cl:%d",pin##x._calibration.capOffsetInPf,pin##x._calibration.capOffsetHighInPfMu16[0]/16,ZINTER(x-1));}
+    
+    ALLRES(1);
+    ALLRES(2);
+    ALLRES(3);     
+    TesterGfx::bottomLine("Press Ok");
+    TesterControl::waitForAnyEvent();
+    
+}     
+
+/**
+ * 
+ */
+
 #define SHOW(x) {TesterGfx::x;TesterControl::waitForAnyEvent();}
 
 void showIcons()
@@ -74,6 +117,7 @@ const MenuItem  topMenu[]={
     {MenuItem::MENU_TITLE, "Main Menu",NULL},
     {MenuItem::MENU_CALL, "Info",(const void *)swInfo},
     {MenuItem::MENU_CALL, "Icons",(const void *)showIcons},
+    {MenuItem::MENU_CALL, "Show cal.",(const void *)calibrationInfo},    
     {MenuItem::MENU_CALL, "Wipe cal",(const void *)&wipeCal},    
     {MenuItem::MENU_END, NULL,NULL}
 };
