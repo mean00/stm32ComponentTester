@@ -175,6 +175,7 @@ public:
         adc->startDualTimeSampling(otherPin._pin,sampleAsked,0*(timerOvf-apparentDivider));
         quick.go();
         interrupts();
+        //while(1) {}
         if(!adc->getSamples(samples,nbSamples))    
         {
             xAssert(0);
