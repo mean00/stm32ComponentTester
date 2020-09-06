@@ -10,7 +10,7 @@
 
 // Sampling Queue
 
-#define ADC_INTERNAL_BUFFER_SIZE (1024)
+#define ADC_INTERNAL_BUFFER_SIZE (768*2)
 
 /**
  * 
