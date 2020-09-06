@@ -137,3 +137,28 @@ bool WaveForm::searchValueAbove(const int tgt, int &dex, int &value, int startAt
     return false;
 
 }
+
+/**
+ * 
+ * @param tgt
+ * @param dex
+ * @param value
+ * @param startAt
+ * @return 
+ */
+bool WaveForm::searchValueBelow(const int tgt, int &dex, int &value, int startAt)
+{
+    for(int i=startAt;i<_nbSamples;i++)
+    {
+        int x=_samples[i];
+        if(x<tgt)
+        {
+            dex=i;
+            value=x;
+            return true;
+        }
+    }
+    return false;
+
+}
+

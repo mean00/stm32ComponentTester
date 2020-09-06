@@ -24,6 +24,7 @@ public:
                 bool searchRampUp(float  target, int &delta,bool &overflow, bool &underflow,int &a, int &b);
                 bool searchMinMax(int &mn, int &mx);
                 bool searchValueAbove(const int tgt, int &dex, int &value, int startAt=0);
+                bool searchValueBelow(const int tgt, int &dex, int &value, int startAt);
 
 protected:
     int         _nbSamples;
