@@ -14,6 +14,7 @@
 #include "waveForm.h"
 #include "pinConfiguration.cpp"
 #include "tester.h"
+#include "myPwm.h"
 
 #define LED PC13
 
@@ -74,9 +75,24 @@ void MainTask::run()
     // 
     if(!NVM::hasCalibration())
         calibration();
+#if 0
+    pin2.setToGround();
+    while(1)
+    {
+        pin1.pullUp(TestPin::PULL_LOW);
+        delayMicroseconds(100);
+        pin1.pullDown(TestPin::PULL_LOW);
+        xDelay(4);
+    }
+
+#endif    
+    
 #if 0    
     Coil c(pin1,pin2,pin3);
-    c.compute();
+    while(1)
+    {
+        c.compute();
+    }
 #endif    
 #if 0    
     grapher(&pin2,&pin1);
