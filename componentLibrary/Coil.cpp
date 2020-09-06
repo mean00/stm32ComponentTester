@@ -32,7 +32,7 @@ Capacitor::CapEval Coil::evalSmall(  TestPin *p1,TestPin *p2,int fq, int clockPe
     int nbSamples;
     uint16_t *samples;
     
-    if(!p1->pulseTimeDelta(*p2,clockPerSample, 512*2,fq,TestPin::PULL_LOW,nbSamples,&samples,resistance,true))
+    if(!p1->pulseTimeDelta(*p2,clockPerSample, 768*2,fq,TestPin::PULL_LOW,nbSamples,&samples,resistance,true))
     {
         return Capacitor::EVAL_ERROR;
     }
@@ -61,6 +61,11 @@ Capacitor::CapEval Coil::evalSmall(  TestPin *p1,TestPin *p2,int fq, int clockPe
     this->resistance = otherResistance*r/(4095.-r);
     Logger("R=%d\n",(int)this->resistance);
     
+    for(int i=0;i<nbSamples;i++)
+    {
+        Logger("%d %d",i,samples[i]);
+    }
+    
 #if 1    
     char st[20];
     TesterGfx::drawCurve(nbSamples,samples);
@@ -83,52 +88,28 @@ Capacitor::CapEval Coil::evalSmall(  TestPin *p1,TestPin *p2,int fq, int clockPe
     wave.searchValueAbove(mn+(5*4095)/100, iA, vA, 0);
     wave.searchValueAbove(4095.*0.68, iB, vB, iA);
     
-    if(vB<(4095/3)) return Capacitor::EVAL_BIGGER_CAP; // still charging...
+    // search 90% and 10% point
+    int p90=(mx*90)/100;
+    int p10=(mx*10)/100;
     
-    // If largeWindow is on, we dont require as much difference between min & max
-    // it is for probing support
-    // if largeWindow is off, we must have at leasst nbSample/8 samples, i.e. about 60
-    int minSamples=0;
+    int t1,t2,v1,v2;
+    
+    if(!wave.searchValueBelow(p90,t1,v1,iA))
+        return Capacitor::EVAL_ERROR;
+    if(!wave.searchValueBelow(p10,t2,v2,t1))
+        return Capacitor::EVAL_ERROR;
 
-    minSamples=nbSamples/8;
+    float l=(float)resistance;
+    float lg;
     
-    //if((iB-iA)<(minSamples)) return EVAL_SMALLER_CAP; // the pulse is too quick 
-    if((vB-vA)<400) return Capacitor::EVAL_BIGGER_CAP; // A & B are too close, we must zoom out
+    lg=log((float)v1/(float)v2);
     
+    l=l/lg;
+    l=l*(t2-t1);
+    l=l*period;
     
-    Capacitor::CapCurve curve;
-    curve.iMax=iB;
-    curve.iMin=iA;
-    curve.resistance=resistance;
-    curve.vMax=vB;
-    curve.vMin=vA;
-    curve.period=period;
-    curve.nbSamples=nbSamples;
-    //cap=Capacitor::computeCapacitance(iA,iB,vA,vB,resistance,period);
-    //inductance=Capacitor::computeCapacitance(curve);
-    inductance=0;
+    inductance=l;
     
-#if 0
-    Component::prettyPrint(cap,"F",st);
-    TesterGfx::print(10,20,st);
-    
-    Component::prettyPrint(fq,"Hz",st);
-    TesterGfx::print(10,50,st);
-    
-    sprintf(st,"%d",clockPerSample);
-    TesterGfx::print(10,80,st);
-    
-
-    sprintf(st,"A%d",iA);
-    TesterGfx::print(80,80,st);
-
-    sprintf(st,"B%d",iB);
-    TesterGfx::print(80,100,st);
-    
-    
-    
-    TesterControl::waitForAnyEvent();
-#endif    
     return Capacitor::EVAL_OK;  
 
 }
@@ -167,7 +148,7 @@ bool Coil::compute()
    {
     int found=0;
     Logger("scale=%d",found);
-    er=evalSmall(p1,p2,4000,2,cap);
+    er=evalSmall(p1,p2,1200,1,cap);
 
     if(er!=Capacitor::EVAL_OK)
     {
