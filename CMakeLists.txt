@@ -90,7 +90,7 @@ ENDFOREACH(comp ${SUB_COMPONENTS} control)
 #
 # Our code
 #
-SET(UTILS utils/fancyLock.cpp    utils/cycleClock.cpp utils/myPwm.cpp)
+SET(UTILS utils/fancyLock.cpp    utils/cycleClock.cpp utils/myPwm.cpp utils/i2c_stubs.c)
 
 generate_arduino_firmware(componentTester${EXTENSION}
                 SKETCH stm32ComponentTester.ino
