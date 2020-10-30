@@ -93,7 +93,8 @@ public:
             DSOADC::frequencyToRateScale(samplingFrequency,prescaler,rate);
         }
         Logger("ADC rate=%d scale=%d",prescaler,rate);
-        pwmGetScaleOverFlow(samplingFrequency,timerScaler,timerOvf);
+        int cmp;
+        pwmGetScaleOverFlowCompare(samplingFrequency,timerScaler,timerOvf,cmp);
         return true;
     }
     /**
