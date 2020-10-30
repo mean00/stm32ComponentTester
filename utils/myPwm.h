@@ -5,10 +5,11 @@
 void myPwm(int pin,int fq); // short cut for pwmGetScaleOverFlow+pwmFromScalerAndOverflow 
 void pwmPause(int pin);
 void pwmRestart(int pin);
-void pwmFromScalerAndOverflow(int pin, int scaler, int overFlow);
-void pwmFromScalerAndOverflow(HardwareTimer *t,int channel, int scaler, int overFlow);
-void pwmGetScaleOverFlow(int fq,int &scaler, int &ovf);
+void pwmFromScalerAndOverflow(int pin, int scaler, int overFlow, int compare=-1);
+void pwmFromScalerAndOverflow(HardwareTimer *t,int channel, int scaler, int overFlow, int compare=-1);
+void pwmGetScaleOverFlowCompare(int fq,int &scaler, int &ovf,int &compare);
 void pwmGetFrequency(int scaler, int ovf,int &fq);
+void pwmSetRatio(int pin, int ratio); // ratio is 10 bits 0...1024
 
 HardwareTimer *pinToTimer(timer_dev *tdev);
 class pwmQuickRestart

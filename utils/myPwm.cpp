@@ -30,12 +30,27 @@ void pwmGetFrequency(int scaler, int ovf,int &fq)
  * @param scaler
  * @param ovf
  */
-void pwmGetScaleOverFlow(int fq,int &scaler, int &ovf)
+void pwmGetScaleOverFlowCompare(int fq,int &scaler, int &ovf, int &compare)
 {
     scaler=F_CPU/(fq*65535);
     scaler+=1;
     int high=F_CPU/scaler;
     ovf=(high+fq/2)/fq;
+    compare=ovf/2;
+}
+void pwmSetRatio(int pin, int ratio)
+{
+     timer_dev *tdev=PIN_MAP[pin].timer_device;
+    HardwareTimer *t=pinToTimer(tdev);
+
+    int channel=PIN_MAP[pin].timer_channel;
+    if(!channel) xAssert(0);
+    
+    int ov=  t->getOverflow();
+    ov*=ratio;
+    ov>>=10;
+    t->setCompare(channel,ov);
+    
 }
 /**
  * 
@@ -43,7 +58,7 @@ void pwmGetScaleOverFlow(int fq,int &scaler, int &ovf)
  * @param scaler
  * @param overFlow
  */
-void pwmFromScalerAndOverflow(int pin, int scaler, int overFlow)
+void pwmFromScalerAndOverflow(int pin, int scaler, int overFlow, int compare)
 {
     
     timer_dev *tdev=PIN_MAP[pin].timer_device;
@@ -55,7 +70,10 @@ void pwmFromScalerAndOverflow(int pin, int scaler, int overFlow)
     t->pause();  
     t->setPrescaleFactor(scaler);
     t->setOverflow(overFlow);
-    t->setCompare(channel,overFlow/2);
+    if(compare<0)
+        t->setCompare(channel,overFlow/2);
+    else
+        t->setCompare(channel,compare);
     t->setCount(0);
     tdev->regs.bas->CR1|=0x10; //downcounting
     t->refresh();
@@ -71,14 +89,17 @@ void pwmFromScalerAndOverflow(int pin, int scaler, int overFlow)
  * @param scaler
  * @param overFlow
  */
-void pwmFromScalerAndOverflow(HardwareTimer *t,int channel, int scaler, int overFlow)
+void pwmFromScalerAndOverflow(HardwareTimer *t,int channel, int scaler, int overFlow, int compare)
 {
     
     
     t->pause();  
     t->setPrescaleFactor(scaler);
     t->setOverflow(overFlow);
-    t->setCompare(channel,overFlow/2);
+    if(compare<0)
+        t->setCompare(channel,overFlow/2);
+    else
+        t->setCompare(channel,compare);
     t->setCount(0);
     t->c_dev()->regs.bas->CR1|=0x10; //downcounting
     t->refresh();
@@ -97,9 +118,10 @@ void myPwm(int pin,int fq)
 {
     int scaler;
     int overFlow;
+    int compare;
     
-    pwmGetScaleOverFlow(fq,scaler,overFlow);
-    pwmFromScalerAndOverflow(pin,scaler,overFlow);
+    pwmGetScaleOverFlowCompare(fq,scaler,overFlow,compare);
+    pwmFromScalerAndOverflow(pin,scaler,overFlow,compare);
 }
 void pwmPause(int pin)
 {
