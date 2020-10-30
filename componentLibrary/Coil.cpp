@@ -32,7 +32,7 @@ Capacitor::CapEval Coil::evalSmall(  TestPin *p1,TestPin *p2,int fq, int clockPe
     int nbSamples;
     uint16_t *samples;
     
-    if(!p1->pulseTimeDelta(*p2,clockPerSample, 768*2,fq,TestPin::PULL_LOW,nbSamples,&samples,resistance,true))
+    if(!p1->pulseTime(clockPerSample, 760,fq,TestPin::PULL_LOW,nbSamples,&samples,resistance))
     {
         return Capacitor::EVAL_ERROR;
     }
@@ -60,11 +60,12 @@ Capacitor::CapEval Coil::evalSmall(  TestPin *p1,TestPin *p2,int fq, int clockPe
     float otherResistance=p1->getRes(TestPin::PULLUP_LOW);    
     this->resistance = otherResistance*r/(4095.-r);
     Logger("R=%d\n",(int)this->resistance);
-    
+#if 0    
     for(int i=0;i<nbSamples;i++)
     {
         Logger("%d %d",i,samples[i]);
     }
+#endif    
     
 #if 1    
     char st[20];
@@ -148,7 +149,7 @@ bool Coil::compute()
    {
     int found=0;
     Logger("scale=%d",found);
-    er=evalSmall(p1,p2,1200,1,cap);
+    er=evalSmall(p1,p2,1200,2,cap);
 
     if(er!=Capacitor::EVAL_OK)
     {
