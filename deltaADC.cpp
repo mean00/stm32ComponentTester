@@ -112,7 +112,8 @@ bool DeltaADCTime::get(int &nbSamples, uint16_t **ptr, float &period)
 {
     int timerScaler;
     int timerOvf;
-    pwmGetScaleOverFlow(_fq,timerScaler, timerOvf);    
+    int cmp;
+    pwmGetScaleOverFlowCompare(_fq,timerScaler, timerOvf,cmp);    
     if(!_pA.finishDmaSample(nbSamples,ptr)) 
     {
             return false;
