@@ -22,3 +22,6 @@
 [submodule "eprintf/src"]
 	path = eprintf/src
 	url = https://github.com/mpaland/printf
+[submodule "adc"]
+	path = adc
+	url = git@github.com:mean00/stm32duino_adc.git
