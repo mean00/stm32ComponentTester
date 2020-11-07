@@ -108,7 +108,7 @@ void zeroAllPins();
 
 // Value considered as valid
 #define HIGH_CEIL 3900
-#define LOW_FLOOR 10
+#define LOW_FLOOR 20
 
 
 #define Debug Serial.print

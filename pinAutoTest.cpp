@@ -6,6 +6,7 @@
 #include "testerGfx.h"
 #include "MapleFreeRTOS1000_pp.h"
 #include "testerControl.h"
+#include "adc_limit.h"
 
 extern TestPin   pin1;
 extern TestPin   pin2;
@@ -16,6 +17,16 @@ extern uint32_t  deviceId;
 #define Y_OFFSET 20
 
 
+void trace(TestPin &A, const char *label, int value)
+{
+    Serial1.print("Test pin : ");
+    Serial1.print(A.pinNumber());
+    Serial1.print(" : ");
+    Serial1.print(label);
+    Serial1.print(" : ");
+    Serial1.print(value);
+    Serial1.print("\n");
+}
 
 
 int easySample(TestPin &M);
@@ -30,7 +41,8 @@ static bool singlePinTest(TestPin &A, TestPin &MeasurePin, const char **failure)
     {
         pinMode(MeasurePin.pinADC(),INPUT_ANALOG);
         A.setToGround();        
-        sum=easySample(MeasurePin);       
+        sum=easySample(MeasurePin);    
+        trace(A,"Gnd",sum);
         if(sum>LOW_FLOOR)
         {
             *failure="G";
@@ -39,7 +51,8 @@ static bool singlePinTest(TestPin &A, TestPin &MeasurePin, const char **failure)
     }
     {
         A.setToVcc();
-        sum=easySample(MeasurePin);       
+        sum=easySample(MeasurePin);   
+        trace(A,"Vcc",sum);
         if(sum<HIGH_CEIL) // might be wrong at high end of the spectrum, take extra margin
         {
             *failure="V";
@@ -53,7 +66,9 @@ static bool singlePinTest(TestPin &A, TestPin &MeasurePin, const char **failure)
         TestPin::PULL_STRENGTH strength=(TestPin::PULL_STRENGTH )i;
         *failure=label[i];
         A.pullUp(strength);
+        
         sum=easySample(MeasurePin);       
+        trace(A,"Pup",sum);
         if(sum<HIGH_CEIL) // might be wrong at high end of the spectrum, take extra margin
         {
             return false;
@@ -61,6 +76,7 @@ static bool singlePinTest(TestPin &A, TestPin &MeasurePin, const char **failure)
         A.pullDown(strength);
         xDelay(5);
         sum=easySample(MeasurePin);      
+        trace(A,"Pdown",sum);
         if(sum>LOW_FLOOR) // might be wrong at high end of the spectrum, take extra margin
         {
             return false;
@@ -89,7 +105,7 @@ static bool singlePinTest(TestPin &A, TestPin &MeasurePin, const char **failure)
  * @param onoff
  * @return 
  */
-#define MARGIN 20
+
 bool T1DmaTest(const char *text, TestPin &A,  int onoff)
 {
     AutoDisconnect ad;
@@ -105,16 +121,20 @@ bool T1DmaTest(const char *text, TestPin &A,  int onoff)
     {
             return false;
     }    
-
+    const char *lb;
+    
     if(onoff) // should be to VCC
         for(int i=1;i<nbSamples;i++) // Skip 1st sample!
         {
-            if(samples[i]<(4095-MARGIN)) return false;
+            trace(A, "U", samples[i]);
+            if(samples[i]<(ADC_HIGH)) return false;
+            
         }
     else  // to ground
         for(int i=1;i<nbSamples;i++)
         {
-            if(samples[i]>MARGIN) return false;
+            trace(A, "D", samples[i]);
+            if(samples[i]>ADC_LOW) return false;
         }
     
     return true;
@@ -155,8 +175,12 @@ bool dualDmaTest(const char *text, TestPin &A, TestPin & B, TestPin &C, bool thi
     }
     low/=nbPair;
     hi/=nbPair;
-    if(hi<3950) return false;
-    if(low>40) return false;
+    
+    trace(A,"low",low);
+    trace(A,"hi",hi);
+    
+    if(hi<ADC_HIGH) return false;
+    if(low>ADC_LOW) return false;
             
     return true;
 }
