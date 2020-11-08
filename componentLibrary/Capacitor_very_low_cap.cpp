@@ -67,8 +67,6 @@ Capacitor::CapEval Capacitor::quickProbe()
  */
 Capacitor::CapEval Capacitor::quickEvalSmall(TestPin *p1, TestPin *p2,int fq, int clockPerSample, int &d)
 {   
-  
-   
     p2->setToGround();
     p1->pullDown(TestPin::PULL_LOW);
     xDelay(10);
@@ -82,9 +80,6 @@ Capacitor::CapEval Capacitor::quickEvalSmall(TestPin *p1, TestPin *p2,int fq, in
     {
         return EVAL_ERROR;
     }
-    
-    
-    
     
     WaveForm wave(nbSamples-1,samples+1);
     int mn,mx;
@@ -103,19 +98,29 @@ Capacitor::CapEval Capacitor::quickEvalSmall(TestPin *p1, TestPin *p2,int fq, in
     if( (mx-mn)<100) // flat
     {
         if(mx<150) // stuck to zero
+        {
+            Logger("Cap too big for range\n");
             return EVAL_BIGGER_CAP;
+        }
         else
+        {
+            Logger("Cap too small for range\n");
             return EVAL_SMALLER_CAP;
+        }
     }
     
     int iA,iB,vA,vB;    
     int tgt=mn+(((mx-mn)*85)/100); // look for 0.666= ~ e-1
+    // we are trying to get a curve containing from 10% to 70% of the ramp up
     if(!wave.searchValueAbove(mn+50, iA, vA, 0)) return EVAL_BIGGER_CAP;
     if(!wave.searchValueAbove(tgt, iB, vB, iA)) return EVAL_BIGGER_CAP;
     Logger("iA:%d vA:%d iB:%d vB:%d\n",iA,vA,iB,vB);
     if( (vB-vA)<2000) return EVAL_BIGGER_CAP;
     
     d=(iB-iA)*8;
+    
+    
+    
 #if 0    
     sprintf(st,"iB:%d",iB);
     TesterGfx::print(10,20,st);
@@ -284,7 +289,7 @@ bool Capacitor::computeVeryLowCap()
             bool takeIt=false;
             Logger("D=%d\n",d);
             if(d>=150) takeIt=true;
-            if(i==0 && d>80) takeIt=true;
+            if(i==0 && d>70) takeIt=true;
             if(takeIt )
             {
                 found=i;

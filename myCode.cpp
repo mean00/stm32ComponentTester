@@ -23,6 +23,7 @@ extern void menuSystem(void);
 extern void grapher( TestPin *p1,TestPin *p2);
 extern void menuSystem(void);
 extern void showIcons();
+extern bool pinTest();
 // Free RTOS heap
 
 uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
@@ -75,6 +76,8 @@ void MainTask::run()
     // 
     if(!NVM::hasCalibration())
         calibration();
+    
+  //  pinTest();
 #if 0
     pin2.setToGround();
     while(1)
@@ -196,7 +199,7 @@ void mySetup(void)
   
   Serial.end(); // dont let usb bother us
   interrupts();
-  Serial1.begin(38400);
+  Serial1.begin(115200);
   Logger("Starting...\n");  
   
   MainTask *mainTask=new MainTask();
