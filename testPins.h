@@ -8,6 +8,7 @@
 #include "tester_constant.h"
 #include "dso_adc.h"
 #include "dso_debug.h"
+#include "adc_limit.h"
 #define ADC_OFFSET  0 
 
 class AutoDisconnect
@@ -107,8 +108,6 @@ void zeroAllPins();
 #define pPICO (1000.*1000.*1000.*1000.)
 
 // Value considered as valid
-#define HIGH_CEIL 3900
-#define LOW_FLOOR 20
 
 
 #define Debug Serial.print
