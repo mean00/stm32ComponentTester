@@ -90,7 +90,7 @@ ENDFOREACH(comp ${SUB_COMPONENTS} control)
 #
 # Our code
 #
-SET(UTILS   utils/cycleClock.cpp  utils/i2c_stubs.c)
+SET(UTILS   utils/cycleClock.cpp  utils/i2c_stubs.c utils/usb_stubs.c)
 
 generate_arduino_firmware(componentTester${EXTENSION}
                 SKETCH stm32ComponentTester.ino
