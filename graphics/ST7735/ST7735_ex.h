@@ -36,7 +36,9 @@ public:
         void  setFontFamily(const GFXfont *small, const GFXfont *medium, const GFXfont *big);
         void  setFontSize(FontSize size);
         void  fillScreen(uint16_t color) ;
-        void    putPixel(int x,int y, uint16_t color);        
+        void    putPixel(int x,int y, uint16_t color);   
+        void  print(const char *z);
+        void  print(float f);
 protected:
         FontInfo          fontInfo[3];
         

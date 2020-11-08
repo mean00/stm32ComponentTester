@@ -1,5 +1,5 @@
 #include "stdint.h"
-#include "../Adafruit-GFX/gfxfont.h"
+#include "../tinyAdafruit_ST7735/gfxfont.h"
 
 #undef PROGMEM
 #define PROGMEM __attribute__ ((used))

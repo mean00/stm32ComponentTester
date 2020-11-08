@@ -409,6 +409,27 @@ void Adafruit_ST7735Ex::myDrawChar(int16_t x, int16_t y, unsigned char c,  uint1
 
 /**
  * 
+ * @param z
+ */
+void  Adafruit_ST7735Ex::print(const char *z)
+{
+   int l=strlen(z);
+   while(*z)
+   {
+       int inc=write(*z);
+       cursor_x+=inc;
+       z++;
+   }
+}
+void  Adafruit_ST7735Ex::print(float f)
+{
+    char st[50];
+    sprintf(st,"%f",f);
+    print(st);
+}
+        
+/**
+ * 
  * @param c
  * @return 
  */

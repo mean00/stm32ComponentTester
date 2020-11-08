@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Print.h"
-#include "../Adafruit-GFX/gfxfont.h"
+
+#include "gfxfont.h"
 
 
 
@@ -14,7 +14,7 @@
  * @param SCLK
  * @param RST
  */
-class Adafruit_ST7735 : public Print
+class Adafruit_ST7735 
 {
   
  public:
