@@ -7,9 +7,6 @@
 [submodule "graphics/ST7735/Adafruit-ST7735"]
 	path = graphics/ST7735/Adafruit-ST7735
 	url = https://github.com/KenjutsuGH/Adafruit-ST7735-Library.git
-[submodule "graphics/Adafruit-GFX"]
-	path = graphics/Adafruit-GFX
-	url = https://github.com/adafruit/Adafruit-GFX-Library.git
 [submodule "Arduino_STM32"]
 	path = Arduino_STM32
 	url = https://github.com/rogerclarkmelbourne/Arduino_STM32
