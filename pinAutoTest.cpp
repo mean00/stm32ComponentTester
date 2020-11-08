@@ -19,13 +19,7 @@ extern uint32_t  deviceId;
 
 void trace(TestPin &A, const char *label, int value)
 {
-    Serial1.print("Test pin : ");
-    Serial1.print(A.pinNumber());
-    Serial1.print(" : ");
-    Serial1.print(label);
-    Serial1.print(" : ");
-    Serial1.print(value);
-    Serial1.print("\n");
+    Logger("Test pin %d : %s : %d \n ",A.pinNumber(),label,value);
 }
 
 
@@ -139,6 +133,49 @@ bool T1DmaTest(const char *text, TestPin &A,  int onoff)
     
     return true;
 }
+
+/**
+ * Do a simple one pin dma sampling, by pulling that pin up / down
+ * it is mostly the same as the pinTest above
+ * @param text
+ * @param A
+ * @param onoff
+ * @return 
+ */
+
+bool T1TimeTest(const char *text, TestPin &A,  int onoff)
+{
+    AutoDisconnect ad;
+    if(onoff)
+        A.setToVcc();
+    else
+        A.pullDown(TestPin::PULL_MED);    
+    xDelay(5);    
+    A.prepareTimerSample(10*1000,32);
+    int nbSamples;
+    uint16_t *samples;
+    if(!A.finishDmaSample(nbSamples,&samples)) 
+    {
+            return false;
+    }    
+    const char *lb;
+    
+    if(onoff) // should be to VCC
+        for(int i=1;i<nbSamples;i++) // Skip 1st sample!
+        {
+            trace(A, "U", samples[i]);
+            if(samples[i]<(ADC_HIGH)) return false;
+            
+        }
+    else  // to ground
+        for(int i=1;i<nbSamples;i++)
+        {
+            trace(A, "D", samples[i]);
+            if(samples[i]>ADC_LOW) return false;
+        }
+    
+    return true;
+}
 /**
  * Do a dual DMA test i.e. sample 2 different pins at the same time
  * @param text
@@ -208,7 +245,7 @@ bool dualDmaTest(const char *text, TestPin &A, TestPin & B, TestPin &C, bool thi
 { \
     const char *failure; \
     TesterGfx::print(2,LINE,"1DMA " #PIN  ":"); \
-    if(T1DmaTest("",pin##PIN,0)) \
+    if(T1DmaTest("DMAL",pin##PIN,0)) \
         TesterGfx::print(100,LINE,"+"); \
     else \
     { \
@@ -216,7 +253,7 @@ bool dualDmaTest(const char *text, TestPin &A, TestPin & B, TestPin &C, bool thi
         TesterGfx::print(80,LINE,"KO"); \
         Logger("1DMA-0 fail\n"); \
     } \
-    if(T1DmaTest("",pin##PIN,1)) \
+    if(T1DmaTest("DMAH",pin##PIN,1)) \
         TesterGfx::print(110,LINE,"+"); \
     else \
     { \
@@ -226,6 +263,27 @@ bool dualDmaTest(const char *text, TestPin &A, TestPin & B, TestPin &C, bool thi
     } \
 }
 
+#define RUN1TIMETEST(PIN,MPIN,LINE) \
+{ \
+    const char *failure; \
+    TesterGfx::print(2,LINE,"1TIME " #PIN  ":"); \
+    if(T1TimeTest("TimeL",pin##PIN,0)) \
+        TesterGfx::print(100,LINE,"+"); \
+    else \
+    { \
+        testFailed=true; \
+        TesterGfx::print(80,LINE,"KO"); \
+        Logger("1TIME-0 fail\n"); \
+    } \
+    if(T1TimeTest("TimeU",pin##PIN,1)) \
+        TesterGfx::print(110,LINE,"+"); \
+    else \
+    { \
+        testFailed=true; \
+        TesterGfx::print(80,LINE,"KO2"); \
+        Logger("1TIME-1 fail\n");\
+    } \
+}
 bool pinTest()
 {
     
@@ -246,6 +304,16 @@ bool pinTest()
     RUN1DMATEST(2,3,80+Y_OFFSET);
     if( testFailed)        
         return false;
+    
+    TesterGfx::title("TIME");
+    RUN1TIMETEST(1,2,20+Y_OFFSET);
+    RUN1TIMETEST(1,3,50+Y_OFFSET);
+    RUN1TIMETEST(2,3,80+Y_OFFSET);
+    if( testFailed)        
+        return false;
+    
+    
+    
     
     
     TesterGfx::title("2DMA");
