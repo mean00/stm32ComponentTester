@@ -427,7 +427,12 @@ void  Adafruit_ST7735Ex::print(float f)
     sprintf(st,"%f",f);
     print(st);
 }
-        
+   void  Adafruit_ST7735Ex::print(int f)
+{
+    char st[50];
+    sprintf(st,"%d",f);
+    print(st);
+}     
 /**
  * 
  * @param c

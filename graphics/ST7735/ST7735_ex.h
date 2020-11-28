@@ -5,6 +5,8 @@
 #include "Adafruit_ST7735.h"
 #endif
 #include "MapleFreeRTOS1000_pp.h"
+#include "printf.h"
+
 /**
  * Extension to ST7735 to allow block-blit and custom TrueType font
  * It should be fast enough
@@ -39,6 +41,8 @@ public:
         void    putPixel(int x,int y, uint16_t color);   
         void  print(const char *z);
         void  print(float f);
+        void  print(double d) {return print((float)d);}
+        void  print(int f);
 protected:
         FontInfo          fontInfo[3];
         
