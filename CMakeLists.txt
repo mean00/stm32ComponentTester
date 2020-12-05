@@ -1,11 +1,17 @@
+#
+# Main CmakeList for stm32 based component tester
+#
+#
 OPTION(USE_GD32F103   "Use GD32F103 MCU" FALSE) 
 OPTION(USE_GD32F303   "Use GD32F303 MCU" FALSE) 
 # Select platform and installation for extra arduino files AND toolchain (compiler...)
 SET(PLATFORM_ARCHITECTURE "STM32F1")
 # Do we have patch around ?
-include(cmake_utils/FindPatch.cmake)
+include(cmake/FindPatch.cmake)
 #
 include(./platformConfig.cmake)
+LIST(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
 IF(NOT EXISTS "${PLATFORM_PATH}/patched")
     MESSAGE(STATUS "Patching file in ${PLATFORM_PATH} to add gd32f303/103 support")
     patch_file_p(2 "${PLATFORM_PATH}" "${CMAKE_SOURCE_DIR}/patches/gd32_patch.diff")
@@ -20,38 +26,19 @@ ENDIF(NOT EXISTS "${PLATFORM_PATH}/patched2")
 
 cmake_minimum_required(VERSION 3.0)
 
-#this must be done before including platformConfig.cmake
-
-IF(USE_GD32F103 OR USE_GD32F303)
-    SET(MCU_SPEED             96000000)                 # Max speed, above 96M USB will not work (?)
-ENDIF(USE_GD32F103 OR USE_GD32F303)
-include(./platformConfig.cmake)
-
+# Set config depending on the MCU selected
+include(select_mcu)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 SET(CMAKE_TOOLCHAIN_FILE cmake/ArduinoToolchain.cmake)
 Project("componentTester" C CXX ASM)
 
-# Board setup
-IF(USE_GD32F103)
-    SET(EXTENSION             "_GD32F103")
-    set(ARDUINO_DEFAULT_BOARD genericGD32F103C)        # Default Board ID, when not specified
-    set(ARDUINO_CPU           GD32F103C8)
-    ADD_DEFINITIONS("-DHIGH_SPEED_ADC")
-    SET(ARDUINO_UPLOAD_METHOD BMP) # Use blackmagic link, if you comment it out you'll use DFU => 8kB flash
-ELSEIF(USE_GD32F303)
-    SET(EXTENSION             "_GD32F303")
-    set(ARDUINO_DEFAULT_BOARD genericGD32F303C)        # Default Board ID, when not specified
-    set(ARDUINO_CPU           GD32F303C8)
-    ADD_DEFINITIONS("-DHIGH_SPEED_ADC")
-    SET(ARDUINO_UPLOAD_METHOD BMP) # Use blackmagic link, if you comment it out you'll use DFU => 8kB flash
-ELSE()
-    SET(EXTENSION             "_STM32F103")
-    set(ARDUINO_LD_FILE      jtag)      # Use that instead of default jtag-c8 to get the full 128 kB
-    set(ARDUINO_DEFAULT_BOARD genericSTM32F103C)        # Default Board ID, when not specified
-    set(ARDUINO_CPU           STM32F103C8)
-    SET(ARDUINO_UPLOAD_METHOD BMP) # Use blackmagic link, if you comment it out you'll use DFU => 8kB flash
-ENDIF(USE_GD32F103)
+set(ARDUINO_DEFAULT_BOARD ${X_ARDUINO_DEFAULT_BOARD})        # Default Board ID, when not specified
+set(ARDUINO_CPU           ${X_ARDUINO_CPU})
+SET(ARDUINO_UPLOAD_METHOD ${X_ARDUINO_UPLOAD_METHOD}) # Use blackmagic link, if you comment it out you'll use DFU => 8kB flash
+set(ARDUINO_DEFAULT_PORT ttyACM0) # Default Port, when not specified
+
+SET(libPrefix ${ARDUINO_DEFAULT_BOARD}_)
 
 IF(NOT DEFINED CONFIGURATION)
     SET(CONFIGURATION default)
@@ -59,12 +46,9 @@ ENDIF(NOT DEFINED CONFIGURATION)
 
 
 MESSAGE(STATUS "Starting Component Tester")
-ADD_DEFINITIONS("-g3")
+ADD_DEFINITIONS("-g3")  
 
 #print_board_list()
-set(ARDUINO_DEFAULT_PORT ttyACM0) # Default Port, when not specified
-set(ARDUINO_CPUMENU .menu.cpu.${ARDUINO_CPU})
-SET(libPrefix ${ARDUINO_DEFAULT_BOARD}_)
 #
 MESSAGE(STATUS "**** Configuration is ** ${CONFIGURATION} **")
 include_directories(configurations/${CONFIGURATION})
@@ -82,10 +66,6 @@ include_directories(utils)
 FOREACH(comp ${SUB_COMPONENTS} control)
     add_subdirectory(${comp})
 ENDFOREACH(comp ${SUB_COMPONENTS} control)
-
-
-
-
 
 #
 # Our code
@@ -106,13 +86,7 @@ target_include_directories(componentTester${EXTENSION} PRIVATE componentLibrary 
 
 target_link_libraries(componentTester${EXTENSION} ${libPrefix}RotaryEncoder)
 target_link_libraries(componentTester${EXTENSION} ${libPrefix}fonts)
-#dump_all()
-if(USE_GD32F103)
-    MESSAGE(STATUS "\tUsing GD32F103 MCU ")
-elseif(USE_GD32F303)
-    MESSAGE(STATUS "\tUsing GD32F303 MCU ")
-else()
-    MESSAGE(STATUS "\tUsing STM32F103 MCU ")
-endif(USE_GD32F103)
+
+MESSAGE(STATUS "\tUsing ${EXTENSION} MCU ")
 
 # EOF
