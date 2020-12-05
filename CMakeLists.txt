@@ -2,12 +2,11 @@
 # Main CmakeList for stm32 based component tester
 #
 #
-OPTION(USE_GD32F103   "Use GD32F103 MCU" FALSE) 
-OPTION(USE_GD32F303   "Use GD32F303 MCU" FALSE) 
 # Select platform and installation for extra arduino files AND toolchain (compiler...)
-SET(PLATFORM_ARCHITECTURE "STM32F1")
 # Do we have patch around ?
-include(cmake/FindPatch.cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+include(select_mcu_stm32)
+include(FindPatch)
 #
 include(./platformConfig.cmake)
 LIST(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -27,9 +26,7 @@ ENDIF(NOT EXISTS "${PLATFORM_PATH}/patched2")
 cmake_minimum_required(VERSION 3.0)
 
 # Set config depending on the MCU selected
-include(select_mcu)
 
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 SET(CMAKE_TOOLCHAIN_FILE cmake/ArduinoToolchain.cmake)
 Project("componentTester" C CXX ASM)
 
