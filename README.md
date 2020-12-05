@@ -31,16 +31,20 @@ Due to the low voltage (3.3v), some mosfet will not be tested correctly.
 ## How to build
 
 * Install arduino and cmake
-* Checkout the project, make sure you checkout the submodules
+* Checkout the project, make sure you checkout the submodules i.. git clone --recurse-submodules http://xxxxx
 * Edit platformConfig.cmake to set the path to your compiler (i strongly suggest to use that ( [one](https://github.com/xpack-dev-tools/arm-none-eabi-gcc-xpack/releases)) )
 * mkdir build && cd build && cmake .. && make
   
+ **/!\ Important** : On mingw dont forget to do *dos2unix patches/***.diff*
+
   It should work fine on linux and windows/mingw.
   
 ## Options
    By default the firmware is generated for STM32F103C8T6
    For the GD32F103 : add -DUSE_GD32F103=True to the cmake command
    For the GD32F303 : add -DUSE_GD32F303=True to the cmake command
+
+**/!\ Important** : The code is very close to 64kB, + we need a bit of flash to store settings. As a result, it might not fit inside the GD32F1 or a STM32F1 with really 64 kB of flash.
 
 ## How does it work ?
 The code is in two parts :
