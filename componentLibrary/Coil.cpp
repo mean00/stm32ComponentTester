@@ -58,7 +58,7 @@ Capacitor::CapEval Coil::evalSmall(  TestPin *p1,TestPin *p2,int fq, int clockPe
     if(r>4090) return Capacitor::EVAL_ERROR;
     
     float otherResistance=p1->getRes(TestPin::PULLUP_LOW);    
-    this->resistance = otherResistance*r/(4095.-r);
+    this->resistance = 0; // otherResistance*r/(4095.-r);
     Logger("R=%d\n",(int)this->resistance);
 #if 0    
     for(int i=0;i<nbSamples;i++)
@@ -74,6 +74,7 @@ Capacitor::CapEval Coil::evalSmall(  TestPin *p1,TestPin *p2,int fq, int clockPe
     TesterGfx::print(10,100,st);
     
     sprintf(st,"Mx:%d",mx);
+    Logger("Min=%d max=%d \n",mn,mx);
     TesterControl::waitForAnyEvent();
 #endif    
     
@@ -89,18 +90,23 @@ Capacitor::CapEval Coil::evalSmall(  TestPin *p1,TestPin *p2,int fq, int clockPe
     wave.searchValueAbove(mn+(5*4095)/100, iA, vA, 0);
     wave.searchValueAbove(4095.*0.68, iB, vB, iA);
     
+    Logger("iA=%d vA=%d iB=%d vB=%d\n",iA,vA,iB,vB);
+    
     // search 90% and 10% point
-    int p90=(mx*90)/100;
+    int p60=(mx*60)/100;
     int p10=(mx*10)/100;
     
     int t1,t2,v1,v2;
     
-    if(!wave.searchValueBelow(p90,t1,v1,iA))
+    if(!wave.searchValueAbove(p10,t1,v1,iA))
         return Capacitor::EVAL_ERROR;
-    if(!wave.searchValueBelow(p10,t2,v2,t1))
+    if(!wave.searchValueAbove(p60,t2,v2,t1))
         return Capacitor::EVAL_ERROR;
 
-    float l=(float)resistance;
+    Logger("t1=%d v1=%d t2=%d v2=%d\n",t1,v1,t2,v2);
+    Logger("period=%f us resistance=%f\n",period*1000000., otherResistance);
+    
+    float l=(float)otherResistance;
     float lg;
     
     lg=log((float)v1/(float)v2);
@@ -110,7 +116,7 @@ Capacitor::CapEval Coil::evalSmall(  TestPin *p1,TestPin *p2,int fq, int clockPe
     l=l*period;
     
     inductance=l;
-    
+    Logger("l=%f\n",l);
     return Capacitor::EVAL_OK;  
 
 }
