@@ -156,7 +156,7 @@ void MainTask::run()
         bool found=tester.probe();
         if(!found)
         {
-            Tester_waitForkeyPress("Found nothing");
+            Tester_waitForkeyPress("?Unknown?");
         }
     }
 }
