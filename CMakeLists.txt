@@ -82,7 +82,6 @@ ENDFOREACH(comp ${SUB_COMPONENTS})
 target_include_directories(componentTester${EXTENSION} PRIVATE componentLibrary adc graphics control menu)
 
 target_link_libraries(componentTester${EXTENSION} ${libPrefix}RotaryEncoder)
-target_link_libraries(componentTester${EXTENSION} ${libPrefix}fonts)
 
 MESSAGE(STATUS "\tUsing ${EXTENSION} MCU ")
 

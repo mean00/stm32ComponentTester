@@ -3,8 +3,6 @@ ADD_DEFINITIONS(-DTINY_7735)
 SET(ADA_SRC tinyAdafruit_ST7735/tinyAdafruit_ST7735.cpp)
 SET(TESTER_GFX ${ST7735_EX}/ST7735_Gfx.cpp ${ST7735_EX}/ST7735_ex.cpp )
 
-# Put the fonts in their own library to track the size they consume easily
-add_subdirectory(fonts)
 # This is because there is spi.h and SPI.h
 # it causes problems in case insensitive filesystems
  add_definitions("-include ../../SPI/src/SPI.h")

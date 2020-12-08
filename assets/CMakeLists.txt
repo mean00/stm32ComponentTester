@@ -1,5 +1,5 @@
 
-SET(SRCS assets.cpp  )
+SET(SRCS assets.cpp  fonts/fonts.c)
 
 generate_arduino_library(${libPrefix}assets 
                             SRCS ${SRCS}
