@@ -1,0 +1,108 @@
+diff --git a/STM32F1/libraries/SPI/src/SPI.cpp b/STM32F1/libraries/SPI/src/SPI.cpp
+index 9d7069b..b3236c3 100644
+--- a/STM32F1/libraries/SPI/src/SPI.cpp
++++ b/STM32F1/libraries/SPI/src/SPI.cpp
+@@ -565,8 +565,9 @@ uint8 SPIClass::dmaSendAsync(const void * transmitBuf, uint16 length, bool minc)
+     Victor Perez 2017
+ */
+ 
+-void SPIClass::onReceive(void(*callback)(void)) {
++void SPIClass::onReceive(void(*callback)(void *),void *cookie) {
+     _currentSetting->receiveCallback = callback;
++    _currentSetting->receiveCookie = cookie;
+     if (callback){
+         switch (_currentSetting->spi_d->clk_id) {
+             #if BOARD_NR_SPI >= 1
+@@ -593,8 +594,9 @@ void SPIClass::onReceive(void(*callback)(void)) {
+     }
+ }
+ 
+-void SPIClass::onTransmit(void(*callback)(void)) {
++void SPIClass::onTransmit(void(*callback)(void *),void *cookie) {
+     _currentSetting->transmitCallback = callback;
++    _currentSetting->transmitCookie = cookie;
+     if (callback){
+         switch (_currentSetting->spi_d->clk_id) {
+             #if BOARD_NR_SPI >= 1
+@@ -617,6 +619,10 @@ void SPIClass::onTransmit(void(*callback)(void)) {
+         }
+     }
+     else {
++        // MEANX : Detach will not disable the IRQ so if we alternate between sync and async transmit we'll get spurious interrupts
++        nvic_irq_disable(_currentSetting->spiDmaDev->handlers[_currentSetting->spiTxDmaChannel - 1].irq_line);
++        // MEANX
++        
+         dma_detach_interrupt(_currentSetting->spiDmaDev, _currentSetting->spiTxDmaChannel);
+     }
+ }
+@@ -639,16 +645,19 @@ void SPIClass::EventCallback() {
+ 
+         if (_currentSetting->receiveCallback)
+         {
+-            _currentSetting->receiveCallback();
++            _currentSetting->receiveCallback(_currentSetting->receiveCookie);
+         }
+         break;
+     case SPI_STATE_TRANSMIT:
+         _currentSetting->state = SPI_STATE_READY;
+         spi_tx_dma_disable(_currentSetting->spi_d);
++// MEANX : Detach will not disable the IRQ so if we alternate between sync and async transmit we'll get spurious interrupts
++        nvic_irq_disable(_currentSetting->spiDmaDev->handlers[_currentSetting->spiTxDmaChannel - 1].irq_line);
++///MEANX
+         //dma_disable(_currentSetting->spiDmaDev, _currentSetting->spiTxDmaChannel);
+         if (_currentSetting->transmitCallback)
+         {
+-            _currentSetting->transmitCallback();
++            _currentSetting->transmitCallback(_currentSetting->transmitCookie);
+         }
+ 
+         break;
+diff --git a/STM32F1/libraries/SPI/src/SPI.h b/STM32F1/libraries/SPI/src/SPI.h
+index f5abcdf..552544e 100644
+--- a/STM32F1/libraries/SPI/src/SPI.h
++++ b/STM32F1/libraries/SPI/src/SPI.h
+@@ -150,9 +150,10 @@ private:
+ 	spi_dev *spi_d;
+ 	dma_channel spiRxDmaChannel, spiTxDmaChannel;
+ 	dma_dev* spiDmaDev;
+-  void (*receiveCallback)(void) = NULL;
+-  void (*transmitCallback)(void) = NULL;
+-	
++        void (*receiveCallback)(void *) = NULL;
++        void (*transmitCallback)(void *) = NULL;
++        void *receiveCookie=NULL;
++        void *transmitCookie=NULL;
+ 	friend class SPIClass;
+ };
+ 
+@@ -230,8 +231,8 @@ public:
+ 	* onTransmit used to set the callback in case of dmaSend (tx only). That function
+ 	* will NOT be called in case of TX/RX
+     */
+-    void onReceive(void(*)(void));
+-    void onTransmit(void(*)(void));
++    void onReceive(void(*)(void *),void *cookie=NULL);
++    void onTransmit(void(*)(void *), void *cookie=NULL);
+ 
+     /*
+      * I/O
+diff --git a/STM32F1/system/libmaple/dma_private.h b/STM32F1/system/libmaple/dma_private.h
+index b3e2385..2c01102 100644
+--- a/STM32F1/system/libmaple/dma_private.h
++++ b/STM32F1/system/libmaple/dma_private.h
+@@ -40,9 +40,13 @@
+ static inline void dma_irq_handler(dma_dev *dev, dma_tube tube)
+ {
+     void (*handler)(void) = DMA_GET_HANDLER(dev, tube);
+-    if (handler) {
++    if (handler) 
++    {
+         handler();
+-	    dma_clear_isr_bits(dev, tube); /* in case handler doesn't */
++        dma_clear_isr_bits(dev, tube); /* in case handler doesn't */
++    }else
++    {   // spurious interrupt, halt debugger
++        __asm__("bkpt 1");
+     }
+ }
+ #endif
