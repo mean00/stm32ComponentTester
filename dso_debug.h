@@ -1,5 +1,5 @@
 #pragma once
-#if 1
+#if 0
     void Logger(const char *fmt...);
     void Logger(int val);
 #else

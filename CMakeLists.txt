@@ -23,6 +23,13 @@ IF(NOT EXISTS "${PLATFORM_PATH}/patched2")
     file(WRITE "${PLATFORM_PATH}/patched2" "patched")
 ENDIF(NOT EXISTS "${PLATFORM_PATH}/patched2")
 
+IF(NOT EXISTS "${PLATFORM_PATH}/patched3")
+    MESSAGE(STATUS "Patching file in ${PLATFORM_PATH} to fix spi dma in async mode")
+    patch_file_p(2 "${PLATFORM_PATH}" "${CMAKE_SOURCE_DIR}/patches/spi_dma_async_patch2.diff")
+    file(WRITE "${PLATFORM_PATH}/patched3" "patched3")
+ENDIF(NOT EXISTS "${PLATFORM_PATH}/patched3")
+
+
 cmake_minimum_required(VERSION 3.0)
 
 # Set config depending on the MCU selected
