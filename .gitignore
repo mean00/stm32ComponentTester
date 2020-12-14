@@ -5,5 +5,7 @@ nbproject
 .vscode
 *-cache
 *-bak
+*.lib
+*.dcm
 
 
