@@ -7,6 +7,7 @@
 #define HASH 0x456F
 
 #define SLOTS_PER_PIN 20
+extern void *eeprom_begin; // exported by linker
 
 /**
  * 
@@ -17,8 +18,8 @@ class NVMeeprom  : public EEPROMClass
         NVMeeprom()
         {
             uint32_t flahSize=cpuID::getFlashSize();
-            uint32_t topAddress=(uint32)(0x8000000 + flahSize * 1024); ;
-            EEPROMClass::init(topAddress-2*EEPROM_PAGE_SIZE,topAddress-EEPROM_PAGE_SIZE,EEPROM_PAGE_SIZE);
+             uint32 pageBase0=(uint32_t)&eeprom_begin;    
+            EEPROMClass::init(pageBase0,pageBase0+0x800,0x800);
         }
 };
 
