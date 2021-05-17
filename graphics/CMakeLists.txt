@@ -1,16 +1,7 @@
-SET(ST7735_EX ${CMAKE_CURRENT_SOURCE_DIR}/ST7735/)
-ADD_DEFINITIONS(-DTINY_7735)
-SET(ADA_SRC tinyAdafruit_ST7735/tinyAdafruit_ST7735.cpp)
-SET(TESTER_GFX ${ST7735_EX}/ST7735_Gfx.cpp ${ST7735_EX}/ST7735_ex.cpp )
 
-# This is because there is spi.h and SPI.h
-# it causes problems in case insensitive filesystems
- add_definitions("-include ../../SPI/src/SPI.h")
-generate_arduino_library(${libPrefix}graphics 
-                            SRCS ${GFX} ${ADA_SRC} ${TESTER_GFX}
-                            BOARD ${ARDUINO_DEFAULT_BOARD}
-                        )
 
-TARGET_INCLUDE_DIRECTORIES(${libPrefix}graphics  PRIVATE tinyAdafruit_ST7735 . ../assets ../componentLibrary ../adc ../control)                           
-                            
-                            
+ADD_SUBDIRECTORY(simplerST7735/platformExample/stm32duino)
+generate_arduino_library(${libPrefix}llGfx
+                            SRCS ST7735_Gfx.cpp
+                            BOARD ${ARDUINO_DEFAULT_BOARD})
+target_include_directories(${libPrefix}llGfx PRIVATE simplerST7735/platformExample/stm32duino simplerST7735)
