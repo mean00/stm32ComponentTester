@@ -86,9 +86,9 @@ FOREACH(comp ${SUB_COMPONENTS})
     target_link_libraries(componentTester${EXTENSION} ${libPrefix}${comp})
 ENDFOREACH(comp ${SUB_COMPONENTS})
 
-target_include_directories(componentTester${EXTENSION} PRIVATE componentLibrary adc graphics control menu)
+target_include_directories(componentTester${EXTENSION} PRIVATE componentLibrary adc  control menu) # graphics
 
-target_link_libraries(componentTester${EXTENSION} ${libPrefix}RotaryEncoder)
+target_link_libraries(componentTester${EXTENSION} ${libPrefix}RotaryEncoder ${libPrefix}llGfx ${libPrefix}simplerST7735)
 
 MESSAGE(STATUS "\tUsing ${EXTENSION} MCU ")
 

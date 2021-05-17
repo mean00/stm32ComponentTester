@@ -35,6 +35,7 @@
 
 */
 
+#include <Arduino.h>
 #include <SPI.h>
 extern void mySetup(void);
 extern void myLoop(void);
