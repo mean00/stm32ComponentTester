@@ -685,7 +685,7 @@ Wire Wire Line
 Wire Wire Line
 	2500 2800 2500 3000
 $Comp
-L Connector:USB_B_Micro J3
+L tester-rescue:USB_B_Micro-Connector J3
 U 1 1 5E792D53
 P 9300 1950
 F 0 "J3" H 9071 1848 50  0000 R CNN
