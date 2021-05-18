@@ -1,14 +1,14 @@
-#include "ST7735_ex.h"
+#include "stm32duinoST7735.h"
 #include "testerGfx.h"
-#include "assets.h"
+#include "assets/assets.h"
 #include "cpuID.h"
 #include "testerVersion.h"
-#include "Component.h"
+#include "componentLibrary/Component.h"
 #include "pinConfiguration.h"
 #include "testerControl.h"
 
-static Adafruit_ST7735Ex *instance=NULL;
-
+static stm32duinoST7735 *instance=NULL;
+extern void xDelay(int ms);
 #define INTERLINE 15
 #define BASELINE_LAST    126
 #define BASELINE_PRELAST (BASELINE_LAST-INTERLINE)
@@ -29,7 +29,9 @@ extern const GFXfont  FONT2  ;
 //const GFXfont  FreeSansBold9pt7b 
 
 
-static void print3Pins(Adafruit_ST7735Ex *instance, int pinA, int pinB, int pinC);
+#define COLOR565(a,b,c)((a<<11)+(b<<6)+(c))
+
+static void print3Pins(st7735 *instance, int pinA, int pinB, int pinC);
 
 /**
  * 
@@ -65,13 +67,14 @@ void simple3Pole(int offset, const char *title, int pinA,int pinB,int pinC, int 
  */
 void TesterGfx::init()
 {
-    instance=new Adafruit_ST7735Ex(PIN_ST7735_CS,PIN_ST7735_RS,PIN_ST7735_RST);    
+    // do reset PIN_ST7735_RST
+    
+    instance=new stm32duinoST7735(128,128,PIN_ST7735_RS,PIN_ST7735_CS); //PIN_ST7735_CS,PIN_ST7735_RS,PIN_ST7735_RST);    
     instance->init();    
     instance->setRotation(2);
-    instance->setFontFamily(&FONT1, &FONT2, &FONT2);  
-    instance->setFont(&FONT2 /*&Waree9pt7b*/);
+    instance->setFontFamily(&FONT1, &FONT2, &FONT2);      
     instance->fillScreen(0x0);      
-    instance->setFontSize(Adafruit_ST7735Ex::MediumFont);
+    instance->setFontSize(st7735::MediumFont);
     instance->setTextColor(0xFFFF,0);    
 }
 /**
@@ -89,7 +92,7 @@ void TesterGfx::splash()
     instance->print( TESTER_VERSION );
     
     
-    instance->setFontSize(Adafruit_ST7735Ex::SmallFont);
+    instance->setFontSize(st7735::SmallFont);
     instance->setCursor(0,LINE(4)-4);        
     instance->print( TESTER_CONFIGURATION );
     
@@ -102,7 +105,7 @@ void TesterGfx::splash()
     
     instance->setCursor(0,LINE(4)+12);
     instance->print(cpuID::getIdAsString());
-    instance->setFontSize(Adafruit_ST7735Ex::MediumFont);    
+    instance->setFontSize(st7735::MediumFont);    
     xDelay(600);
     instance->fillScreen(0x0);
 }
@@ -121,7 +124,7 @@ void TesterGfx::title(const char *x)
 {
     
     TesterGfx::clear();
-    instance->setTextColor( instance-> Color565(0,255,0),0);
+    instance->setTextColor( COLOR565(0,255,0),0);
     instance->setCursor(4,18);
     instance->print(x);
     instance->setTextColor(0xffff,0) ;    
@@ -150,7 +153,7 @@ void TesterGfx::progress6(int pg)
  */
 void TesterGfx::bottomLine(const char *x)
 {
-    instance->setTextColor( instance-> Color565(0,0,255),0);
+    instance->setTextColor( COLOR565(0,0,255),0);
     instance->setCursor(4,128-18);
     instance->print(x);
     instance->setTextColor(0xffff,0) ;    
@@ -161,7 +164,7 @@ void TesterGfx::bottomLine(const char *x)
  */
 void TesterGfx::topLine(const char *x)
 {
-    instance->setTextColor( instance-> Color565(0,0,255),0);
+    instance->setTextColor( COLOR565(0,0,255),0);
     instance->setCursor(4,20);
     instance->print(x);
     instance->setTextColor(0xffff,0) ;    
@@ -172,9 +175,9 @@ void TesterGfx::topLine(const char *x)
 void TesterGfx::highlight(bool onoff)
 {
     if(onoff)
-        instance->setTextColor( instance-> Color565(0,255,0),0);
+        instance->setTextColor( COLOR565(0,255,0),0);
     else
-        instance->setTextColor( instance-> Color565(255,255,255),0);
+        instance->setTextColor( COLOR565(255,255,255),0);
 }
 /**
  */
@@ -192,14 +195,14 @@ void TesterGfx::print(int x, int y, const char *txt)
  */
 void TesterGfx::printSmall(int x, int y, const char *txt)
 {
-    instance->setFontSize(Adafruit_ST7735Ex::SmallFont);    
+    instance->setFontSize(st7735::SmallFont);    
     instance->setCursor(x,y);
     instance->print(txt);
-    instance->setFontSize(Adafruit_ST7735Ex::MediumFont);
+    instance->setFontSize(st7735::MediumFont);
 };
 
 
-static void print2Pins(Adafruit_ST7735Ex *instance, int pinA, int pinB, int line)
+static void print2Pins(st7735 *instance, int pinA, int pinB, int line)
 {
       instance->setTextColor(0x1f,0);      
       instance->setCursor(CAP_COL1,line);
@@ -220,7 +223,7 @@ static void print2Pins(Adafruit_ST7735Ex *instance, int pinA, int pinB, int line
 
 
 // Left Bottom Up
-void print3Pins(Adafruit_ST7735Ex *instance, int pinA, int pinB, int pinC)
+void print3Pins(st7735 *instance, int pinA, int pinB, int pinC)
 {
       instance->setTextColor(0x1f,0);      
       instance->setCursor(P_LEFT_X,P_MID_Y);
@@ -287,11 +290,11 @@ void TesterGfx::drawPNP(float hfe, float vf,int base, int emitter,int collector)
       instance->print(st);
       
 }
-void drawMosfetInfo(Adafruit_ST7735Ex *instance, int page, float RdsOn, float Cg, float VfOn,float Vdiode)
+void drawMosfetInfo(st7735 *instance, int page, float RdsOn, float Cg, float VfOn,float Vdiode)
 {
     char st[64];
-      instance->setFontSize(Adafruit_ST7735Ex::SmallFont);
-      instance->fillRect(0,BASELINE_PRELAST2,128,128,0x0);
+      instance->setFontSize(st7735::SmallFont);
+      instance->square(0,  0,BASELINE_PRELAST2,128,128);
       if(!page)
       {
         instance->setCursor(5,BASELINE_PRELAST);
@@ -311,7 +314,7 @@ void drawMosfetInfo(Adafruit_ST7735Ex *instance, int page, float RdsOn, float Cg
         Component::prettyPrintPrefix("Vt:",VfOn, "V",st);      
         instance->print(st);     
       }
-      instance->setFontSize(Adafruit_ST7735Ex::MediumFont);          
+      instance->setFontSize(st7735::MediumFont);          
 }
 /**
  * 

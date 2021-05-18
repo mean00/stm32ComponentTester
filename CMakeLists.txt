@@ -57,7 +57,7 @@ ADD_DEFINITIONS("-g3")
 MESSAGE(STATUS "**** Configuration is ** ${CONFIGURATION} **")
 include_directories(configurations/${CONFIGURATION})
 ADD_DEFINITIONS(-D__NOP="" -DTESTER_CONFIGURATION="${CONFIGURATION}")
-SET(SUB_COMPONENTS FreeRTOS adc graphics assets componentLibrary menu eprintf)
+SET(SUB_COMPONENTS FreeRTOS adc  assets componentLibrary menu eprintf)
 
 
 include_directories(eprintf/src)
@@ -65,9 +65,12 @@ include_directories(${CMAKE_SOURCE_DIR})
 include_directories(FreeRTOS/Source/include)
 include_directories(FreeRTOS/)
 include_directories(utils)
+include_directories(adc)
+include_directories(graphics)
+include_directories(control)
 
 # Build 
-FOREACH(comp ${SUB_COMPONENTS} control)
+FOREACH(comp ${SUB_COMPONENTS} control graphics)
     add_subdirectory(${comp})
 ENDFOREACH(comp ${SUB_COMPONENTS} control)
 

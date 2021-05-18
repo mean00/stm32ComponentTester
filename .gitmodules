@@ -22,3 +22,6 @@
 [submodule "adc"]
 	path = adc
 	url = https://github.com/mean00/stm32duino_adc.git
+[submodule "graphics/simplerST7735"]
+	path = graphics/simplerST7735
+	url = https://github.com/mean00/simplerST7735.git
