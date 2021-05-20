@@ -303,7 +303,7 @@ bool     TestPin::prepareTimerSample(int frequency,int nbSamples)
 {
     adc->setADCPin(_pin);    
     adc->setupTimerSampling();
-    adc->prepareTimerSampling(frequency,false,ADC_SMPR_1_5,DSOADC::ADC_PRESCALER_2);
+    adc->prepareTimerSampling(frequency,1,ADC_SMPR_1_5,DSOADC::ADC_PRESCALER_2);
     adc->clearSemaphore();
     return adc->startTimerSampling(nbSamples);
 }

@@ -119,7 +119,7 @@ public:
         if(!apparentDivider) xAssert(0);
         // ADC is running X cycles faster than repeat
         // Same thing as ~ adc running at  X Cycle
-        if(!adc->prepareTimerSampling(timerScaler,timerOvf+apparentDivider,false,rate,prescaler))
+        if(!adc->prepareTimerSampling(timerScaler,timerOvf+apparentDivider,1,rate,prescaler))
         {
             xAssert(0);
             return false;
@@ -162,7 +162,7 @@ public:
         // ADC is running X cycles faster than repeat
         // Same thing as ~ adc running at  X Cycle
         Logger("Waveform : clockPerSample=%d timerScaler=%d timerOvf=%d apparentDivider=%d",clockPerSample,timerScaler,timerOvf,apparentDivider);
-        if(!adc->prepareDualTimerSampling(timerScaler,timerOvf+apparentDivider,false,rate,prescaler))
+        if(!adc->prepareDualTimerSampling(timerScaler,timerOvf+apparentDivider,1,rate,prescaler))
         {
             xAssert(0);
             return false;
