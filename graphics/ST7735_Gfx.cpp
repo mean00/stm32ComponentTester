@@ -69,9 +69,17 @@ void TesterGfx::init()
 {
     // do reset PIN_ST7735_RST
     
+    
+    pinMode(PIN_ST7735_RST,OUTPUT);
+    digitalWrite(PIN_ST7735_RST,HIGH);
+    xDelay(50);
+    digitalWrite(PIN_ST7735_RST,LOW);
+    xDelay(50);
+    digitalWrite(PIN_ST7735_RST,HIGH);
+    
     instance=new stm32duinoST7735(128,128,PIN_ST7735_RS,PIN_ST7735_CS); //PIN_ST7735_CS,PIN_ST7735_RS,PIN_ST7735_RST);    
     instance->init();    
-    instance->setRotation(2);
+    instance->setRotation(0);
     instance->setFontFamily(&FONT1, &FONT2, &FONT2);      
     instance->fillScreen(0x0);      
     instance->setFontSize(st7735::MediumFont);
